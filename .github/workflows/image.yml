@@ -1,6 +1,6 @@
 # Packages a published release's ZIP (the built site) into the ARM64 static web
 # image the homelab runs, ghcr.io/jfilipegm/settle, and promotes it to :latest.
-# Called by release.yml right after it publishes a release; run by hand from
+# Called by ci.yml right after release.yml publishes a release; run by hand from
 # the Actions tab to package an existing release (for example the first one).
 # How it fits together: container/README.md.
 name: Image
@@ -44,7 +44,7 @@ jobs:
       TAG: ${{ inputs.tag }}
       GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
       - name: Check the tag
@@ -81,7 +81,7 @@ jobs:
             "no such manifest:"*|"manifest unknown"|"manifest unknown:"*) ;;
             *) echo "::error::Could not verify that $IMAGE:$VERSION is unused."; echo "$result" >&2; exit 1 ;;
           esac
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
       - name: Build the image and smoke-test it
         run: |
           cp container/Dockerfile container/nginx.conf "$RUNNER_TEMP/context/"

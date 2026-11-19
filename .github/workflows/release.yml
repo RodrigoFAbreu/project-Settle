@@ -1,18 +1,21 @@
-# Publishes a GitHub Release for every push to master: the next semantic
+# Publishes a GitHub Release for every commit on master: the next semantic
 # version tag, auto-generated notes (the PRs merged since the previous tag)
 # and the built site as a zip. The bump comes from those PRs' Conventional
 # Commit titles (enforced by pr-title.yml): a breaking change ("!") bumps
-# major, feat bumps minor, anything else bumps patch. master only receives
-# commits through PRs that passed the required checks; the release re-runs
-# them anyway before publishing.
+# major, feat bumps minor, anything else bumps patch. Called by ci.yml on
+# master once CI passed on that exact commit; ci.yml then calls image.yml
+# with the tag this outputs.
 name: Release
 
 on:
-  push:
-    branches: [master]
+  workflow_call:
+    outputs:
+      tag:
+        description: The version published, empty when HEAD was already released
+        value: ${{ jobs.release.outputs.tag }}
 
 permissions:
-  contents: write
+  contents: read
 
 # One release at a time, in push order, so two quick merges can't both
 # compute the same next version.
@@ -27,20 +30,21 @@ defaults:
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       # Empty when HEAD was already released: nothing new to package.
       tag: ${{ steps.version.outputs.skip != 'true' && steps.version.outputs.tag || '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0 # tags, to find the previous version
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version-file: app/.nvmrc
           cache: npm
           cache-dependency-path: app/package-lock.json
       - run: npm ci
-      - run: npm run check
       - run: npm run build
 
       - name: Pick the next version
@@ -90,16 +94,3 @@ jobs:
             --target "$GITHUB_SHA" \
             --title "$TAG" \
             --generate-notes
-
-  # The homelab's static web image for the release just published
-  # (image.yml, container/README.md). A GITHUB_TOKEN-created release does not
-  # trigger other workflows, so this calls it directly.
-  image:
-    needs: release
-    if: needs.release.outputs.tag != ''
-    permissions:
-      contents: read
-      packages: write
-    uses: ./.github/workflows/image.yml
-    with:
-      tag: ${{ needs.release.outputs.tag }}

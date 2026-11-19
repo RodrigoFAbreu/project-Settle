@@ -1,0 +1,75 @@
+name: CI
+
+# Runs on every pull request and on every push to master, every part of it. On
+# master, once CI passed, the same run publishes the release and then the
+# homelab image for it, so the exact commit on master is re-validated before it
+# is tagged. Each part is a reusable workflow that can also be run alone from
+# the Actions tab:
+#
+#   ci-app.yml    the web app: typecheck, lint, format, tests, build, browser smoke test
+#   ci-image.yml  the container image (container/), built from this commit's app
+#                 build and smoke-tested as the homelab runs it
+#
+# Two workflows stay outside it on purpose: workflow-conformance.yml is managed
+# by workflow-manager and never patched here, and pr-title.yml must re-run when
+# a title is edited without repeating the build.
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Supersede outdated runs for the same PR. On master the group is unique per
+# run; release.yml and image.yml serialize themselves.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  app:
+    uses: ./.github/workflows/ci-app.yml
+  image:
+    uses: ./.github/workflows/ci-image.yml
+
+  # The one check from this workflow that branch protection on master requires.
+  # It fails unless every part succeeded, so a skipped, cancelled or failed part
+  # never passes. A new part is added to `needs`.
+  passed:
+    name: CI passed
+    if: ${{ always() }}
+    needs: [app, image]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          echo "$RESULTS" | jq --raw-output 'to_entries[] | "\(.key): \(.value.result)"'
+          failed=$(echo "$RESULTS" | jq --raw-output '[to_entries[] | select(.value.result != "success") | .key] | join(", ")')
+          if [ -n "$failed" ]; then
+            echo "::error::These parts of CI did not succeed: $failed; see their jobs above."
+            exit 1
+          fi
+
+  release:
+    needs: passed
+    if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+    permissions:
+      contents: write
+    uses: ./.github/workflows/release.yml
+
+  # The homelab's static web image for the release just published
+  # (container/README.md). A release created with GITHUB_TOKEN does not trigger
+  # other workflows, so it is called here with the new tag.
+  publish-image:
+    needs: release
+    if: needs.release.outputs.tag != ''
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/image.yml
+    with:
+      tag: ${{ needs.release.outputs.tag }}

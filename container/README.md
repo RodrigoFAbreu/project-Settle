@@ -13,8 +13,12 @@ packages it into an unprivileged nginx image that the homelab runs.
 
 ## How a release becomes an image
 
-1. A PR merges to `master`; `release.yml` publishes `vX.Y.Z` with `settle-vX.Y.Z.zip`.
-2. `release.yml` calls `image.yml` with that tag. A release created by
+0. On every PR, `ci-image.yml` (part of `ci.yml`) builds the image from that
+   commit's own app build and runs `smoke-test.sh`, so a change here is
+   checked before it merges.
+1. A PR merges to `master`; `ci.yml` re-runs CI on the merged commit and then
+   calls `release.yml`, which publishes `vX.Y.Z` with `settle-vX.Y.Z.zip`.
+2. `ci.yml` calls `image.yml` with that tag. A release created by
    `GITHUB_TOKEN` cannot trigger other workflows, so the call is direct.
 3. `image.yml` downloads the ZIP, checks it against the SHA-256 digest GitHub
    records for the release asset, refuses to overwrite an existing `X.Y.Z` tag,

@@ -66,18 +66,20 @@ and `master` is protected.
 
 ### What a PR to `master` must satisfy
 
-- **All required checks pass.** `app` (app-ci.yml) and
-  `workflow-conformance` are required. `pr-title` is required too, once
-  its workflow is on `master`. The branch must be up to date with
-  `master`. Branch protection enforces this for admins too.
+- **All required checks pass.** `CI passed` (ci.yml: the app, via
+  ci-app.yml, and the container image, via ci-image.yml) and
+  `workflow-conformance` are required. `Conventional Commit title`
+  (pr-title.yml) is required too, once its workflow is on `master`. The
+  branch must be up to date with `master`. Branch protection enforces this
+  for admins too.
 - **The PR adds something,** and its title states what, as a
   Conventional Commit: `feat:` (a feature), `fix:` (a bug fix), or
   `perf:`, `refactor:`, `docs:`, `test:`, `build:`, `ci:`, `chore:`,
   `style:`, `revert:`. An optional scope is allowed (`feat(m1): ...`).
   Add `!` after the type or scope for a breaking change (`feat!: ...`).
-  The `pr-title` check enforces the format.
+  The `Conventional Commit title` check enforces the format.
 - **The title sets the release version.** Every push to `master`
-  publishes a GitHub Release (release.yml). The bump comes from the
+  publishes a GitHub Release (release.yml, called by ci.yml once CI passed) and its container image (image.yml). The bump comes from the
   titles of the PRs merged since the previous tag: `!` → major,
   `feat` → minor, anything else → patch.
 

@@ -1,10 +1,14 @@
-# The web app's checks (app/). Separate from workflow-conformance.yml, which
-# covers the workflow tooling at the repository root.
-name: App CI
+# The web app's checks (app/), one part of ci.yml. Called by ci.yml; also
+# runnable alone from the Actions tab. Separate from workflow-conformance.yml,
+# which covers the workflow tooling at the repository root.
+name: CI - App
 
 on:
-  push:
-  pull_request:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 defaults:
   run:
@@ -14,13 +18,13 @@ jobs:
   app:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # The whole history, every branch and tag: the test that no real
           # receipt is in any commit (R17) refuses to pass on a shallow
           # clone, since it would miss one committed and then deleted.
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version-file: app/.nvmrc
           cache: npm
@@ -30,7 +34,7 @@ jobs:
       # scripts/vendor-paddle.mjs, which pins their revision and SHA-256s:
       # the key follows that file, so a changed pin downloads afresh and a
       # restored file is still checked against its hash.
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: app/.paddle-models
           key: paddle-models-${{ hashFiles('app/scripts/vendor-paddle.mjs') }}
