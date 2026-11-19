@@ -1,0 +1,60 @@
+name: CI
+
+# Runs on every pull request and on every push to main, every part of it. On
+# main, once CI passed, the same run releases and publishes the homelab image,
+# so the exact commit on main is re-validated before it is tagged.
+#
+#   tests.yml              the web app's checks and the container image's build
+#                          and smoke test
+#   build-and-publish.yml  the GitHub release, then the ARM64 image and :latest
+#
+# Two workflows stay outside it on purpose: workflow-conformance.yml is managed
+# by workflow-manager and never patched here, and pr-title.yml must re-run when
+# a title is edited without repeating the build.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Supersede outdated runs for the same PR. On main the group is unique per
+# run; build-and-publish.yml serializes itself.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  tests:
+    uses: ./.github/workflows/tests.yml
+
+  # The one check from this workflow that branch protection on main requires.
+  # It fails unless every part succeeded, so a skipped, cancelled or failed part
+  # never passes. A new part is added to `needs`.
+  passed:
+    name: CI passed
+    if: ${{ always() }}
+    needs: [tests]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: |
+          echo "$RESULTS" | jq --raw-output 'to_entries[] | "\(.key): \(.value.result)"'
+          failed=$(echo "$RESULTS" | jq --raw-output '[to_entries[] | select(.value.result != "success") | .key] | join(", ")')
+          if [ -n "$failed" ]; then
+            echo "::error::These parts of CI did not succeed: $failed; see their jobs above."
+            exit 1
+          fi
+
+  build-and-publish:
+    name: Build and publish
+    needs: passed
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    permissions:
+      contents: write
+      packages: write
+    uses: ./.github/workflows/build-and-publish.yml

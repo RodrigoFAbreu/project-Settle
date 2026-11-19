@@ -1,28 +1,28 @@
 # Every PR must say what it adds, as a Conventional Commit title such as
 # "feat(m1): bill splitter" or "fix: rounding in allocate". The release
-# workflow reads these titles to choose the version bump.
+# workflow reads these titles to choose the version bump. The check itself is
+# the shared RodrigoFAbreu/action-workflows pr-title.yml. A workflow of its own,
+# outside ci.yml, so a title edit re-runs it without repeating the build.
 name: PR title
 
 on:
   pull_request:
-    types: [opened, edited, synchronize, reopened]
+    types: [opened, edited, reopened, synchronize]
 
-permissions: {}
+permissions:
+  contents: read
 
 jobs:
-  pr-title:
+  title:
+    uses: RodrigoFAbreu/action-workflows/.github/workflows/pr-title.yml@main
+  # Named for the required check, so a change to the jobs above never touches
+  # branch protection.
+  required:
+    name: Conventional Commit title
+    needs: title
+    if: always()
     runs-on: ubuntu-latest
     steps:
-      - name: Check the title is a Conventional Commit
-        env:
-          # Through env, never interpolated into the script: titles are
-          # user input.
-          TITLE: ${{ github.event.pull_request.title }}
-        run: |
-          pattern='^(feat|fix|perf|refactor|docs|test|build|ci|chore|style|revert)(\([A-Za-z0-9._/-]+\))?!?: [^ ].*'
-          if [[ "$TITLE" =~ $pattern ]]; then
-            echo "OK: $TITLE"
-          else
-            echo "::error::PR title must look like 'type(scope)?: description', where type is feat, fix, perf, refactor, docs, test, build, ci, chore, style or revert (add ! for a breaking change). Got: $TITLE"
-            exit 1
-          fi
+      - env:
+          RESULT: ${{ needs.title.result }}
+        run: test "$RESULT" = success

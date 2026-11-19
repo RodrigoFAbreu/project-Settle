@@ -33,7 +33,7 @@ Also: `npm test` (tests once), `npm run test:watch`, `npm run lint`,
 `npm run typecheck`, `npm run format` (rewrites files) and
 `npm run format:check`.
 
-CI (`.github/workflows/app-ci.yml`) runs `npm ci`, `typecheck`, `lint`,
+CI (`.github/workflows/tests.yml`, called by `ci.yml`) runs `npm ci`, `typecheck`, `lint`,
 `format:check`, `test` and `build`, in that order.
 
 ## Folder layout

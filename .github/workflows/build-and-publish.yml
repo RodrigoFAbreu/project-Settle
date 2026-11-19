@@ -1,0 +1,212 @@
+name: Build and publish
+
+# Releases the commit and publishes its homelab image. Called by ci.yml on main
+# once CI passed on that commit; run by hand from the Actions tab with a tag to
+# package an existing release (for example the first one, v0.7.0) instead.
+#
+#   release  publishes a GitHub Release for every commit on main: the next
+#            semantic version tag, auto-generated notes (the PRs merged since the
+#            previous tag) and the built site as a zip. The bump comes from those
+#            PRs' Conventional Commit titles (enforced by pr-title.yml): a
+#            breaking change ("!") bumps major, feat bumps minor, anything else
+#            bumps patch.
+#   image    packages that release's ZIP into ghcr.io/rodrigofabreu/settle (ARM64),
+#            smoke-tests it and pushes X.Y.Z. A release created with
+#            GITHUB_TOKEN does not trigger other workflows, so it runs here.
+#   latest   promotes the image to :latest (shared promote-image.yml).
+#
+# How it fits together: container/README.md.
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: Package this existing release instead of releasing
+        type: string
+        required: false
+        default: ''
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Package this existing release (such as v0.7.0) instead of releasing
+        type: string
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+# One release at a time, in push order, so two quick merges can't both compute
+# the same next version, and :latest follows the newest completed image.
+concurrency:
+  group: build-and-publish
+  cancel-in-progress: false
+
+env:
+  IMAGE: ghcr.io/rodrigofabreu/settle
+
+jobs:
+  release:
+    name: Publish the release
+    # Not when packaging an existing release by hand (the tag input).
+    if: ${{ inputs.tag == '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        working-directory: app
+    outputs:
+      # Empty when HEAD was already released: nothing new to package.
+      tag: ${{ steps.version.outputs.skip != 'true' && steps.version.outputs.tag || '' }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # tags, to find the previous version
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: app/.nvmrc
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+      - name: Pick the next version
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -n "$(git tag --points-at HEAD --list 'v*.*.*')" ]; then
+            echo "HEAD is already released; nothing to do."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          last=$(git tag --list 'v*.*.*' --sort=-v:refname | head -n 1)
+          range=${last:+$last..}HEAD
+
+          # PRs merged since the last release, from main's merge commits.
+          bump=patch
+          for pr in $(git log --first-parent --merges --format=%s "$range" \
+                      | sed -n 's/^Merge pull request #\([0-9]*\).*/\1/p'); do
+            title=$(gh pr view "$pr" --json title --jq .title)
+            echo "#$pr: $title"
+            if [[ "$title" =~ ^[a-z]+(\([^\)]*\))?!: ]]; then
+              bump=major
+            elif [[ "$title" =~ ^feat(\([^\)]*\))?: && "$bump" != major ]]; then
+              bump=minor
+            fi
+          done
+
+          IFS=. read -r major minor patch <<< "${last#v}"
+          major=${major:-0} minor=${minor:-0} patch=${patch:-0}
+          case $bump in
+            major) next="v$((major + 1)).0.0" ;;
+            minor) next="v$major.$((minor + 1)).0" ;;
+            *)     next="v$major.$minor.$((patch + 1))" ;;
+          esac
+          echo "Previous: ${last:-none}, bump: $bump, next: $next"
+          echo "tag=$next" >> "$GITHUB_OUTPUT"
+
+      - name: Publish the release
+        if: steps.version.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          (cd dist && zip -qr "../settle-$TAG.zip" .)
+          gh release create "$TAG" "settle-$TAG.zip" \
+            --target "$GITHUB_SHA" \
+            --title "$TAG" \
+            --generate-notes
+
+  image:
+    name: Build and publish the ARM64 image
+    needs: release
+    # The release just published, or the tag given by hand; nothing when HEAD was
+    # already released.
+    if: ${{ !cancelled() && needs.release.result != 'failure' && (inputs.tag || needs.release.outputs.tag) != '' }}
+    # Native ARM64 runner: the image is smoke-tested as it will run.
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image_ref: ${{ steps.publish.outputs.image_ref }}
+    env:
+      TAG: ${{ inputs.tag || needs.release.outputs.tag }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Check the tag
+        run: |
+          [[ "$TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] \
+            || { echo "::error::Expected a release tag such as v0.7.0, got: $TAG"; exit 1; }
+          echo "VERSION=${TAG#v}" >> "$GITHUB_ENV"
+      - name: Download the release ZIP and check it against the release's digest
+        run: |
+          mkdir -p "$RUNNER_TEMP/context"
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" \
+            --pattern "settle-$TAG.zip" --output "$RUNNER_TEMP/context/settle.zip"
+          want=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets \
+            --jq ".assets[] | select(.name == \"settle-$TAG.zip\") | .digest")
+          test -n "$want"
+          got="sha256:$(sha256sum "$RUNNER_TEMP/context/settle.zip" | cut -d' ' -f1)"
+          if [[ "$got" != "$want" ]]; then
+            echo "::error::Downloaded ZIP is $got, the release records $want"
+            exit 1
+          fi
+      - name: Refuse to overwrite a published version
+        env:
+          GHCR_TOKEN: ${{ github.token }}
+        run: |
+          export DOCKER_CONFIG
+          DOCKER_CONFIG=$(mktemp -d)
+          trap 'rm -rf "$DOCKER_CONFIG"' EXIT
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          if result=$(docker manifest inspect "$IMAGE:$VERSION" 2>&1); then
+            echo "::error::$IMAGE:$VERSION already exists; published versions are immutable."
+            exit 1
+          fi
+          case "$result" in
+            "no such manifest:"*|"manifest unknown"|"manifest unknown:"*) ;;
+            *) echo "::error::Could not verify that $IMAGE:$VERSION is unused."; echo "$result" >&2; exit 1 ;;
+          esac
+      - uses: docker/setup-buildx-action@v4
+      - name: Build the image and smoke-test it
+        run: |
+          cp container/Dockerfile container/nginx.conf "$RUNNER_TEMP/context/"
+          docker buildx build --platform linux/arm64 --load \
+            --build-arg "SETTLE_VERSION=$VERSION" \
+            --build-arg "SOURCE_REVISION=$GITHUB_SHA" \
+            --tag "$IMAGE:$GITHUB_SHA" "$RUNNER_TEMP/context"
+          container/smoke-test.sh "$IMAGE:$GITHUB_SHA" "$RUNNER_TEMP/context/settle.zip"
+      - name: Publish
+        id: publish
+        env:
+          GHCR_TOKEN: ${{ github.token }}
+        run: |
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
+          trap 'docker logout ghcr.io >/dev/null' EXIT
+          # A plain single-platform manifest (no attestation index), so the
+          # promotion below and the homelab's digest tracking see one image.
+          docker buildx build --platform linux/arm64 --provenance=false --sbom=false \
+            --build-arg "SETTLE_VERSION=$VERSION" \
+            --build-arg "SOURCE_REVISION=$GITHUB_SHA" \
+            --tag "$IMAGE:$VERSION" --tag "$IMAGE:$GITHUB_SHA" \
+            --push --metadata-file "$RUNNER_TEMP/metadata.json" "$RUNNER_TEMP/context"
+          digest=$(jq -r '."containerimage.digest"' "$RUNNER_TEMP/metadata.json")
+          [[ "$digest" =~ ^sha256:[a-f0-9]{64}$ ]]
+          echo "image_ref=$IMAGE@$digest" >> "$GITHUB_OUTPUT"
+          echo "$IMAGE:$VERSION ($digest)" >> "$GITHUB_STEP_SUMMARY"
+
+  latest:
+    name: Promote the image to latest
+    needs: image
+    permissions:
+      contents: read
+      packages: write
+    uses: RodrigoFAbreu/action-workflows/.github/workflows/promote-image.yml@main
+    with:
+      image: ghcr.io/rodrigofabreu/settle
+      source: ${{ needs.image.outputs.image_ref }}
