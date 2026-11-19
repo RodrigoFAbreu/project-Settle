@@ -8,3 +8,6 @@ design-ideas/
 
 # playwright-cli session files (snapshots, console logs)
 .playwright-cli/
+
+# Container image build input (container/README.md)
+container/settle.zip

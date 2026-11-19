@@ -27,6 +27,9 @@ defaults:
 jobs:
   release:
     runs-on: ubuntu-latest
+    outputs:
+      # Empty when HEAD was already released: nothing new to package.
+      tag: ${{ steps.version.outputs.skip != 'true' && steps.version.outputs.tag || '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -87,3 +90,16 @@ jobs:
             --target "$GITHUB_SHA" \
             --title "$TAG" \
             --generate-notes
+
+  # The homelab's static web image for the release just published
+  # (image.yml, container/README.md). A GITHUB_TOKEN-created release does not
+  # trigger other workflows, so this calls it directly.
+  image:
+    needs: release
+    if: needs.release.outputs.tag != ''
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/image.yml
+    with:
+      tag: ${{ needs.release.outputs.tag }}
