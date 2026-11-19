@@ -42,19 +42,19 @@ on update. Add repository-specific guidance below it; it is never touched.
 This section overrides the managed "Git restrictions" above wherever they
 conflict. The remote is `origin`, https://github.com/RodrigoFAbreu/project-Settle (a
 fork of jfilipegm/project-Settle, kept as the `upstream` remote), and
-`master` is protected.
+`main` is protected.
 
 ### One branch and one PR per milestone
 
-1. **Start from an up-to-date `master`.** Before planning milestone X,
-   run `git switch master && git pull`, then
+1. **Start from an up-to-date `main`.** Before planning milestone X,
+   run `git switch main && git pull`, then
    `git switch -c feature/milestone-X`. X is the number of the milestone
    this branch works on: M1 is built on `feature/milestone-1`, M2 on
    `feature/milestone-2`, and so on. Do this only after the previous
-   milestone's PR is merged into `master`.
+   milestone's PR is merged into `main`.
 2. **Open the PR after the first commit** on `feature/milestone-X`. Push
    the branch (`git push -u origin feature/milestone-X`), then
-   `gh pr create --base master`. Give it a Conventional Commits title,
+   `gh pr create --base main`. Give it a Conventional Commits title,
    such as `feat(m1): bill splitter`, and a short description of what the
    milestone delivers for the user.
 3. **Commit and push freely** on that branch. Any commit the milestone
@@ -65,13 +65,13 @@ fork of jfilipegm/project-Settle, kept as the `upstream` remote), and
 5. **After the user merges the PR,** go back to step 1 for the next
    milestone.
 
-### What a PR to `master` must satisfy
+### What a PR to `main` must satisfy
 
 - **All required checks pass.** `CI passed` (ci.yml: the app checks and the
   container image check, via tests.yml) and
   `workflow-conformance` are required. `Conventional Commit title`
-  (pr-title.yml) is required too, once its workflow is on `master`. The
-  branch must be up to date with `master`. Branch protection enforces this
+  (pr-title.yml) is required too, once its workflow is on `main`. The
+  branch must be up to date with `main`. Branch protection enforces this
   for admins too.
 - **The PR adds something,** and its title states what, as a
   Conventional Commit: `feat:` (a feature), `fix:` (a bug fix), or
@@ -79,7 +79,7 @@ fork of jfilipegm/project-Settle, kept as the `upstream` remote), and
   `style:`, `revert:`. An optional scope is allowed (`feat(m1): ...`).
   Add `!` after the type or scope for a breaking change (`feat!: ...`).
   The `Conventional Commit title` check enforces the format.
-- **The title sets the release version.** Every push to `master`
+- **The title sets the release version.** Every push to `main`
   publishes a GitHub Release and its container image (build-and-publish.yml,
   called by ci.yml once CI passed). The bump comes from the
   titles of the PRs merged since the previous tag: `!` → major,
@@ -92,7 +92,7 @@ fork of jfilipegm/project-Settle, kept as the `upstream` remote), and
   merged with a **merge commit**; squash and rebase merges are disabled,
   because they would drop the per-checkpoint commits and their workflow
   trailers.
-- Never commit or push to `master` directly.
+- Never commit or push to `main` directly.
 - Never force-push. Never rebase, amend or otherwise rewrite a commit
   that has been pushed.
 - Don't touch unrelated working-tree changes.

@@ -1,8 +1,8 @@
 name: CI
 
-# Runs on every pull request and on every push to master, every part of it. On
-# master, once CI passed, the same run releases and publishes the homelab image,
-# so the exact commit on master is re-validated before it is tagged.
+# Runs on every pull request and on every push to main, every part of it. On
+# main, once CI passed, the same run releases and publishes the homelab image,
+# so the exact commit on main is re-validated before it is tagged.
 #
 #   tests.yml              the web app's checks and the container image's build
 #                          and smoke test
@@ -14,13 +14,13 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [master]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
 
-# Supersede outdated runs for the same PR. On master the group is unique per
+# Supersede outdated runs for the same PR. On main the group is unique per
 # run; build-and-publish.yml serializes itself.
 concurrency:
   group: ci-${{ github.event.pull_request.number || github.run_id }}
@@ -30,7 +30,7 @@ jobs:
   tests:
     uses: ./.github/workflows/tests.yml
 
-  # The one check from this workflow that branch protection on master requires.
+  # The one check from this workflow that branch protection on main requires.
   # It fails unless every part succeeded, so a skipped, cancelled or failed part
   # never passes. A new part is added to `needs`.
   passed:
@@ -53,7 +53,7 @@ jobs:
   build-and-publish:
     name: Build and publish
     needs: passed
-    if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     permissions:
       contents: write
       packages: write

@@ -1,10 +1,10 @@
 name: Build and publish
 
-# Releases the commit and publishes its homelab image. Called by ci.yml on master
+# Releases the commit and publishes its homelab image. Called by ci.yml on main
 # once CI passed on that commit; run by hand from the Actions tab with a tag to
 # package an existing release (for example the first one, v0.7.0) instead.
 #
-#   release  publishes a GitHub Release for every commit on master: the next
+#   release  publishes a GitHub Release for every commit on main: the next
 #            semantic version tag, auto-generated notes (the PRs merged since the
 #            previous tag) and the built site as a zip. The bump comes from those
 #            PRs' Conventional Commit titles (enforced by pr-title.yml): a
@@ -83,7 +83,7 @@ jobs:
           last=$(git tag --list 'v*.*.*' --sort=-v:refname | head -n 1)
           range=${last:+$last..}HEAD
 
-          # PRs merged since the last release, from master's merge commits.
+          # PRs merged since the last release, from main's merge commits.
           bump=patch
           for pr in $(git log --first-parent --merges --format=%s "$range" \
                       | sed -n 's/^Merge pull request #\([0-9]*\).*/\1/p'); do

@@ -16,7 +16,7 @@ packages it into an unprivileged nginx image that the homelab runs.
 0. On every PR, the `image` job of `tests.yml` (part of `ci.yml`) builds the image from that
    commit's own app build and runs `smoke-test.sh`, so a change here is
    checked before it merges.
-1. A PR merges to `master`; `ci.yml` re-runs CI on the merged commit and then
+1. A PR merges to `main`; `ci.yml` re-runs CI on the merged commit and then
    calls `build-and-publish.yml`, whose `release` job publishes `vX.Y.Z` with
    `settle-vX.Y.Z.zip`.
 2. Its `image` job packages that tag. A release created by `GITHUB_TOKEN`
