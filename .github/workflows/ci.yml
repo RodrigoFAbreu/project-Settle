@@ -1,14 +1,12 @@
 name: CI
 
 # Runs on every pull request and on every push to master, every part of it. On
-# master, once CI passed, the same run publishes the release and then the
-# homelab image for it, so the exact commit on master is re-validated before it
-# is tagged. Each part is a reusable workflow that can also be run alone from
-# the Actions tab:
+# master, once CI passed, the same run releases and publishes the homelab image,
+# so the exact commit on master is re-validated before it is tagged.
 #
-#   ci-app.yml    the web app: typecheck, lint, format, tests, build, browser smoke test
-#   ci-image.yml  the container image (container/), built from this commit's app
-#                 build and smoke-tested as the homelab runs it
+#   tests.yml              the web app's checks and the container image's build
+#                          and smoke test
+#   build-and-publish.yml  the GitHub release, then the ARM64 image and :latest
 #
 # Two workflows stay outside it on purpose: workflow-conformance.yml is managed
 # by workflow-manager and never patched here, and pr-title.yml must re-run when
@@ -23,16 +21,14 @@ permissions:
   contents: read
 
 # Supersede outdated runs for the same PR. On master the group is unique per
-# run; release.yml and image.yml serialize themselves.
+# run; build-and-publish.yml serializes itself.
 concurrency:
   group: ci-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  app:
-    uses: ./.github/workflows/ci-app.yml
-  image:
-    uses: ./.github/workflows/ci-image.yml
+  tests:
+    uses: ./.github/workflows/tests.yml
 
   # The one check from this workflow that branch protection on master requires.
   # It fails unless every part succeeded, so a skipped, cancelled or failed part
@@ -40,7 +36,7 @@ jobs:
   passed:
     name: CI passed
     if: ${{ always() }}
-    needs: [app, image]
+    needs: [tests]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -54,22 +50,11 @@ jobs:
             exit 1
           fi
 
-  release:
+  build-and-publish:
+    name: Build and publish
     needs: passed
     if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
     permissions:
       contents: write
-    uses: ./.github/workflows/release.yml
-
-  # The homelab's static web image for the release just published
-  # (container/README.md). A release created with GITHUB_TOKEN does not trigger
-  # other workflows, so it is called here with the new tag.
-  publish-image:
-    needs: release
-    if: needs.release.outputs.tag != ''
-    permissions:
-      contents: read
       packages: write
-    uses: ./.github/workflows/image.yml
-    with:
-      tag: ${{ needs.release.outputs.tag }}
+    uses: ./.github/workflows/build-and-publish.yml

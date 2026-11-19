@@ -1,8 +1,16 @@
-# The web app's checks (app/), one part of ci.yml. Called by ci.yml; also
-# runnable alone from the Actions tab. Separate from workflow-conformance.yml,
-# which covers the workflow tooling at the repository root.
-name: CI - App
+name: Tests
 
+# Everything that checks a commit before it can be merged or released. Called by
+# ci.yml; also runnable alone from the Actions tab.
+#
+#   app    the web app (app/): typecheck, lint, format, unit tests, build and the
+#          browser smoke test. workflow-conformance.yml, which covers the workflow
+#          tooling at the repository root, is separate.
+#   image  the container image (container/), built as the release builds it but
+#          from this commit's own app build instead of a published ZIP, on a
+#          native ARM64 runner, then smoke-tested under the homelab web-app
+#          chart's constraints. A change to container/ is therefore checked on
+#          its pull request, not first on release.
 on:
   workflow_call:
   workflow_dispatch:
@@ -10,13 +18,13 @@ on:
 permissions:
   contents: read
 
-defaults:
-  run:
-    working-directory: app
-
 jobs:
   app:
+    name: App (checks, build, browser smoke test)
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
     steps:
       - uses: actions/checkout@v7
         with:
@@ -92,3 +100,38 @@ jobs:
               report.cspViolations.length === 0
             if (!onlyTheBill) { console.error(JSON.stringify(report.expectBill)); process.exit(1) }
           "
+
+  image:
+    name: Image (ARM64 build and smoke test)
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - run: shellcheck container/smoke-test.sh
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: app/.nvmrc
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+        working-directory: app
+      # The PaddleOCR models, downloaded by scripts/vendor-paddle.mjs (see the app job).
+      - uses: actions/cache@v6
+        with:
+          path: app/.paddle-models
+          key: paddle-models-${{ hashFiles('app/scripts/vendor-paddle.mjs') }}
+      - run: npm run build
+        working-directory: app
+      - uses: docker/setup-buildx-action@v4
+      - name: Build the image from this commit's build, as the release does
+        run: |
+          mkdir "$RUNNER_TEMP/context"
+          (cd app/dist && zip -qr "$RUNNER_TEMP/context/settle.zip" .)
+          cp container/Dockerfile container/nginx.conf "$RUNNER_TEMP/context/"
+          docker buildx build --platform linux/arm64 --load \
+            --build-arg "SETTLE_VERSION=0.0.0-ci" \
+            --build-arg "SOURCE_REVISION=$GITHUB_SHA" \
+            --tag settle:ci "$RUNNER_TEMP/context"
+      - name: Smoke test
+        run: container/smoke-test.sh settle:ci "$RUNNER_TEMP/context/settle.zip"

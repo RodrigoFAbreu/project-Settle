@@ -1,7 +1,7 @@
 # Container image
 
 Settle is a static site (React/Vite, no backend, no database). The release ZIP
-(`settle-vX.Y.Z.zip`, built by `release.yml`) is the only input. This directory
+(`settle-vX.Y.Z.zip`, built by `build-and-publish.yml`) is the only input. This directory
 packages it into an unprivileged nginx image that the homelab runs.
 
 | | |
@@ -9,18 +9,19 @@ packages it into an unprivileged nginx image that the homelab runs.
 | Image | `ghcr.io/jfilipegm/settle` (`linux/arm64`) |
 | Tags | `X.Y.Z` (immutable), the source commit SHA, and `latest` (the newest completed release) |
 | Port | 8080, user 101, read-only root filesystem, writes only to `/tmp` |
-| Files | `Dockerfile`, `nginx.conf`, `smoke-test.sh`; workflow `.github/workflows/image.yml` |
+| Files | `Dockerfile`, `nginx.conf`, `smoke-test.sh`; workflow `.github/workflows/build-and-publish.yml` |
 
 ## How a release becomes an image
 
-0. On every PR, `ci-image.yml` (part of `ci.yml`) builds the image from that
+0. On every PR, the `image` job of `tests.yml` (part of `ci.yml`) builds the image from that
    commit's own app build and runs `smoke-test.sh`, so a change here is
    checked before it merges.
 1. A PR merges to `master`; `ci.yml` re-runs CI on the merged commit and then
-   calls `release.yml`, which publishes `vX.Y.Z` with `settle-vX.Y.Z.zip`.
-2. `ci.yml` calls `image.yml` with that tag. A release created by
-   `GITHUB_TOKEN` cannot trigger other workflows, so the call is direct.
-3. `image.yml` downloads the ZIP, checks it against the SHA-256 digest GitHub
+   calls `build-and-publish.yml`, whose `release` job publishes `vX.Y.Z` with
+   `settle-vX.Y.Z.zip`.
+2. Its `image` job packages that tag. A release created by `GITHUB_TOKEN`
+   cannot trigger other workflows, so it runs in the same workflow.
+3. `image` downloads the ZIP, checks it against the SHA-256 digest GitHub
    records for the release asset, refuses to overwrite an existing `X.Y.Z` tag,
    builds the image on a native ARM64 runner and runs `smoke-test.sh` on it.
 4. It then pushes `X.Y.Z` and the commit SHA as one plain manifest, and the
@@ -29,7 +30,7 @@ packages it into an unprivileged nginx image that the homelab runs.
 5. In the homelab, Argo CD Image Updater follows the digest behind `latest` and
    Argo rolls the Deployment (homelab-gitops, `namespaces/apps/settle`).
 
-To package an existing release, or to retry after a failure, run **Image** from
+To package an existing release, or to retry after a failure, run **Build and publish** from
 the Actions tab with the tag (for example `v0.7.0`). A version already
 published cannot be rebuilt; a change to `container/` ships as the next release
 (use a `build:` PR title).
