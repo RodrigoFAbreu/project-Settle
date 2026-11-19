@@ -9,6 +9,7 @@ image=${1:?image}
 zip=${2:?release zip}
 name=settle-smoke-$$
 work=$(mktemp -d)
+# shellcheck disable=SC2317  # runs through the EXIT trap
 cleanup() { docker rm -f "$name" >/dev/null 2>&1 || true; rm -rf "$work"; }
 trap cleanup EXIT
 
@@ -59,5 +60,5 @@ expect /THIRD_PARTY_NOTICES.md 200
 expect /vendor/licenses/heic-to-LICENSE.txt 200
 
 # Nothing wrote outside /tmp, or the read-only root would have failed the start.
-docker logs "$name" 2>&1 | grep -E '\[(emerg|crit|alert)\]' && fail=1 || true
+if docker logs "$name" 2>&1 | grep -E '\[(emerg|crit|alert)\]'; then fail=1; fi
 exit $fail
