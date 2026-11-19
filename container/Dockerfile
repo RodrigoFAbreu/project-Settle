@@ -17,7 +17,7 @@ RUN mkdir /site && unzip -q /tmp/settle.zip -d /site \
 FROM nginx:1.28-alpine
 ARG SETTLE_VERSION=unknown
 ARG SOURCE_REVISION=unknown
-LABEL org.opencontainers.image.source="https://github.com/jfilipegm/project-Settle" \
+LABEL org.opencontainers.image.source="https://github.com/RodrigoFAbreu/project-Settle" \
       org.opencontainers.image.title="Settle" \
       org.opencontainers.image.version="${SETTLE_VERSION}" \
       org.opencontainers.image.revision="${SOURCE_REVISION}"

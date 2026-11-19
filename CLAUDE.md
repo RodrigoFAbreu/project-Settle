@@ -40,8 +40,9 @@ on update. Add repository-specific guidance below it; it is never touched.
 ## Git and GitHub workflow (repository-specific)
 
 This section overrides the managed "Git restrictions" above wherever they
-conflict. The remote is `origin`, https://github.com/jfilipegm/project-Settle,
-and `master` is protected.
+conflict. The remote is `origin`, https://github.com/RodrigoFAbreu/project-Settle (a
+fork of jfilipegm/project-Settle, kept as the `upstream` remote), and
+`master` is protected.
 
 ### One branch and one PR per milestone
 

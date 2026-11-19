@@ -6,7 +6,7 @@ packages it into an unprivileged nginx image that the homelab runs.
 
 | | |
 | --- | --- |
-| Image | `ghcr.io/jfilipegm/settle` (`linux/arm64`) |
+| Image | `ghcr.io/rodrigofabreu/settle` (`linux/arm64`) |
 | Tags | `X.Y.Z` (immutable), the source commit SHA, and `latest` (the newest completed release) |
 | Port | 8080, user 101, read-only root filesystem, writes only to `/tmp` |
 | Files | `Dockerfile`, `nginx.conf`, `smoke-test.sh`; workflow `.github/workflows/build-and-publish.yml` |
@@ -63,7 +63,7 @@ docker run --rm -p 8080:8080 --read-only --tmpfs /tmp settle
 ## Registry access
 
 The workflow publishes with the repository's `GITHUB_TOKEN`. The package must
-be readable by whoever pulls it: make `ghcr.io/jfilipegm/settle` public (the
+be readable by whoever pulls it: make `ghcr.io/rodrigofabreu/settle` public (the
 repository is public, and the image holds only the public release), or grant
 the pulling account read access.
 

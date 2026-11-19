@@ -10,7 +10,7 @@ name: Build and publish
 #            PRs' Conventional Commit titles (enforced by pr-title.yml): a
 #            breaking change ("!") bumps major, feat bumps minor, anything else
 #            bumps patch.
-#   image    packages that release's ZIP into ghcr.io/jfilipegm/settle (ARM64),
+#   image    packages that release's ZIP into ghcr.io/rodrigofabreu/settle (ARM64),
 #            smoke-tests it and pushes X.Y.Z. A release created with
 #            GITHUB_TOKEN does not trigger other workflows, so it runs here.
 #   latest   promotes the image to :latest (shared promote-image.yml).
@@ -42,7 +42,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  IMAGE: ghcr.io/jfilipegm/settle
+  IMAGE: ghcr.io/rodrigofabreu/settle
 
 jobs:
   release:
@@ -208,5 +208,5 @@ jobs:
       packages: write
     uses: RodrigoFAbreu/action-workflows/.github/workflows/promote-image.yml@main
     with:
-      image: ghcr.io/jfilipegm/settle
+      image: ghcr.io/rodrigofabreu/settle
       source: ${{ needs.image.outputs.image_ref }}
