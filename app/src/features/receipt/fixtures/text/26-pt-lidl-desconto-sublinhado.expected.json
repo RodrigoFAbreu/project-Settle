@@ -1,0 +1,58 @@
+{
+  "items": [
+    {
+      "name": "Leite Meio Gordo 1L",
+      "quantity": "1",
+      "unitPrice": "0.89",
+      "lineTotal": "0.89",
+      "needsCheck": false
+    },
+    {
+      "name": "Iogurte Natural",
+      "quantity": "1",
+      "unitPrice": "0.49",
+      "lineTotal": "0.49",
+      "needsCheck": false
+    },
+    {
+      "name": "Pão de Forma",
+      "quantity": "1",
+      "unitPrice": "1.59",
+      "lineTotal": "1.59",
+      "needsCheck": false
+    },
+    {
+      "name": "Azeite Virgem Extra",
+      "quantity": "1",
+      "unitPrice": "4.99",
+      "lineTotal": "4.99",
+      "needsCheck": false
+    },
+    {
+      "name": "Deposito",
+      "quantity": "2",
+      "unitPrice": "0.10",
+      "lineTotal": "0.20",
+      "needsCheck": false
+    },
+    {
+      "name": "Bananas",
+      "quantity": "0.39",
+      "unitPrice": "7.99",
+      "lineTotal": "3.12",
+      "needsCheck": false
+    },
+    {
+      "name": "Detergente Roupa",
+      "quantity": "2",
+      "unitPrice": "11.69",
+      "lineTotal": "23.38",
+      "needsCheck": false
+    }
+  ],
+  "warnings": [],
+  "merchant": "Mercado Exemplo Lda",
+  "merchantTaxId": "500123454",
+  "date": "2026-10-14",
+  "total": "34.66"
+}

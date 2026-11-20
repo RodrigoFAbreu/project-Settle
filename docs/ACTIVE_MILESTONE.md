@@ -6,6 +6,16 @@ None active. M5 (Balances and settling up) was accepted on 2026-10-11;
 the next roadmap milestone is **M6 — Export, import, backup and
 sharing**.
 
+## In progress: lidl-layout-fixture
+
+One invented whole-receipt text fixture of the Lidl layout
+(`26-pt-lidl-desconto-sublinhado`), so the existing fixture test guards it.
+No app code changes.
+
+- **CP1 (complete):** `.txt` and `.expected.json` added. The expected file is
+  the parser's output, checked by hand: items sum to the total 34,66, no
+  warnings. `typecheck`, `lint`, `format:check` and `npm test` pass.
+
 ## Next action
 
 `/milestone-plan` for M6, after PR #13 (M5) is merged into `master`:

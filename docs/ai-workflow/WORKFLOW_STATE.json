@@ -5313,15 +5313,20 @@
       "registry_path": "docs/ai-workflow/registry/lidl-layout-fixture-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/lidl-layout-fixture-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "IMPLEMENTING",
+      "phase": "SELF_REVIEWING_IMPLEMENTATION",
       "plan_revision": 1,
       "implementation_revision": null,
       "functional_review_round": null,
       "base_commit": "2f87c4f71cb214a17023d5002415935c543aab8a",
       "reviewed_implementation_head": null,
       "current_checkpoint_id": null,
-      "last_completed_checkpoint_id": null,
-      "checkpoints": {},
+      "last_completed_checkpoint_id": "CP1",
+      "checkpoints": {
+        "CP1": {
+          "status": "COMPLETE",
+          "start_commit": "8105815dd33ed6f478efd3ac38089cdab29b968c"
+        }
+      },
       "current_bundle_id": "1309a28d210e2a663dbb7ed56c57d036680dbc16c7f3a12ca85ffc1644e96d79",
       "plan_approval": {
         "status": "CURRENT",
@@ -5383,8 +5388,8 @@
           "external": 0
         }
       },
-      "state_revision": 6,
-      "last_transition": "2026-11-20T15:30:01Z",
+      "state_revision": 8,
+      "last_transition": "2026-11-20T18:36:54Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
