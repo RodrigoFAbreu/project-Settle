@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "lidl-layout-fixture",
   "work_items": {
     "milestone-0": {
       "work_item_type": "product",
@@ -5301,6 +5301,147 @@
           "verdict": "APPROVE",
           "round": 3,
           "completed_at": "2026-10-11T14:34:55Z"
+        }
+      }
+    },
+    "lidl-layout-fixture": {
+      "work_item_type": "product",
+      "work_item_kind": "product",
+      "work_item_id": "lidl-layout-fixture",
+      "parent_work_item_id": null,
+      "plan_path": "docs/milestones/lidl-layout-fixture-PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/lidl-layout-fixture-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/lidl-layout-fixture-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 1,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "2f87c4f71cb214a17023d5002415935c543aab8a",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "1309a28d210e2a663dbb7ed56c57d036680dbc16c7f3a12ca85ffc1644e96d79",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "EXTERNAL_APPROVE",
+        "reviewed_bundle_id": "1309a28d210e2a663dbb7ed56c57d036680dbc16c7f3a12ca85ffc1644e96d79",
+        "approved_review_content_id": "42c97fc3969f4440e309453c0942df2b0c31e93b08e83365a877f415b2a4f1e0",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/lidl-layout-fixture-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5ff6a5ced160e9282ed92965acb3a14d2d4f3f74"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/lidl-layout-fixture-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c93b9dd36ef3dd6f48bd611e8b171d66f56eb67d"
+          },
+          {
+            "path": "docs/milestones/lidl-layout-fixture-PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "10e01aade55add75809f78e0394d529ec0f6d860"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "plan lidl-layout-fixture",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-20T15:30:01Z"
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "42c97fc3969f4440e309453c0942df2b0c31e93b08e83365a877f415b2a4f1e0",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "1309a28d210e2a663dbb7ed56c57d036680dbc16c7f3a12ca85ffc1644e96d79",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-20T14:18:53Z"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "1309a28d210e2a663dbb7ed56c57d036680dbc16c7f3a12ca85ffc1644e96d79",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-20T14:25:35Z"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 1,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 6,
+      "last_transition": "2026-11-20T15:30:01Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-20T11:29:49Z",
+        "consumed": null,
+        "published": {
+          "review_content_id": "42c97fc3969f4440e309453c0942df2b0c31e93b08e83365a877f415b2a4f1e0",
+          "plan_revision": 1
+        },
+        "bound": {
+          "review_content_id": "42c97fc3969f4440e309453c0942df2b0c31e93b08e83365a877f415b2a4f1e0",
+          "bundle_id": "1309a28d210e2a663dbb7ed56c57d036680dbc16c7f3a12ca85ffc1644e96d79",
+          "plan_revision": 1
+        }
+      },
+      "optional_findings": {
+        "F-28ee1c2b0b8e": {
+          "digest": "28ee1c2b0b8e816b41812529d976039e3841a47db5c6acd2d0e297e87687ef25",
+          "text": "The Goal says the v0.7.3 and v0.7.4 fixes came from the Lidl receipt and that the fixture guards them. v0.7.4 (2b5186e) changed `pdfTextLines.ts`, the PDF text-layer reader, which a text fixture never reaches. The fixture guards v0.7.3 (verified above) and the parser's handling of the layout as a whole. v0.7.5 (1955168, a weighed line whose name wasn't read) is also not exercised, because the draft's weighed item has its name (`Bananas 3,12 A`). The wording comes from the backlog page and the deliverable matches the page, so this changes nothing the user sees. It only overstates what the fixture covers.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "42c97fc3969f4440e309453c0942df2b0c31e93b08e83365a877f415b2a4f1e0",
+              "verdict": "APPROVE",
+              "at": "2026-11-20T14:18:53Z"
+            }
+          ]
+        },
+        "F-eb2ab94ee72c": {
+          "digest": "eb2ab94ee72cc46c7dc5ecb4faae821773409f675bd1b794265daca7bb11d6d6",
+          "text": "The invented tax table (`A 6% 2,06 0,12 2,18`) does not match the receipt: the A-coded items total 4,50, and the B, C and F rows are missing. The parser ignores the table, so the expected output is unaffected. Matching figures would make the fixture a truer model of the layout.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "42c97fc3969f4440e309453c0942df2b0c31e93b08e83365a877f415b2a4f1e0",
+              "verdict": "APPROVE",
+              "at": "2026-11-20T14:18:53Z"
+            }
+          ]
+        },
+        "F-05b29b7bf5b7": {
+          "digest": "05b29b7bf5b7c439aaeaac2d85b8779a221f00d3c53b70cf30425cfdb48cfe3a",
+          "text": "Clarify the coverage boundary in the Goal: this fixture guards parsing of the assembled receipt text. It cannot detect regressions in overlapping PDF fragment ordering in `pdfTextLines.ts`; the existing PDF unit test remains that guard. The planned fixture scope can stay unchanged.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "42c97fc3969f4440e309453c0942df2b0c31e93b08e83365a877f415b2a4f1e0",
+              "verdict": "APPROVE",
+              "at": "2026-11-20T14:25:35Z"
+            }
+          ]
         }
       }
     }
