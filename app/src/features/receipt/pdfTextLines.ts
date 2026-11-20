@@ -38,6 +38,23 @@ export function toFragments(items: readonly unknown[]): TextFragment[] {
     }))
 }
 
+/** A fragment that is only an amount (`11,69`), without a code or label. */
+const AMOUNT_ONLY = /^[-+]?\d[\d.,]*$/
+
+/**
+ * Left to right. Two fragments printed at the same position overlap (Lidl
+ * prints the tail of a long item name at its unit price's position): the
+ * text comes first and the amount after it, so the name stays whole.
+ */
+function byPosition(a: TextFragment, b: TextFragment): number {
+  const dx = Math.round(a.x * 10) - Math.round(b.x * 10)
+  if (dx !== 0) return dx
+  return (
+    Number(AMOUNT_ONLY.test(a.str.trim())) -
+    Number(AMOUNT_ONLY.test(b.str.trim()))
+  )
+}
+
 /** Groups fragments into lines, top to bottom (D6). */
 export function fragmentsToLines(
   fragments: readonly TextFragment[],
@@ -64,7 +81,7 @@ export function fragmentsToLines(
   }
   return lines.map((line) => ({
     text: line.parts
-      .toSorted((a, b) => a.x - b.x)
+      .toSorted(byPosition)
       .map((part) => part.str.trim())
       .join(' ')
       .replace(/\s+/g, ' '),
