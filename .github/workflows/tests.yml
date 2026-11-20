@@ -144,3 +144,12 @@ jobs:
       python-version: "3.12"
       test-directory: scripts/release
       test-pattern: "test_*.py"
+
+  backlog:
+    name: Backlog page is fresh
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - run: python3 scripts/workflow_backlog.py check

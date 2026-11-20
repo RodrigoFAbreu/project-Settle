@@ -1,0 +1,53 @@
+# Settle backlog: the Workflow Controller runs one item per milestone, lowest order first.
+# The page docs/BACKLOG.md is generated from this file: python3 scripts/workflow_backlog.py generate
+# The hand-written docs/ROADMAP.md (vision, principles, decisions) is not generated and stays the source for scope.
+# `idea` items are never picked by /milestone-plan; set one to `next` to queue it.
+version: 1
+items:
+  - id: milestone-0
+    title: "Project foundation"
+    status: done
+    order: 1
+  - id: milestone-1
+    title: "Bill splitter (manual entry)"
+    status: done
+    order: 2
+  - id: milestone-2
+    title: "Receipt upload and built-in parsing"
+    status: done
+    order: 3
+  - id: milestone-2-5
+    title: "Accurate receipt reading"
+    status: done
+    order: 4
+  - id: milestone-3
+    title: "Design foundations"
+    status: done
+    order: 5
+  - id: milestone-4
+    title: "Households, members and the expense ledger"
+    status: done
+    order: 6
+  - id: milestone-5
+    title: "Balances and settling up"
+    status: done
+    order: 7
+  - id: lidl-layout-fixture
+    title: "Lidl receipt layout as a text fixture"
+    status: next
+    order: 8
+    size: 1
+    detail: docs/items/lidl-layout-fixture.md
+  - id: milestone-5-5
+    title: "M5.5 Self-hosted central storage"
+    status: next
+    order: 9
+    detail: docs/items/milestone-5-5.md
+  - id: milestone-6
+    title: "M6 Export, import, backup and sharing"
+    status: idea
+    order: 10
+  - id: milestone-7
+    title: "M7 Installable PWA and public deployment"
+    status: idea
+    order: 11

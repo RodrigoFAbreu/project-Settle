@@ -443,7 +443,15 @@ function mergeQuantityLines(lines: readonly Line[]): Line[] {
       !previous.negative &&
       !isCategoryHeader(previous) &&
       !hasAnyKeyword(previous) &&
-      !(isUnitPriceOnly(line) && previous.endsInAmount)
+      !(isUnitPriceOnly(line) && previous.endsInAmount) &&
+      // A weighed line with a total of its own that differs from the price
+      // of the item before it isn't that item's detail: its name line wasn't
+      // read, so it stays a line of its own and the item keeps its price.
+      !(
+        line.endsInAmount &&
+        previous.endsInAmount &&
+        line.last !== previous.last
+      )
     ) {
       const name = previous.tokens
         .filter(
