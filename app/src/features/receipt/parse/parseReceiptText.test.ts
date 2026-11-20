@@ -1134,6 +1134,37 @@ describe('parseReceiptText: each line’s role (M2.5 CP5, P15)', () => {
     ])
   })
 
+  it('keeps the price of an item above a weighed line whose name was not read', () => {
+    // The OCR can miss the name line ("Bananas") above `0,532 kg x 1,29 €/kg
+    // 0,69 A`: that line has its own total, so it must not replace the price
+    // of the item before it.
+    const receipt = parse(
+      'Leite Meio Gordo 0,89 A',
+      'Pão de Forma 1,79 A',
+      '0,532 kg x 1,29 €/kg 0,69 A',
+      'Queijo Flamengo 3,49 B',
+      'TOTAL A PAGAR 6,17',
+    )
+    expect(receipt.items.map((i) => [i.name, i.lineTotal])).toEqual([
+      ['Leite Meio Gordo', 89],
+      ['Pão de Forma', 179],
+      ['Queijo Flamengo', 349],
+    ])
+  })
+
+  it('still joins a weighed line to the name above it', () => {
+    const receipt = parse(
+      'Pão de Forma 1,79 A',
+      'Bananas',
+      '0,532 kg x 1,29 €/kg 0,69 A',
+      'TOTAL A PAGAR 2,48',
+    )
+    expect(receipt.items.map((i) => [i.name, i.lineTotal])).toEqual([
+      ['Pão de Forma', 179],
+      ['Bananas', 69],
+    ])
+  })
+
   it('reads a card slip after the total as payment and ignored lines', () => {
     expect(
       roles(
