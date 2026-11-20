@@ -41,7 +41,16 @@ on update. Add repository-specific guidance below it; it is never touched.
 
 Workflow Controller runs one milestone per item in `docs/backlog.yaml`
 (`docs/BACKLOG.md` is its generated view; `docs/ROADMAP.md` stays the
-hand-written scope). These rules apply to every job:
+hand-written scope). The usual workflow has **no human gates**:
+`docs/ai-workflow/GATE_POLICY.json` is `human_approval: false`, so the
+Workflow satisfies plan approval, technical approval and acceptance itself
+from complete evidence (two distinct reviewer models, green CI), and the
+Controller merges the accepted commit. A person acts only on product
+decisions, on a run that stops for something only a person can decide, and
+on the commands the Workflow reserves to the owner by design
+(`/adopt-gate-policy`, `/request-plan-amendment`, `/release-checkpoint-start`,
+`/resume-implementation`). Loosening a gate policy is only ever done by the
+owner with `/adopt-gate-policy`. These rules apply to every job:
 
 - **Plan header.** A plan carries exactly one header line of exactly this
   form, with nothing after the closing backtick:
@@ -128,9 +137,8 @@ PR; the steps below describe the same convention for work done by hand.
 ### Still never
 
 - Never merge a PR by hand, and never press "Update branch" on a
-  milestone PR. Merging follows the milestone gates
-  (`/approve-review implementation`, `/accept-milestone`); once the
-  milestone is accepted and every check is green, Workflow Controller
+  milestone PR. Once the milestone is accepted (automatically, from its
+  evidence) and every check is green, Workflow Controller
   (`.workflow-controller/policy.json`: squash, `auto_merge`) merges the
   accepted commit itself, and a person may merge instead. PRs are
   **squash-merged**; merge commits and rebase merges are disabled. The
