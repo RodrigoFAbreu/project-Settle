@@ -1110,6 +1110,30 @@ describe('parseReceiptText: each line’s role (M2.5 CP5, P15)', () => {
     ])
   })
 
+  it('keeps reading items after a separator that underlines a discount row', () => {
+    // Lidl prints a short underline under a loyalty discount's amount, with
+    // more items below it; the underline before the total still ends them.
+    expect(
+      roles(
+        'GRANOLA C/ CHOCO 3,49 A',
+        'Promoção Lidl Plus -0,80',
+        '------------',
+        'PEPINOS AGRIDOCE 1,49 A',
+        'LARANJA 1.5 KG 2,39 B',
+        '------------',
+        'Total 6,57',
+      ),
+    ).toEqual([
+      'GRANOLA C/ CHOCO 3,49 A | item | 0 | 349',
+      'Promoção Lidl Plus -0,80 | discount | 0 | -80',
+      '------------ | ignored | 0 | ',
+      'PEPINOS AGRIDOCE 1,49 A | item | 1 | 149',
+      'LARANJA 1.5 KG 2,39 B | item | 2 | 239',
+      '------------ | ignored |  | ',
+      'Total 6,57 | total |  | 657',
+    ])
+  })
+
   it('reads a card slip after the total as payment and ignored lines', () => {
     expect(
       roles(
