@@ -46,11 +46,11 @@ import workflow_state  # noqa: E402
 #: The Workflow release these bytes are. A build refuses when it differs
 #: from the manifest's `workflow_version` (CP7); it never reads the
 #: installation record.
-WORKFLOW_RELEASE = "2.9.0"
+WORKFLOW_RELEASE = "2.29.10"
 
 PROTOCOL_NAME = "workflow-orchestration"
 PROTOCOL_MAJOR = 1
-PROTOCOL_VERSION = "1.2"
+PROTOCOL_VERSION = "1.5"
 SUPPORTED_PROTOCOL_MAJORS = (PROTOCOL_MAJOR,)
 
 #: The single source of the governing versions the protocol supports
@@ -398,15 +398,35 @@ VERIFY_CHECK_IDS = (
     "installation_release_matches",
     "protocol_ready",
     "gate_policy",
+    "default_workflow_version",
 )
 
 #: Advisory checks: never part of `protocol_ready` and never change `healthy`
-#: (workflow-2.8.0, `LPR-R2-007`).
-ADVISORY_VERIFY_CHECKS = frozenset({"gate_policy"})
+#: (workflow-2.8.0, `LPR-R2-007`; `default_workflow_version`, workflow-2.10.0).
+ADVISORY_VERIFY_CHECKS = frozenset({"gate_policy", "default_workflow_version"})
 
 
 def _check(check_id: str, status: str, detail: str) -> dict:
     return {"id": check_id, "status": status, "detail": detail}
+
+
+def _default_version_check(repo_root: Path, config: dict | None, checks: list[dict]) -> dict:
+    """`verify`'s advisory `default_workflow_version` check (workflow-2.10.0,
+    `D-Config-Checks`): `warn` when the default is in
+    `NEW_WORK_RETIRED_VERSIONS`, `pass` otherwise, `skip` when the
+    configuration is unreadable (`config_valid` did not pass)."""
+    check_id = "default_workflow_version"
+    if not any(c["id"] == "config_valid" and c["status"] == "pass" for c in checks):
+        return _check(check_id, "skip", "the configuration is unreadable")
+    if config is None:
+        config = workflow_state.load_config(repo_root)
+    default_version = config.get("default_workflow_version")
+    if default_version in workflow_state.NEW_WORK_RETIRED_VERSIONS:
+        return _check(
+            check_id, "warn",
+            f"default_workflow_version is {default_version!r}: new work items are refused. "
+            f"{workflow_state.RETIRED_DEFAULT_NEXT_STEP}")
+    return _check(check_id, "pass", f"default_workflow_version {default_version!r} admits new work items")
 
 
 def _refusal_detail(exc: BaseException) -> str:
@@ -494,7 +514,8 @@ def op_verify(repo_root: Path, args: argparse.Namespace) -> dict:
     else:
         try:
             workflow_state.validate_state(state, repo_root=repo_root)
-            checks.append(_check("state_valid", "pass", "validate_state accepts the state"))
+            workflow_state.validate_review_round_counts(state)
+            checks.append(_check("state_valid", "pass", "validate_state and validate_review_round_counts accept the state"))
         except Exception as exc:
             if not _is_check_refusal(exc):
                 raise
@@ -598,6 +619,7 @@ def op_verify(repo_root: Path, args: argparse.Namespace) -> dict:
             raise
         status, detail = "fail", _refusal_detail(exc)
     checks.append(_check("gate_policy", status, detail))
+    checks.append(_default_version_check(repo_root, config, checks))
     return {
         "healthy": all(c["status"] != "fail" for c in checks if c["id"] not in ADVISORY_VERIFY_CHECKS),
         "checks": checks,
@@ -725,6 +747,7 @@ _APPLY_PLAN_ACCEPTANCE = ("FeedbackStatusNotApplicableError", "FeedbackNotForCon
 #: classes (rows 7a and 8a).
 CONDITION_CALLS = {
     "1": [_c("load_config", "value")],
+    "1b": [_c("load_config", "value")],
     "1a": [_c("load_config", "value")],
     "2": [], "3": [], "4": [],
     "5": [_c(_P, "guard", "PlanReviewBindingInconsistentError")],
@@ -1130,9 +1153,23 @@ def _withdraw_alt() -> tuple[str, dict]:
 
 def _row_1(ctx):
     config = ctx.call("load_config", lambda: _fn("load_config")(ctx.repo_root)).value
-    if config.get("default_workflow_version") in TWO_STAGE_VERSIONS:
+    default_version = config.get("default_workflow_version")
+    if default_version in TWO_STAGE_VERSIONS and default_version not in workflow_state.NEW_WORK_RETIRED_VERSIONS:
         return _match("plan_start", "no active work item; /milestone-plan creates one at the two-stage default")
     return None
+
+
+def _row_1b(ctx):
+    config = ctx.call("load_config", lambda: _fn("load_config")(ctx.repo_root)).value
+    default_version = config.get("default_workflow_version")
+    if default_version not in workflow_state.NEW_WORK_RETIRED_VERSIONS:
+        return None
+    return _match(
+        "plan_start_default_retired",
+        f"no active work item, and the config's default_workflow_version is {default_version!r}: "
+        f"new work items no longer start on it, so /milestone-plan would refuse",
+        workflow_state.RETIRED_DEFAULT_NEXT_STEP,
+    )
 
 
 def _row_1a(ctx):
@@ -1912,6 +1949,7 @@ _V22 = ("2.2",)
 #: match wins.
 CATALOGUE = [
     Row("1", None, None, "automatic", "plan.start", _row_1),
+    Row("1b", None, None, "blocked", None, _row_1b),
     Row("1a", None, None, "blocked", None, _row_1a, unconditional=True),
     Row("2", VOCABULARY_ONLY_PHASES, ALL_VERSIONS, "blocked", None, _row_2, unconditional=True),
     Row("3", ("LEGACY_READY",), ALL_VERSIONS, "blocked", None, _row_3, unconditional=True,
@@ -2188,6 +2226,81 @@ def render_action(action_id: str, work_item_id: str | None, *, arguments: dict |
     }
 
 
+def _plan_review_round(work_item: dict):
+    """`review_round.plan` (D-Round): `C + B` when the consumed-content
+    history is complete, shown by shape, and `C + B >= 1`; else `None`
+    ("not derivable", never an estimate). Reads only persisted fields."""
+    record = work_item.get("plan_review_binding")
+    if not isinstance(record, dict):
+        record = None
+    consumed = record.get("consumed") if record is not None else None
+    key = workflow_state.CONSUMED_PLAN_REVIEW_CONTENT_IDS_KEY
+    listed = work_item.get(key)
+    history = set(listed) if isinstance(listed, list) else set()
+    slot_id = consumed.get("review_content_id") if isinstance(consumed, dict) else None
+    if isinstance(slot_id, str):
+        history.add(slot_id)
+    if consumed is None and not history:
+        complete = True
+    elif isinstance(consumed, dict) and isinstance(listed, list) and isinstance(slot_id, str):
+        revision = consumed.get("plan_revision")
+        complete = (
+            slot_id in listed and isinstance(revision, int)
+            and not isinstance(revision, bool) and len(history) >= revision
+        )
+    else:
+        complete = False
+    if not complete:
+        return None
+    bound = 1 if record is not None and record.get("status") in (
+        workflow_state.PLAN_REVIEW_BINDING_PUBLISHED, workflow_state.PLAN_REVIEW_BINDING_BOUND,
+    ) else 0
+    total = len(history) + bound
+    return total if total >= 1 else None
+
+
+def _current_review_stage(phase: str, gv):
+    """`review_round.current`: the review stage the phase waits for."""
+    if phase == "AWAITING_LOCAL_PLAN_REVIEW":
+        return "plan_local"
+    if phase == "AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW" or (
+        phase == "AWAITING_EXTERNAL_PLAN_REVIEW" and gv == "1"
+    ):
+        return "plan_external"
+    if phase == "AWAITING_LOCAL_IMPLEMENTATION_REVIEW":
+        return "implementation_local"
+    if phase == "AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW" or (
+        phase == "AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW" and gv != "2.2"
+    ):
+        return "implementation_external"
+    return None
+
+
+def _role_round(work_item: dict, stage: str, role: str):
+    """One persisted per-role round count (`D-Derive`, workflow-2.15.0): the
+    integer, or `None` for an absent key, a `null` stage or any malformed
+    value. Never raises -- a damaged counter must not refuse `next-action`."""
+    counts = work_item.get(workflow_state.REVIEW_ROUND_COUNTS_KEY)
+    if workflow_state.review_round_counts_errors(counts):
+        return None
+    pair = counts[stage]
+    return pair[role] if pair is not None else None
+
+
+def _review_round(work_item: dict, phase: str, gv) -> dict:
+    """The snapshot's `review_round` (D-Round): derived on every call, never
+    stored; the four per-role fields read the persisted counts."""
+    return {
+        "plan": _plan_review_round(work_item),
+        "implementation": work_item.get("implementation_revision"),
+        "current": _current_review_stage(phase, gv),
+        "plan_local": _role_round(work_item, "plan", "local"),
+        "plan_external": _role_round(work_item, "plan", "external"),
+        "implementation_local": _role_round(work_item, "implementation", "local"),
+        "implementation_external": _role_round(work_item, "implementation", "external"),
+    }
+
+
 def _snapshot(ctx: _Context) -> dict:
     work_item = ctx.work_item
     registry = ctx.memo_value("registry_completion_status")
@@ -2209,6 +2322,7 @@ def _snapshot(ctx: _Context) -> dict:
         "plan_approval": _status("plan_approval"),
         "technical_approval": _status("technical_approval"),
         "plan_review_publication_status": publication["status"] if publication is not None else None,
+        "review_round": _review_round(work_item, ctx.phase, ctx.gv),
     }
 
 

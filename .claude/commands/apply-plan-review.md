@@ -202,6 +202,33 @@ normative definition.
    `LPR-R3-003`): an untracked declared path makes
    `resolve_plan_stage_metadata` refuse, and both the two-stage publish's
    own fresh-id computation and the regeneration below read through it.
+   Plan-stage writes are not committed here (workflow-2.9.1,
+   `REVIEW_PROTOCOL.md`'s commit rule for review-stage writes): there is no
+   generation-record commit at the plan stage, the plan-approval commit
+   takes the whole working-tree state, and a commit of its own would raise
+   `bundle_generation_mismatch` at the plan-approval gate.
+   **[2.1] Anchor check, immediately before the publish** (workflow-2.11.0,
+   `D-Command`): call `workflow_state.assert_plan_checkpoint_anchors(repo_root,
+   work_item_id)`. It reads the registry and plan document this step just
+   wrote, so every checkpoint of this revision needs its well-formed
+   `<!-- CPn -->`/`<!-- /CPn -->` pair. A refusal
+   (`AmendmentAnchorCoverageError`, `AmendmentAnchorMalformedError`,
+   `AmendmentCheckpointIdShapeError` or `AmendmentPostRegistryMalformedError`,
+   together `workflow_state._PLAN_ANCHOR_ERRORS`) ends with
+   `workflow_state.PLAN_ANCHOR_NEXT_STEP`: report it and stop, with nothing
+   published. **Then, [2.13.0] sweep check**: call
+   `workflow_state.assert_plan_governing_version_sweep(repo_root,
+   work_item_id)`; a refusal (`workflow_state.PlanGoverningVersionSweepError`)
+   lists each finding and ends with `workflow_state.PLAN_SWEEP_NEXT_STEP`:
+   report it as `error: PlanGoverningVersionSweepError: ...` and stop, with
+   nothing published. **Then, [2.14.0] declaration check**: call
+   `workflow_state.assert_plan_artifact_declaration_coverage(repo_root,
+   work_item_id)`; a refusal
+   (`workflow_state.PlanArtifactDeclarationCoverageError`) names each
+   checkpoint and unclassified path and ends with
+   `workflow_state.PLAN_DECLARATION_NEXT_STEP`: report it as
+   `error: PlanArtifactDeclarationCoverageError: ...` and stop, with nothing
+   published.
    Then publish, in the same operation and before the bundle below is
    regenerated (`D-Plan-Revision-Publication`, `WFR-65`), by calling
    `workflow_state.state_transaction(repo_root, lambda state:
@@ -235,6 +262,11 @@ normative definition.
      with `LegacyPlanReviewBindingUnknownError`,
      `PlanReviewInProgressError`, `PlanReviewPhaseNotPlanStageError` or
      `PlanReviewBindingInconsistentError` as step 0's status would predict.
+   After the publish, print `workflow_state.plan_size_advisory(registry)`
+   when it returns a warning (workflow-2.12.0, `D-Size`), and
+   `workflow_state.plan_files_advisory(plan_text, registry)` when it returns a
+   warning (workflow-2.14.0, `D-Coverage`), and continue: neither refuses and
+   neither writes anything.
 
    This step applies only to a work item with an existing `WORKFLOW_STATE.json`
    entry (`registry_path` non-null); an ordinary `"1"`-governed milestone
@@ -255,7 +287,7 @@ normative definition.
      (`assert_review_request_states_review_content_id`), obtained from the
      single canonical entry point `docs/ai-workflow/REVIEW_PROTOCOL.md`'s
      "Computing `review_content_id`" names for this stage -- never a
-     second, ad hoc computation, and never the previous round's value. If the plan stage's gate is `automatic` and the effective `require` lists
+     second, ad hoc computation, and never the previous round's value. Word the request conditionally on the changes file, because it is written before the generator decides whether `CHANGES_SINCE_REVIEW.md` exists: if it is present next to `current/` and its preamble names this bundle's `review_content_id`, the reviewer may review only the changes in the section named for its role and check each previous finding is resolved, declaring `Review scope: changes`; a role whose section is not available reviews the whole bundle, and any `APPROVE` is a full review of the whole bundle (workflow-2.12.0, `D-Changes`; one section per review stage, workflow-2.13.0, `D-Keyed`). If the plan stage's gate is `automatic` and the effective `require` lists
      `distinct_reviewer_models` (`workflow_state.review_stage_gate_context(repo_root,
      state, work_item_id, "plan")["requires_distinct"]`), also ask the reviewer, in
      that file, to state `Reviewer model: <vendor>/<model>` in the verdict's header
@@ -311,9 +343,17 @@ normative definition.
        workflow-2.6.0, section 5.3 item 3; `MPR-R1-O1`: `2.5.1`'s second
        generation here is removed, so step 5 is the round's single
        generation and nothing between the publish and this bind can exit
-       unreported): call `binding =
-       workflow_state.verify_plan_review_bundle(repo_root, work_item_id)`,
-       then `workflow_state.state_transaction(repo_root, lambda state:
+       unreported): first call `workflow_state.assert_plan_checkpoint_anchors(
+       repo_root, work_item_id)` (a refusal ends with
+       `workflow_state.PLAN_ANCHOR_NEXT_STEP`: report it and stop), then
+       `workflow_state.assert_plan_governing_version_sweep(repo_root,
+       work_item_id)` (a refusal, `PlanGoverningVersionSweepError`, ends with
+       `workflow_state.PLAN_SWEEP_NEXT_STEP`: report it and stop), then
+       `workflow_state.assert_plan_artifact_declaration_coverage(repo_root,
+       work_item_id)` (a refusal, `PlanArtifactDeclarationCoverageError`, ends
+       with `workflow_state.PLAN_DECLARATION_NEXT_STEP`: report it and stop),
+       then call `binding = workflow_state.verify_plan_review_bundle(repo_root,
+       work_item_id)`, then `workflow_state.state_transaction(repo_root, lambda state:
        workflow_state.bind_plan_review_bundle(state, work_item_id,
        binding=binding, now=now))` -- the **sole** writer of
        `AWAITING_LOCAL_PLAN_REVIEW`, writing that phase, `current_bundle_id`

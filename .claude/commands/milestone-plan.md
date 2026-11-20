@@ -70,7 +70,12 @@ until that final rename (`REVIEW_PROTOCOL.md`'s "Bundle location").
    has a `work_items[id]` entry, its own `governing_workflow_version`
    (fixed at that entry's creation) governs this run, never the current
    config default. Otherwise this is a fresh milestone and the config's
-   *current* `default_workflow_version` governs it.
+   *current* `default_workflow_version` governs it -- unless that default is
+   `"2.1"`: new work items no longer start on it, so the run stops here, before
+   step 1 writes anything, with `workflow_state.DefaultWorkflowVersionRetiredError`
+   (the same refusal `route_work_item` makes) and its next step
+   (`workflow_state.RETIRED_DEFAULT_NEXT_STEP`: set the default to `"2.2"`,
+   commit it with `Workflow-Activation: 2.2`, run the command again).
    - **`governing_workflow_version: "1"`** (today, always, until
      `WF-Activate` runs): steps 1-7 below execute exactly as written, with
      no `WORKFLOW_STATE.json`/`WORKFLOW_CONFIG.json` reads or writes
@@ -186,6 +191,25 @@ until that final rename (`REVIEW_PROTOCOL.md`'s "Bundle location").
 1. Inspect Git state (`git status --short`, `git log --oneline -10`) and read
    `docs/ACTIVE_MILESTONE.md` and `docs/ROADMAP.md` to identify the next
    incomplete milestone/checkpoint.
+   - **Backlog declared** (workflow-2.17.0, `D-Select`; the no-argument and
+     the base-commit forms only -- an explicit work-item-id form never reads
+     the backlog). Run `python3 scripts/workflow_backlog.py next` first. Its
+     output is `{"declared": false}` for a repository whose
+     `WORKFLOW_CONFIG.json` has no `backlog` key: then this step is exactly
+     the sentence above, unchanged. When it answers `declared: true`, do not
+     read `docs/ROADMAP.md`: the backlog file is the roadmap. On a refusal
+     (exit 2: `declaration_invalid`, `backlog_missing`, `backlog_invalid` or
+     `no_ready_item`), report stderr verbatim (every diagnostic and the next step) and **stop**,
+     having written nothing. On success use `item.id` as the work item id
+     (the slug rule below still applies to it), read the page `item.detail`
+     names as the milestone's description (when `detail` is absent, use
+     `item.title` alone and say so), and list `also_in_progress` and
+     `warnings` as an aid. This command never writes the backlog file
+     (`D-Start`). When `active_work_item_id` names a different non-terminal
+     work item, print one advisory line naming both ids and the explicit
+     form that continues the active one (`/milestone-plan <active id>`),
+     then proceed with the backlog's choice; the line is an aid, never a
+     stop.
    - **[2.1]** Derive a `work_item_id` slug from the milestone (matching
      `^[a-z0-9][a-z0-9_-]{0,63}$`, e.g. `milestone-9`), or reuse the
      existing entry's id if resuming a milestone already present in
@@ -194,6 +218,19 @@ until that final rename (`REVIEW_PROTOCOL.md`'s "Bundle location").
      `docs/ai-workflow/WORKFLOW_V2_PLAN.md`-equivalent, `docs/ai-workflow/registry/<work_item_id>-registry.json`,
      `docs/ai-workflow/requirements/<work_item_id>-mapping.json`, and the
      resolved base commit respectively (`D-Fingerprint-Generalization`).
+     **Declared-backlog collision check** (workflow-2.18.2, `60e`), before
+     the `route_work_item` call below: call
+     `workflow_state.generate_artifacts_declarations(<work_item_id>,
+     <plan_path>, <registry_path>, <mapping_path>,
+     work_item_type=<this item's own work_item_type>,
+     repo_root=<repo_root>)` with the four facts just derived, and discard
+     the result. It writes nothing, and for an undeclared repository it
+     returns the plain template and does nothing. A refusal
+     (`workflow_backlog.BacklogError` with code `declaration_conflict`, or
+     `workflow_state.BacklogScriptUnavailableError`, code
+     `declaration_invalid`) is reported verbatim, with its next step, and the
+     run **stops with nothing written**: no work item, no registry, no
+     mapping. Step 3's generation stays, because it produces the file.
      Call `workflow_state.route_work_item(...)`, passing all four **and
      `repo_root`**, (D1's create-or-resume routing: creates a fresh
      `work_items[id]` entry fixing `governing_workflow_version` from the
@@ -232,6 +269,10 @@ until that final rename (`REVIEW_PROTOCOL.md`'s "Bundle location").
    unless a specific historical decision is unresolved.
 3. Produce or update the execution/reference plan for this milestone
    (checkpoints, files touched, tests to add, migration needs if any).
+   - **[2.1]** Keep the plan short and the checkpoint count small (about
+     six at most): split a large scope into several milestones, each a
+     release, and state one principle per decision (workflow-2.12.0,
+     `D-Size`).
    - **[2.1]** Build the checkpoint list as `{id, name, depends_on,
      complexity, session_target}` entries and the requirement map as
      `{requirement_id: {description, checkpoint_ids}}`, then call
@@ -257,7 +298,7 @@ until that final rename (`REVIEW_PROTOCOL.md`'s "Bundle location").
      never hand-edited, never itself hashed. In the same pass, call
      `workflow_state.generate_artifacts_declarations(work_item_id, plan_path,
      registry_path, mapping_path, work_item_type=<this item's own
-     work_item_type>)` and write its result to
+     work_item_type>, repo_root=<repo_root>)` and write its result to
      `docs/ai-workflow/registry/<work_item_id>-artifacts.json` — the
      default `plan_stage` **and** `implementation_stage` classification
      template (`D-Fingerprint-Generalization`), never left for a later
@@ -311,6 +352,13 @@ until that final rename (`REVIEW_PROTOCOL.md`'s "Bundle location").
      registry, mapping, `<work_item_id>-artifacts.json` and table written
      here, and the staging step below, stay here so self-review reads a
      complete, index-visible plan.
+   - **[2.1]** **Checkpoint anchors, in every revision** (workflow-2.11.0,
+     `D-Command`): write a well-formed `<!-- CPn -->` ... `<!-- /CPn -->`
+     pair around every registry checkpoint's section of the plan document,
+     each id of the shape `CP<digits>[A-Z]?`. Use more than one disjoint pair
+     per checkpoint where its design is spread out; a pair may wrap the
+     checkpoint's heading. A revision without them is refused at the
+     publication point and at generation, not first at approval.
    - **[2.1]** **Staging step, required before any publish and before any
      bundle is generated** (salvage audit `B6`; `LPR-R3-003`, workflow-2.6.0:
      the publish now computes the fresh plan-stage id, which reads these
@@ -351,6 +399,8 @@ until that final rename (`REVIEW_PROTOCOL.md`'s "Bundle location").
    requirements, migration risk, usability gaps, unnecessary complexity, and
    missing tests. Revise the plan in place — do not write a separate
    self-review journal.
+   - **[2.1]** Confirm that every checkpoint, including one this review
+     added, has its well-formed anchor pair (step 3).
 5. Check the plan against every "Open decision" row in
    `docs/TECHNICAL_DECISIONS.md` it touches — flag any it would silently
    finalize instead of deciding for the user.
@@ -371,7 +421,46 @@ until that final rename (`REVIEW_PROTOCOL.md`'s "Bundle location").
      3. re-apply step 3's intent-to-add staging step (`git
         --literal-pathspecs add -N`,
         idempotent -- it covers any plan-stage file step 4 created);
-     4. call `workflow_state.state_transaction(repo_root, lambda state:
+     4. **[2.11.0] anchor check**: call
+        `workflow_state.assert_plan_checkpoint_anchors(repo_root,
+        work_item_id)` after item 3's staging and immediately before the
+        publish. It reads the registry items 1-2 just regenerated, so a
+        checkpoint a self-review removed is not asked for, and one it added
+        without a pair is refused here. A refusal
+        (`workflow_state.AmendmentAnchorCoverageError`,
+        `workflow_state.AmendmentAnchorMalformedError`,
+        `workflow_state.AmendmentCheckpointIdShapeError` or
+        `workflow_state.AmendmentPostRegistryMalformedError`, together
+        `workflow_state._PLAN_ANCHOR_ERRORS`) ends with
+        `workflow_state.PLAN_ANCHOR_NEXT_STEP`: report it and stop, with
+        nothing written. **Then, [2.13.0] sweep check**: call
+        `workflow_state.assert_plan_governing_version_sweep(repo_root,
+        work_item_id)`, which runs the installed governing-version sweep on
+        the plan document. A refusal
+        (`workflow_state.PlanGoverningVersionSweepError`, one of
+        `workflow_state._PLAN_EARLY_CHECK_ERRORS`) lists each finding and ends
+        with `workflow_state.PLAN_SWEEP_NEXT_STEP`: report it as
+        `error: PlanGoverningVersionSweepError: ...` and stop, with nothing
+        written. Do not write a list of governing versions in the plan: say a
+        feedback-only item or a two-stage item. **Then, [2.14.0] declaration
+        check**: call
+        `workflow_state.assert_plan_artifact_declaration_coverage(repo_root,
+        work_item_id)`, which refuses a plan whose artifact declaration
+        leaves a path named in a checkpoint's Files paragraph unclassified at
+        the plan stage, the implementation stage or both. A refusal
+        (`workflow_state.PlanArtifactDeclarationCoverageError`, one of
+        `workflow_state._PLAN_EARLY_CHECK_ERRORS`) names each checkpoint and
+        path and ends with `workflow_state.PLAN_DECLARATION_NEXT_STEP`: report
+        it as `error: PlanArtifactDeclarationCoverageError: ...` and stop,
+        with nothing written. Give every checkpoint a `**Files:**` paragraph
+        naming each path it changes, in backticks from the repository root
+        (a bare file name is a root-level path, a trailing `/` a directory);
+        **in a Files paragraph every backtick span is a path**, except a span
+        with whitespace or a glob or placeholder character, a URL, one
+        starting `/`, `~` or `..`, or a version string such as `2.14.0`; write a
+        non-path (a function name, a flag, a dotted identifier) without
+        backticks;
+     5. call `workflow_state.state_transaction(repo_root, lambda state:
         workflow_state.publish_plan_revision(state, work_item_id,
         plan_revision, now, review_content_id=F))`, where `F` is the fresh
         plan-stage id computed inside that same mutator, after items 1-3,
@@ -389,6 +478,12 @@ until that final rename (`REVIEW_PROTOCOL.md`'s "Bundle location").
         `ws.PlanReviewPhaseNotPlanStageError` outside the plan-stage
         allow-list; `ws.PlanReviewBindingInconsistentError` for a `BOUND`
         record at a non-ready phase. Report the refusal and stop.
+
+     At this point also print `workflow_state.plan_size_advisory(registry)`
+     when it returns a warning (workflow-2.12.0, `D-Size`), and print
+     `workflow_state.plan_files_advisory(plan_text, registry)` (workflow-2.14.0,
+     `D-Coverage`) when it returns a warning, and continue: neither refuses and
+     neither writes anything.
 
      `WFR-65`'s ordering (mirror published before any bundle is generated)
      holds because step 6 follows this point. A later edit to a protected
@@ -422,7 +517,7 @@ until that final rename (`REVIEW_PROTOCOL.md`'s "Bundle location").
      from the single canonical entry point
      `docs/ai-workflow/REVIEW_PROTOCOL.md`'s "Computing
      `review_content_id`" names for this stage -- never a second, ad hoc
-     computation, and never a value carried over from a previous round. If the plan stage's gate is `automatic` and the effective `require` lists
+     computation, and never a value carried over from a previous round. Word the request conditionally on the changes file, because it is written before the generator decides whether `CHANGES_SINCE_REVIEW.md` exists: if it is present next to `current/` and its preamble names this bundle's `review_content_id`, the reviewer may review only the changes in the section named for its role and check each previous finding is resolved, declaring `Review scope: changes`; a role whose section is not available reviews the whole bundle, and any `APPROVE` is a full review of the whole bundle (workflow-2.12.0, `D-Changes`; one section per review stage, workflow-2.13.0, `D-Keyed`). If the plan stage's gate is `automatic` and the effective `require` lists
      `distinct_reviewer_models` (`workflow_state.review_stage_gate_context(repo_root,
      state, work_item_id, "plan")["requires_distinct"]`), also ask the reviewer, in
      that file, to state `Reviewer model: <vendor>/<model>` in the verdict's header
@@ -445,9 +540,25 @@ until that final rename (`REVIEW_PROTOCOL.md`'s "Bundle location").
      the failure and name the explicit-id re-run, `/milestone-plan
      <work_item_id>`, whose entry resumes at row 9 (regenerate, then bind,
      never re-advancing the revision) -- never a review command, since
-     `/review-plan` refuses at a non-ready phase. Stop.
+     `/review-plan` refuses at a non-ready phase. Stop. A generator refusal
+     of a plan without checkpoint anchors (`error: AmendmentAnchorCoverageError:`
+     or any other `workflow_state._PLAN_ANCHOR_ERRORS` class) is the same
+     case: nothing was promoted, and the message ends with `workflow_state.PLAN_ANCHOR_NEXT_STEP` -- add the
+     pairs, then run that re-run. So is a generator refusal by the governing-version
+     sweep (`error: PlanGoverningVersionSweepError:`): the message ends with
+     `workflow_state.PLAN_SWEEP_NEXT_STEP` -- reword the flagged passages, then run that re-run.
    - **[2.1] Bind, straight after the generator succeeds**
      (`D-Plan-Review-Bundle-Binding`, workflow-2.6.0, section 5.3 item 3):
+     first call `workflow_state.assert_plan_checkpoint_anchors(repo_root,
+     work_item_id)` (a bundle an older generator left behind for a published,
+     unbound item is not otherwise re-checked; a refusal ends with
+     `workflow_state.PLAN_ANCHOR_NEXT_STEP`: report it and stop), then
+     `workflow_state.assert_plan_governing_version_sweep(repo_root,
+     work_item_id)` (a refusal, `PlanGoverningVersionSweepError`, ends with
+     `workflow_state.PLAN_SWEEP_NEXT_STEP`: report it and stop), then
+     `workflow_state.assert_plan_artifact_declaration_coverage(repo_root,
+     work_item_id)` (a refusal, `PlanArtifactDeclarationCoverageError`, ends with
+     `workflow_state.PLAN_DECLARATION_NEXT_STEP`: report it and stop), then
      call `binding = workflow_state.verify_plan_review_bundle(repo_root,
      work_item_id)`, then `workflow_state.state_transaction(repo_root,
      lambda state: workflow_state.bind_plan_review_bundle(state,

@@ -13,7 +13,7 @@ owned by `docs/ai-workflow/REVIEW_PROTOCOL.md` and
 ## State reference
 
 For every state: entry condition, allowed actions, required artifacts, exit
-condition, and whether Claude stops.
+condition, and whether the agent stops.
 
 **Vocabulary states.** Four of the sections below describe a *phase of the
 work* that no writer ever persists as a `phase` value in
@@ -38,11 +38,30 @@ system audit, convergence pass 12, ledger row `O34`).
   or the user asks to start the next one.
 - **Allowed actions**: read `docs/ACTIVE_MILESTONE.md`, `docs/ROADMAP.md`, and
   only the milestone/reference/ADR docs relevant to the target checkpoint;
-  draft or update the execution/reference plan.
+  draft or update the execution/reference plan. A repository that declares a
+  `backlog` in `WORKFLOW_CONFIG.json` (workflow-2.17.0) takes the next ready
+  item from that file (`python3 scripts/workflow_backlog.py next`) in place of
+  reading `docs/ROADMAP.md`.
 - **Artifacts**: draft execution plan (and reference plan, if new decisions
   are introduced).
 - **Exit**: a concrete, checkpointed plan exists.
+- **Checkpoint anchors** (2.11.0): every plan revision of a `"2.1"` or `"2.2"`
+  item, the first included, carries a well-formed `<!-- CPn -->`/`<!-- /CPn -->`
+  pair around each registry checkpoint's section. The plan is refused without
+  one at publish, at bind and in plan-stage bundle generation, before any
+  review round, with the error classes `/approve-review plan` uses and one next
+  step: add the pair, then run the command again. Plan-stage generation
+  re-judges a new or unbound revision only: regenerating an already-bound
+  review at a ready phase does not. The approval-time check is
+  unchanged. A plan approved before 2.11.0 without anchors keeps driving
+  implementation, reviews and acceptance; the requirement applies from its next
+  plan revision.
 - **Stop for user/reviewer?** No.
+- **New work item** (2.10.0): a fresh plan creates a new work item, and that
+  refuses with `DefaultWorkflowVersionRetiredError` while
+  `WORKFLOW_CONFIG.json` still names a retired version as the default. Nothing
+  is written. The next step is to set the default to `"2.2"` in a
+  `Workflow-Activation: 2.2` commit; existing work items are not affected.
 
 ### AMENDING_PLAN (`workflow-2.4.0`, `D-Plan-Amendment-1`)
 
@@ -60,7 +79,10 @@ branches on governing version, unchanged.
   `/milestone-plan` call. Reachable only from `IMPLEMENTING` or
   `SELF_REVIEWING_IMPLEMENTATION` (see those sections' own re-entry note
   below), with no checkpoint `IN_PROGRESS` or claimed
-  (`AmendmentCheckpointActiveError` otherwise, XMODEL-R4-B1 -- checked
+  (`AmendmentCheckpointActiveError` otherwise, whose message names the
+  user-only `/release-checkpoint-start <work-item-id> <checkpoint-id>` for a
+  start that was never committed, run from the worktree that holds the claim,
+  XMODEL-R4-B1 -- checked
   authoritatively inside `request_plan_amendment` itself, against both
   `WORKFLOW_STATE.json` and the shared filesystem checkpoint-claim record,
   not only this command's own preflight read; the claim record must be
@@ -113,16 +135,20 @@ branches on governing version, unchanged.
   more, non-overlapping, around that checkpoint's own content; `n` is the
   same widened `CP<digits>[A-Z]?` shape the entry condition above checks) --
   add the anchors now, not after `/approve-review plan` step 4c's
-  `validate_post_anchor_coverage` refuses naming the first uncovered id.
+  `validate_post_anchor_coverage` refuses naming the first uncovered id. From
+  2.11.0 the amended plan is already refused without them at publish, at bind
+  and in plan-stage bundle generation of a new or unbound revision
+  (`assert_plan_checkpoint_anchors`), before any review round; the
+  approval-time check stays.
   `validate_post_anchor_coverage` consults the identical
   `checkpoint_id_supports_anchor` predicate the entry condition above uses,
   so the post-side check accepts exactly the same widened shape, never a
   second, independently-maintained grammar.
 - **Stop for user/reviewer?** No. `/request-plan-amendment` itself carries
   the same mechanism-independent user-only guard `/approve-review` and
-  `/accept-milestone` use (Claude cannot invoke it), but once a human has
-  invoked it, work continues autonomously from here exactly as it would
-  from `PLANNING`.
+  `/accept-milestone` use (the agent must never invoke it; its confirmation
+  check refuses without the user's own text), but once a human has invoked it,
+  work continues autonomously from here exactly as it would from `PLANNING`.
 
 ### SELF_REVIEWING_PLAN
 
@@ -160,7 +186,7 @@ content.
 - **Exit**: external reviewer places feedback at
   `<feedback_dir>/REVIEW_FEEDBACK.md` (stage-agnostic; see "Feedback file
   locations" below for what `<feedback_dir>` resolves to).
-- **Stop for user/reviewer?** Yes — hard gate. Claude must stop here.
+- **Stop for user/reviewer?** Yes — hard gate. The agent must stop here.
 
 ### REVISING_PLAN
 
@@ -347,12 +373,12 @@ bytes from `current/files/<path>`, or withdraw.
 - **Artifacts**: source/test changes; updated `docs/ACTIVE_MILESTONE.md`; commits.
 - **Exit**: all plan checkpoints implemented, **or** (`workflow-2.4.0`,
   `D-Plan-Amendment-1`) an authorized `/request-plan-amendment
-  [work-item-id]` re-enters `AMENDING_PLAN` above -- never Claude's own
+  [work-item-id]` re-enters `AMENDING_PLAN` above -- never the agent's own
   choice to make.
 - **Entry from the functional gate** (`workflow-2.9.0`, `v2.6.0-003`): the
   user-only `/resume-implementation <work-item-id>` returns a `2.1`/`2.2`
   item with an outstanding checkpoint from `AWAITING_FUNCTIONAL_REVIEW` to
-  this state, marking its technical approval `STALE`; it is never Claude's
+  this state, marking its technical approval `STALE`; it is never the agent's
   own choice to make.
 - **Stop for user/reviewer?** No — continue across checkpoints without
   stopping, subject to the stop conditions in `AGENTS.md`.
@@ -494,7 +520,7 @@ mirror is not exact.
   diff, changed files, tests run, decisions; `.ai-review/review-bundle.tar.gz`.
 - **Exit**: external reviewer places feedback at
   `<feedback_dir>/REVIEW_FEEDBACK.md`.
-- **Stop for user/reviewer?** Yes — hard gate. Claude must stop here. Do not
+- **Stop for user/reviewer?** Yes — hard gate. The agent must stop here. Do not
   mark the milestone accepted.
 
 ### APPLYING_REVIEW_FEEDBACK
@@ -558,7 +584,7 @@ whether the gate is open.
   file it links to).
 - **Exit**: user performs functional testing and places findings at
   `<feedback_dir>/FUNCTIONAL_REVIEW.md`.
-- **Stop for user/reviewer?** Yes — hard gate. Claude must stop here.
+- **Stop for user/reviewer?** Yes — hard gate. The agent must stop here.
 - **Checkpoint outstanding** (`workflow-2.9.0`, `v2.6.0-003`): a `2.1`/`2.2`
   item whose own registry is not terminal is returned to `IMPLEMENTING` by the
   user-only `/resume-implementation`; a governing-`1` item with a registry
@@ -579,8 +605,10 @@ whether the gate is open.
   - functional testing produced a finding fixable inside the approved
     scope → `/apply-functional-review`'s **bounded** branch, which marks
     `technical_approval` `STALE`, lands the fix, regenerates the `post-fix`
-    bundle and returns the item to a fresh
-    `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`;
+    bundle and returns the item to a fresh implementation-review round at
+    the version's post-fix target phase (`AWAITING_LOCAL_IMPLEMENTATION_REVIEW`
+    for a `"2.2"` item, `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` for a
+    `"1"`/`"2.1"` item);
   - the finding is new or wider scope → `/apply-functional-review`'s
     **broad** branch, which creates a `<parent-id>-remediation-<n>` child
     work item that runs its own full cycle, and blocks the parent's
@@ -602,7 +630,9 @@ whether the gate is open.
 *Vocabulary state — never persisted (see "Vocabulary states" above).*
 `/apply-functional-review` runs from `AWAITING_FUNCTIONAL_REVIEW`; its
 bounded branch's own `record_bundle_generation` is what moves the item,
-to `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`.
+to the version's post-fix target phase: `AWAITING_LOCAL_IMPLEMENTATION_REVIEW`
+for a `"2.2"` item, `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` for a
+`"1"`/`"2.1"` item.
 
 - **Entry**: `<feedback_dir>/FUNCTIONAL_REVIEW.md` exists.
 - **Allowed actions**: classify each finding (defect, usability issue,
@@ -621,15 +651,22 @@ to `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`.
   - **Bounded code change**: a normal, contained fix. **Stale-before-edit
     ordering, hard requirement**: `technical_approval.status` is set to
     `STALE` and persisted to `WORKFLOW_STATE.json` *before* the first
-    edit — never after. The fix is made, committed, and the bundle is
-    regenerated at the `post-fix` stage; regeneration is the step that
+    edit — never after, and committed alone before the first edit, because
+    a generation record cannot sweep that write up. The fix is made and
+    committed, the "no code change" fixes and the functional-review checklist
+    are committed, and only then is the bundle regenerated once at the
+    `post-fix` stage, with the record as the last commit of the invocation
+    (see `REVIEW_PROTOCOL.md`'s "A generation record is the last commit"); regeneration is the step that
     writes the new `reviewed_implementation_head` (D-Approval-Commits'
     sole writer for that field), which is what makes `/approve-review
     implementation` reachable again. This re-enters
-    `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`: a fresh implementation-
+    the version's post-fix target phase,
+    `AWAITING_LOCAL_IMPLEMENTATION_REVIEW` for a `"2.2"` item (both
+    implementation-review stages run again) and
+    `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` for a `"1"`/`"2.1"` item: a fresh implementation-
     review round and a fresh `/approve-review implementation` are
     required before `AWAITING_FUNCTIONAL_REVIEW` is reachable again for
-    this item — Claude stops here, it does not loop back into functional
+    this item — the agent stops here, it does not loop back into functional
     review directly.
   - **Broad/multi-finding remediation, as a child work item**: findings
     whose fix spans substantially more work than a single contained
@@ -638,10 +675,15 @@ to `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`.
     deterministically) is created — same `work_item_type` as the parent,
     carrying `parent_work_item_id`, with its own registry/mapping and its
     own `base_commit` (the parent's implementation head at branch time).
-    It routes through the full normal cycle
-    (`AWAITING_EXTERNAL_PLAN_REVIEW` → ... → `MILESTONE_COMPLETE`) via the
-    ordinary commands, exactly like any other work item, because it is
-    one. The parent's own registry, mapping, and completed-checkpoint
+    It routes through the full normal cycle (first plan review through
+    `MILESTONE_COMPLETE`) via the ordinary commands, exactly like any other
+    work item, because it is one. A `"2.1"` or `"2.2"` child's first plan
+    review is `AWAITING_LOCAL_PLAN_REVIEW` (two-stage plan review); a `"1"`
+    child's is `AWAITING_EXTERNAL_PLAN_REVIEW`. From 2.10.0 a new child
+    cannot be `"2.1"`: it takes the configuration's default, and while that
+    default is `"2.1"` its creation refuses with
+    `DefaultWorkflowVersionRetiredError`, writing nothing (set the default to
+    `"2.2"` in a `Workflow-Activation: 2.2` commit). The parent's own registry, mapping, and completed-checkpoint
     history are never mutated by this branch; the deferral is recorded in
     the parent's own functional-review checklist, naming the child id.
 - **Artifacts**: fixed diff with regression tests; revised functional
@@ -650,8 +692,9 @@ to `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`.
   (a deferral to a remediation child counts as a rationale).
 - **Stop for user/reviewer?** Returns to `AWAITING_FUNCTIONAL_REVIEW` for
   another pass unless the user explicitly waives it — except a round with
-  any bounded-code-change finding, which stops at the fresh
-  `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` gate instead (above).
+  any bounded-code-change finding, which stops at the fresh implementation-review
+  gate instead (above): `AWAITING_LOCAL_IMPLEMENTATION_REVIEW` for a `"2.2"`
+  item, `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` for a `"1"`/`"2.1"` item.
 
 ### AWAITING_USER_ACCEPTANCE
 
@@ -666,8 +709,11 @@ this value is still honoured — nothing writes it.
 - **Allowed actions**: none besides answering questions — no further code
   changes.
 - **Artifacts**: none new.
-- **Exit**: user explicitly accepts the milestone.
-- **Stop for user/reviewer?** Yes — hard gate. Claude must stop here.
+- **Exit**: user explicitly accepts the milestone, every recorded Optional
+  finding has a disposition (`fixed`, `dropped` with a reason, or `follow-up`
+  with a link; a follow-up is complete), and acceptance writes the findings
+  record `docs/milestones/completed/<id>-findings.md`.
+- **Stop for user/reviewer?** Yes — hard gate. The agent must stop here.
 
 ### MILESTONE_COMPLETE
 
@@ -708,7 +754,9 @@ this value is still honoured — nothing writes it.
   block itself stays, and the `AWAITING_FUNCTIONAL_REVIEW` section above
   lists the supported ways forward when it fires.
 - **Allowed actions**: final verification confirmation; update
-  `docs/ROADMAP.md` and `docs/ACTIVE_MILESTONE.md`; archive the milestone's
+  `docs/ROADMAP.md` and `docs/ACTIVE_MILESTONE.md` (with a declared `backlog`,
+  `python3 scripts/workflow_backlog.py accept <id>` sets the item `done` and
+  regenerates the page instead of a hand edit of the roadmap); archive the milestone's
   plans to `docs/milestones/completed/`; create the final completion commit
   if one is still needed; prepare `docs/ACTIVE_MILESTONE.md` for the next
   milestone's `PLANNING` state.
@@ -720,7 +768,7 @@ this value is still honoured — nothing writes it.
 
 ## Hard gates summary
 
-Claude must stop and wait for a human/external input at exactly six points:
+The agent must stop and wait for a human/external input at exactly six points:
 
 1. `AWAITING_EXTERNAL_PLAN_REVIEW`
 2. `AWAITING_PLAN_APPROVAL`
@@ -732,13 +780,13 @@ Claude must stop and wait for a human/external input at exactly six points:
 `AWAITING_PLAN_APPROVAL` and `AWAITING_TECHNICAL_APPROVAL` are each enforced
 by `/approve-review`'s mechanism-independent user-only guard
 (`disable-model-invocation: true`, plus a literal, specificity-checked
-`user_confirmation`) — only the user can exit either gate, never Claude
+`user_confirmation`) — only the user can exit either gate, never the agent
 autonomously. `/accept-milestone` carries the same guard for
 `AWAITING_USER_ACCEPTANCE`.
 
 Two of the six — `AWAITING_TECHNICAL_APPROVAL` and
 `AWAITING_USER_ACCEPTANCE` — are **vocabulary states** ("Vocabulary
-states" above): a gate is a point where Claude must stop, not a value a
+states" above): a gate is a point where the agent must stop, not a value a
 writer persists. Both are enforced by the guards named in the paragraph
 above and by `technical_approval_gate_reachable` /
 `milestone_complete_gate_reachable`, which read the phase the item is
@@ -817,7 +865,7 @@ two review stages and the same phases apply, and turning human approval on is
 the stronger mode. A pull request found red after acceptance reopens the same
 work item into remediation (`GATE_POLICY.md`, "Reopening the same work item").
 
-Between gates, Claude may work autonomously, subject to the stop conditions
+Between gates, the agent may work autonomously, subject to the stop conditions
 already defined in `AGENTS.md` (ambiguous product behavior, architecture
 changes, new dependency categories, schema migrations, destructive data
 operations, repeated verification failures, unrelated working-tree changes).
@@ -843,7 +891,7 @@ such field, no state entry, or no state file) keeps the pre-`2.6.0` rule —
 `REVIEW_FEEDBACK.md` is written by `/review-plan` (the
 `LOCAL_MODEL_PLAN_REVIEW` stage) and, since `workflow-v2-3-followups`, also
 by `/review-implementation` once its own pre-write guards pass — otherwise
-read, never written, by Claude. `FUNCTIONAL_REVIEW.md` stays read-only:
+read, never written, by the agent. `FUNCTIONAL_REVIEW.md` stays read-only:
 nothing this repository's commands write it, including
 `/review-functional`. See `docs/ai-workflow/REVIEW_PROTOCOL.md` for the
 required feedback structure.

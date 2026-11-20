@@ -1,10 +1,13 @@
 # Workflow Orchestration Protocol v1
 
-The normative specification of Orchestration Protocol v1, version `1.2`
+The normative specification of Orchestration Protocol v1, version `1.5`
 (`1.0` first shipped in Workflow 2.7.0; `1.1` adds the gate-policy rows and
 actions in Workflow 2.8.0; `1.2` adds the user-only `legacy.retire`
 alternative of row 3 and `implementation.resume` alternative of row 38c in
-Workflow 2.9.0). An orchestrator (for example the Workflow
+Workflow 2.9.0; `1.3` adds row `1b` and the advisory `default_workflow_version`
+check in Workflow 2.10.0; `1.4` adds the `review_round` snapshot field in
+Workflow 2.12.0; `1.5` adds the four per-role `review_round` counts in
+Workflow 2.15.0). An orchestrator (for example the Workflow
 Controller) drives a repository's Workflow through this protocol only. It
 copies no Workflow phases, artifact paths, helper names or transition
 rules: the Workflow owns what the lifecycle means, and the orchestrator owns
@@ -38,7 +41,7 @@ Every existing command still works as before when a person runs it.
   for people.
 - `describe` reports the protocol version, the supported majors and the
   supported governing versions. The Workflow releases tested against v1 are
-  listed only here, never in a response: **Workflow 2.7.0** (protocol `1.0`), **Workflow 2.8.0** (protocol `1.1`) and **Workflow 2.9.0** (protocol `1.2`).
+  listed only here, never in a response: **Workflow 2.7.0** (protocol `1.0`), **Workflow 2.8.0** (protocol `1.1`), **Workflow 2.9.0**, **Workflow 2.9.1** and **Workflow 2.9.2** (all protocol `1.2`), **Workflow 2.10.0** and **Workflow 2.11.0** (both protocol `1.3`), **Workflow 2.12.0**, **Workflow 2.13.0** and **Workflow 2.14.0** (all protocol `1.4`), **Workflow 2.15.0**, **Workflow 2.16.0**, **Workflow 2.17.0**, **Workflow 2.18.0**, **Workflow 2.18.1**, **Workflow 2.18.2**, **Workflow 2.18.3**, **Workflow 2.18.4**, **Workflow 2.18.5**, **Workflow 2.18.6**, **Workflow 2.18.7**, **Workflow 2.19.0**, **Workflow 2.19.1**, **Workflow 2.19.2**, **Workflow 2.20.0**, **Workflow 2.21.0**, **Workflow 2.22.0**, **Workflow 2.23.0**, **Workflow 2.24.0**, **Workflow 2.25.0**, **Workflow 2.25.1**, **Workflow 2.25.2**, **Workflow 2.25.3**, **Workflow 2.25.4**, **Workflow 2.25.5**, **Workflow 2.25.6**, **Workflow 2.25.7**, **Workflow 2.26.0**, **Workflow 2.27.0**, **Workflow 2.28.0**, **Workflow 2.29.0**, **Workflow 2.29.1**, **Workflow 2.29.2**, **Workflow 2.29.3**, **Workflow 2.29.4**, **Workflow 2.29.5**, **Workflow 2.29.6**, **Workflow 2.29.7**, **Workflow 2.29.8**, **Workflow 2.29.9** and **Workflow 2.29.10** (all protocol `1.5`).
 
 ## 2. Invocation and the envelope
 
@@ -57,8 +60,8 @@ stdout is exactly one JSON document, the **envelope**
 
 ```json
 {
-  "protocol": {"name": "workflow-orchestration", "version": "1.2"},
-  "workflow_release": "2.8.0",
+  "protocol": {"name": "workflow-orchestration", "version": "1.5"},
+  "workflow_release": "2.29.10",
   "operation": "next-action",
   "ok": true,
   "result": { "...": "operation-specific" }
@@ -190,7 +193,12 @@ directory exists. Its result (`$defs.results.describe`) is
 
 1. `state_readable`: the state file and the config parse.
 2. `state_valid`: `validate_state(state, repo_root=…)` passes, including the
-   registry-to-mirror `plan_revision` check.
+   registry-to-mirror `plan_revision` check, and (protocol `1.5`)
+   `validate_review_round_counts(state)` reports no shape problem in any work
+   item's `review_round_counts`. `validate_state`, and so every operational
+   loader (`next-action`, `record-external-result`, the writers), does not apply
+   the counter check: a malformed counter is reported here and refuses nothing
+   else.
 3. `config_valid`: `validate_config` passes, or no config file exists and
    the pre-activation default applies.
 4. `active_item_resolvable`: `active_work_item_id` is null or names a
@@ -222,6 +230,14 @@ directory exists. Its result (`$defs.results.describe`) is
    setting the file no longer carries, and a gate-lowering adoption; `fail`
    for an invalid file and for a failed provenance of the adopted policy or
    the floor. It never changes `healthy` and is not part of check 7.
+9. `default_workflow_version` (workflow-2.10.0, protocol `1.3`, advisory):
+   `warn` when the config's `default_workflow_version` is one new work items
+   no longer start on (`NEW_WORK_RETIRED_VERSIONS`, today `2.1`); its detail
+   names the default, that new work items are refused, and the next step
+   (`RETIRED_DEFAULT_NEXT_STEP`); `pass` otherwise; `skip` when the
+   configuration is unreadable (check 3 did not pass). It never changes
+   `healthy` and is not part of check 7: an existing `2.1` item is still
+   driven normally.
 
 A check fails on a Workflow or Git refusal. After an unreadable state,
 checks 2 to 5 are `skip`, check 6 still runs, and check 7 fails. A failing
@@ -267,10 +283,14 @@ a **decision**:
 ```json
 {"basis": { "...": "section 4" },
  "snapshot": {"phase": "…", "governing_workflow_version": "…", "work_item_type": "…",
-              "plan_revision": 1, "implementation_revision": null,
+              "plan_revision": 2, "implementation_revision": null,
               "current_checkpoint_id": null, "next_checkpoint_id": "CP2",
               "registry_complete": false, "plan_approval": "CURRENT",
-              "technical_approval": null, "plan_review_publication_status": null},
+              "technical_approval": null, "plan_review_publication_status": null,
+              "review_round": {"plan": 2, "implementation": null, "current": null,
+                              "plan_local": 2, "plan_external": 2,
+                              "implementation_local": 0,
+                              "implementation_external": 0}},
  "row": "23",
  "disposition": "automatic",
  "action": {"id": "implementation.checkpoint",
@@ -305,10 +325,58 @@ a **decision**:
 - `snapshot` is the item's state at decision time, plus the values the
   evaluation computed (`next_checkpoint_id`, `registry_complete`,
   `plan_review_publication_status`, each `null` when not computed).
+- `review_round` (protocol `1.4`, an item's decision only) is derived on every
+  call from state already persisted and never stored:
+  - `plan` is the number of plan-review rounds, an exact count or `null`,
+    "not derivable". It is the number of distinct contents taken out of
+    review (`consumed_plan_review_content_ids` and the `plan_review_binding`
+    slot's consumed id) plus one while the binding record is `PUBLISHED` or
+    `BOUND`, approved items included, so it does not drop at approval. It is
+    `null` before the first publication and for every shape whose history the
+    Workflow cannot show complete: the fail-closed legacy marker, a
+    `2.6.0`-shaped item (a consumed slot and no history list), a slot id the
+    list lacks, and a history shorter than the consumed slot's
+    `plan_revision`. A number never becomes a smaller number, but it can
+    return to `null` (a revision advanced without a consumed round); a
+    consumer that sees `null` counts the rounds itself, retroactively.
+  - The value is exact for an item whose plan-review rounds all ran under
+    Workflow 2.7.0 or later. An item begun before 2.7.0, or in a repository
+    ever moved back below 2.7.0, can read a number lower than its true round,
+    undetectably: for cap purposes the value is advisory for such items, and
+    a consumer that must enforce a hard cap counts rounds itself.
+  - `plan` is not the ledgers' per-stage `round`. A ledger's `round` is the
+    number the reviewer wrote in the verdict header, not a Workflow count; for
+    the number of verdicts a role has recorded, read the four per-role fields
+    below.
+  - `implementation` is the item's `implementation_revision` (`null` until
+    set). A same-content republication after a fix is a new review under the
+    same number.
+  - `current` is the review stage the phase waits for, from the phase and
+    governing version alone: `plan_local`, `plan_external`,
+    `implementation_local`, `implementation_external`, else `null`. A `2.2`
+    item at `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` (both stages approved,
+    ready for approval) reads `null`.
+  - `plan_local`, `plan_external`, `implementation_local` and
+    `implementation_external` (protocol `1.5`) are the number of verdicts the
+    local stage and the external stage have recorded at that review stage: one
+    round of a role is one `APPROVE` or `REVISE` recorded by that role's writer
+    (a `BLOCK`, a person's approval, a `USER_OVERRIDE`, a gate-policy
+    satisfaction and a refused ingest record no round). Each is read from the
+    work item's persisted `review_round_counts`, which the writer increments in
+    the same state transaction as the verdict, so the number and the verdict
+    cannot be separated. Each is an integer, or `null` when the Workflow holds
+    no count: an item created before 2.15.0 (no key), a promoted legacy item, a
+    feedback-only item (its `EXTERNAL_*` phases record no stage verdict), a
+    stage that records no per-role rounds, or a malformed key. A number never
+    resets: a fix round, a post-fix republication or a plan amendment adds to
+    it. The external counter is the second stage whichever harness produced the
+    verdict. These count verdicts, `plan` counts contents taken out of review
+    plus one in review, so `plan_local + plan_external` can be larger or
+    smaller than `plan`; do not compare them.
 
 With no work item named and none active, the result has no `basis`; its
 `snapshot` is `{"work_item_ids": [...]}`, the sorted keys of `work_items`,
-and the catalogue's no-item rows (1 and 1a) decide.
+and the catalogue's no-item rows (1, 1b and 1a) decide.
 `--expect-state-identity` then refuses with `invalid_request`.
 
 Refusals: `stale_decision` (section 4); `unknown_work_item`;
@@ -340,7 +408,8 @@ nothing. Its result (`$defs.results.reconcile`):
 ```
 
 `reconcile` accepts an `automatic` decision only. A gate is resolved
-outside the orchestrator's run, by a person or by `record-external-result`,
+outside the orchestrator's run, by a person or by `record-external-result`
+(section 8.2 states when a courier may carry a verdict),
 and the orchestrator then calls `next-action` again. Any other decision,
 and any decision that is not a well-formed `next-action` result (an action
 whose rendering differs from the catalogue's, a row that cannot emit it,
@@ -469,6 +538,11 @@ A `user_only` action always has role `user`, its command file carries
 person runs it. An action with no command (`plan.review.external`,
 `implementation.review.external`, `review.resolve_block`,
 `functional.review`) is work done outside the repository's commands.
+Some user-only commands are not actions at all, because no phase or state
+row can see the situation they answer: `/request-plan-amendment`,
+`/adopt-gate-policy`, `/release-checkpoint-start`, `/archive-finished-item`
+and `/prune-archives`. `next-action` never
+names them.
 
 ### 6.2 Terms used in the conditions
 
@@ -551,6 +625,7 @@ every row whose condition depends on it.
 | row | call | kind | classes |
 | --- | --- | --- | --- |
 | 1 | `load_config` | value | — |
+| 1b | `load_config` | value | — |
 | 1a | `load_config` | value | — |
 | 2 | — | — | — |
 | 3 | — | — | — |
@@ -692,13 +767,14 @@ the rows are tried from top to bottom, across phases, and the first row
 whose phase, `gv` and condition all match wins. No other precedence rule
 exists. A row covers every listed phase at every listed `gv`, except where
 the `gv` column says "as listed", when each phase names its own versions.
-The no-item rows (1, 1a) apply only when no work item is named or active,
+The no-item rows (1, 1b, 1a) apply only when no work item is named or active,
 and only they do. Mirrored by `CATALOGUE`; the condition and notes columns
 are a summary, and the code and its tests are the detail.
 
 | row | phases | gv | condition | disposition | action | reason, invocation and notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | — | — | no work item is named or active, and `load_config`'s `default_workflow_version` is `2.1` or `2.2` | automatic | `plan.start` | `plan_start` |
+| 1 | — | — | no work item is named or active, and `load_config`'s `default_workflow_version` is `2.2` (a two-stage default not in `NEW_WORK_RETIRED_VERSIONS`) | automatic | `plan.start` | `plan_start` |
+| 1b | — | — | no work item is named or active, and `load_config`'s `default_workflow_version` is `2.1` (in `NEW_WORK_RETIRED_VERSIONS`) | blocked | — | `plan_start_default_retired`: a `/milestone-plan` would refuse with `DefaultWorkflowVersionRetiredError`; remedy `RETIRED_DEFAULT_NEXT_STEP` (set the default to `2.2` and commit it with `Workflow-Activation: 2.2`) |
 | 1a | — | — | no work item is named or active (the default is `1`) | blocked | — | `plan_start_not_tracked`: a `1` `/milestone-plan` creates no work item |
 | 2 | `AWAITING_TECHNICAL_APPROVAL`, `AWAITING_USER_ACCEPTANCE`, `FIXING_FUNCTIONAL_FINDINGS`, `SELF_REVIEWING_PLAN` | `1`, `2.1`, `2.2` | — (a vocabulary-only phase is persisted) | blocked | — | `invalid_state` |
 | 3 | `LEGACY_READY` | `1`, `2.1`, `2.2` | — | blocked | — | `legacy_item_not_activated`; remedy: promote it, or (protocol `1.2`) retire it as already finished; alternative `legacy.retire` (`user_only`, never automatic) |
@@ -765,6 +841,21 @@ are a summary, and the code and its tests are the detail.
 | 40 | `MILESTONE_COMPLETE` | `1`, `2.1`, `2.2` | — | complete | — | — |
 
 Notes on the catalogue:
+
+- **Row `1b` is evaluated before row `1a`.** Its letter sorts after `1a`, but
+  `1a` is the unconditional fall-through for the `1` default and row ids are
+  stable, so row `1b` sits between rows `1` and `1a`. The order is deliberate
+  and `PRINTED_ROW_ORDER` pins it; without row `1b` a `2.1` default would keep
+  getting `plan.start` for a run that refuses.
+- **Rows 38 and 38d after a refused broad branch.** When the broad branch of
+  `functional.apply_findings` (row 38) or `pr.apply_review` (row 38d) is refused
+  with `DefaultWorkflowVersionRetiredError`, the phase is unchanged and
+  `reconcile` classifies the run `no_progress`; the next `next-action` matches
+  the same row. A repeated `no_progress` from row 38 or 38d while `verify`
+  reports the `default_workflow_version` `warn` is that refusal, not a stall to
+  retry: the remedy is the operator's configuration edit
+  (`RETIRED_DEFAULT_NEXT_STEP`). No row pre-empts it, because the broad/bounded
+  classification is the worker's, made by reading the findings.
 
 - **`1` items.** The protocol drives a `1` item only once it already has a
   `work_items` entry (a remediation child created under a `1` default, a
@@ -1017,7 +1108,8 @@ A consumer of protocol `1.x`:
    honours `worker` (role, a fresh session, independence, `user_only`);
 5. runs an `automatic` action (and, from protocol `1.1`, a `validation`
    action) only, never a gate's action or an alternative on its own; a
-   `user_only` action is always a person's;
+   `user_only` action is always a person's (a verdict courier at an
+   external gate is admissible only under the conditions of section 8.2);
 6. checks the identity before launching: `next-action
    --expect-state-identity <basis.state_identity>` immediately before
    the launch, re-deciding on `stale_decision`;
@@ -1026,7 +1118,8 @@ A consumer of protocol `1.x`:
    recorded, never `reconcile`;
 8. records external verdicts through `record-external-result` only, and
    never reads or writes a Workflow artifact path to drive the lifecycle
-   (`resolve-artifact` is for display and hand-off);
+   (`resolve-artifact` is for display and hand-off; section 8.2 states when
+   a courier may carry a verdict);
 9. stops at disposition `complete`;
 10. (protocol `1.1`, a recommendation) bounds its consecutive `no_progress`
     results of the **same** action id at an **unchanged** `state_identity`,
@@ -1038,6 +1131,57 @@ A consumer of protocol `1.x`:
     `gh` path) leaves `state_identity` unchanged and is the case the bound is
     for. Section 8 defined no such limit in `1.0`.
 
+### 8.1 A round cap (protocol `1.4`, per role from `1.5`)
+
+An orchestrator with a round cap compares the number for the stage and role it
+is about to dispatch (`review_round.plan_local`, `plan_external`,
+`implementation_local` or `implementation_external` from protocol `1.5`, else
+`review_round[<stage>]`; section 5.4) with its cap before dispatching a review
+or an apply action and, at the cap, stops dispatching and hands the item to a
+person. The stage and role to compare follow `review_round.current`. When the
+field is `null` (not derivable, including a field that was a number earlier) it
+counts the rounds itself, for example by its own review-job count for the item,
+and never treats `null` as 0 or as any number. Two ways a number can mislead:
+**missing** (`null`: an item created before 2.15.0, a promoted legacy item, a
+feedback-only item or a malformed key; the consumer counts itself) and
+**stale** (a number that reads low after a verdict was ingested while the
+repository ran an earlier release; undetectable, so a consumer holding a hard
+cap on an item that was ever moved back counts itself). A number is exact for an item
+whose plan-review rounds all ran under Workflow 2.7.0 or later and advisory
+for cap purposes otherwise: a consumer that must enforce a hard cap on an
+item that predates 2.7.0, or on any item of a repository ever moved back
+below 2.7.0, counts the rounds itself.
+
+The Workflow never accepts at a cap. What the person can do is the existing
+user-only paths, unchanged: `/approve-review` with the confirmation guard
+where the gate is reachable (`USER_OVERRIDE` after a `REVISE`); otherwise
+continue the loop, or withdraw and re-scope the plan (`/milestone-plan
+<id>`).
+
+### 8.2 A distinct-provider verdict courier at an `external_gate`
+
+A clarification of obligations 5 and 8 and of sections 5.5 and 5.6, with no
+behavior change, field, row, action or check. Independence is enforced by the
+Workflow, not by trust in the courier: `record-external-result` runs every
+guard (binding, content id, stage preconditions, `distinct_reviewer_models`
+under automatic gates). A courier is admissible when, and only when:
+
+1. the verdict is produced by a different provider and model family from the
+   local stage's reviewer (stated in its `Reviewer model:` line), in a
+   disposable copy with no write access to the real repository;
+2. the courier passes the verdict text verbatim, never edits, filters or
+   retries it into a different status, and records every verdict it obtains,
+   `REVISE` included; a limit or failure retry re-runs only an attempt that
+   produced no verdict;
+3. entry is through `record-external-result` only; on a refusal the
+   orchestrator re-decides with `next-action` and never works around the
+   guard;
+4. it couriers only the two verdict kinds at rows 14 and 28, never resolves a
+   `user_only` action, and under a human gate policy the approval stays a
+   person's (recording a verdict is not an approval);
+5. it is enabled by the repository owner's configuration or by an explicit Controller
+   default the owner accepted at setup; unset, the gate stops as today.
+
 ## 9. Reserved for a later protocol version
 
 - Nothing is reserved in `1.1`: the disposition `validation` and the result
@@ -1046,6 +1190,41 @@ A consumer of protocol `1.x`:
 
 ## 10. Compatibility notes
 
+- **Protocol `1.5`** (Workflow 2.15.0; Workflow 2.16.0, 2.17.0, 2.18.0, 2.18.1, 2.18.2, 2.18.3, 2.18.4, 2.18.5, 2.18.6, 2.18.7, 2.19.0, 2.19.1, 2.19.2, 2.20.0, 2.21.0, 2.22.0, 2.23.0, 2.24.0, 2.25.0, 2.25.1, 2.25.2, 2.25.3, 2.25.4, 2.25.5, 2.25.6, 2.25.7, 2.26.0, 2.27.0, 2.28.0, 2.29.0, 2.29.1, 2.29.2, 2.29.3, 2.29.4, 2.29.5, 2.29.6, 2.29.7, 2.29.8, 2.29.9 and 2.29.10 keep it: no snapshot field,
+  row, action, envelope key or classification changed; Workflow 2.26.0 adds a `workflow_state.py` flag, `--acceptance-gate <id>`, that is a read-only report and not a protocol operation; Workflow 2.27.0 adds a `workflow_state.py` flag, `--satisfy-acceptance <id>`, that writes state through `state_transaction` and is not a protocol operation; Workflow 2.28.0 adds a `workflow_state.py` flag, `--write-findings-record <id>`, that writes the findings record file and is not a protocol operation; Workflow 2.29.0 adds a `workflow_state.py` flag, `--commit-gate-policy-floor <id>`, that records the acceptance floor through the library and is not a protocol operation; Workflow 2.29.1 changes no flag and no protocol operation: it moves a phase guard inside `workflow_state.py`'s completion; Workflow 2.29.2 changes no flag and no protocol operation either: `--finding-dispositions` and the acceptance report answer a malformed state or registry with one JSON object; Workflow 2.29.3 changes no flag and no protocol operation either, and the protocol stays `1.5`; Workflow 2.29.4 changes no flag and no protocol operation either, and the protocol stays `1.5`; Workflow 2.29.5 changes no flag and no protocol operation either, and the protocol stays `1.5`; Workflow 2.29.6 changes no flag and no protocol operation either, and the protocol stays `1.5`; Workflow 2.29.7 changes no flag and no protocol operation either, and the protocol stays `1.5`; Workflow 2.29.8 changes no flag and no protocol operation either, and the protocol stays `1.5`; Workflow 2.29.9 changes no flag and no protocol operation either, and the protocol stays `1.5`; Workflow 2.29.10 changes no flag and no protocol operation either, and the protocol stays `1.5`). The `review_round` object of an item's
+  `next-action` snapshot gains four additive properties after `current`:
+  `plan_local`, `plan_external`, `implementation_local` and
+  `implementation_external`, each an integer `>= 0` or `null` (section 5.4),
+  all required in the `1.5` schema. `plan`, `implementation` and `current` are
+  unchanged. No row, action, reason code, check id, envelope key or error code
+  changed; `verify`'s `state_valid` check also reports a malformed counter
+  (section 5.2). A `1.4` consumer ignores the unknown fields (obligation 2) and
+  reads `plan`, `implementation` and `current` exactly as before, but the `1.4`
+  schema's `review_round` object has `additionalProperties: false`, so a
+  consumer that validates a `1.5` response against its own copy of the `1.4`
+  schema rejects it: validate against the `1.5` schema, or drop unknown
+  `review_round` fields first. A `1.5` consumer reading a `1.4` response (an
+  older Workflow) finds the four fields absent and treats each as `null`,
+  counting the rounds itself. Section 8.1 (the round cap) is consumer guidance
+  only.
+- **Protocol `1.4`** (Workflow 2.12.0; Workflow 2.13.0 and Workflow 2.14.0 keep it: no snapshot field,
+  row, action, envelope key or classification changed). The snapshot of an item's `next-action`
+  decision gains the additive `review_round` field (section 5.4). No row,
+  action, reason code, check or error code changed. A `1.3` consumer ignores
+  the unknown field (obligation 2), but the `1.3` schema's `snapshot` object
+  has `additionalProperties: false`, so a consumer that validates a `1.4`
+  response against its own copy of the `1.3` schema rejects it: validate
+  against the `1.4` schema, or drop unknown snapshot fields before
+  validating. Section 8.1 (the round cap) and section 8.2 (the verdict
+  courier) are consumer guidance only.
+- **Protocol `1.3`** (Workflow 2.10.0). New work items are no longer created
+  while the config's default is `2.1`. Row `1` now matches only a default that
+  is not retired (`2.2`); the new row `1b` reports `blocked` for a `2.1`
+  default instead; `verify` gains the advisory `default_workflow_version`
+  check. A `1.2` consumer meets a `blocked` decision with an unknown reason
+  code and a `verify` check id it does not know: it stops, it does not misact.
+  `2.1` stays in `supported_governing_versions`: existing `2.1` items run to
+  completion unchanged.
 - **The pinned `review_content_id` label** (`v2.6.0-002`). Review feedback
   states its content id as `Reviewed review_content_id: <64 hex>`, required
   in every two-stage stage verdict and optional elsewhere. The legacy

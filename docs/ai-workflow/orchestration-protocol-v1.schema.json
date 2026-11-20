@@ -178,7 +178,21 @@
         "registry_complete": {"type": ["boolean", "null"]},
         "plan_approval": {"type": ["string", "null"]},
         "technical_approval": {"type": ["string", "null"]},
-        "plan_review_publication_status": {"type": ["string", "null"]}
+        "plan_review_publication_status": {"type": ["string", "null"]},
+        "review_round": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["plan", "implementation", "current", "plan_local", "plan_external", "implementation_local", "implementation_external"],
+          "properties": {
+            "plan": {"type": ["integer", "null"]},
+            "implementation": {"type": ["integer", "null"]},
+            "current": {"enum": ["plan_local", "plan_external", "implementation_local", "implementation_external", null]},
+            "plan_local": {"type": ["integer", "null"]},
+            "plan_external": {"type": ["integer", "null"]},
+            "implementation_local": {"type": ["integer", "null"]},
+            "implementation_external": {"type": ["integer", "null"]}
+          }
+        }
       }
     },
     "decision": {
@@ -313,7 +327,8 @@
                       "checkpoint_completions_provable",
                       "installation_release_matches",
                       "protocol_ready",
-                      "gate_policy"
+                      "gate_policy",
+                      "default_workflow_version"
                     ]
                   },
                   "status": {"type": "string", "enum": ["pass", "warn", "fail", "skip"]},
