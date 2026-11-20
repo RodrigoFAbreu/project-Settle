@@ -46,6 +46,10 @@ fork of jfilipegm/project-Settle, kept as the `upstream` remote), and
 
 ### One branch and one PR per milestone
 
+Workflow Controller creates and binds the milestone branch itself
+(`feature/{work_item_id}`, so `feature/milestone-X`) and opens the Draft
+PR; the steps below describe the same convention for work done by hand.
+
 1. **Start from an up-to-date `main`.** Before planning milestone X,
    run `git switch main && git pull`, then
    `git switch -c feature/milestone-X`. X is the number of the milestone
@@ -79,19 +83,25 @@ fork of jfilipegm/project-Settle, kept as the `upstream` remote), and
   `style:`, `revert:`. An optional scope is allowed (`feat(m1): ...`).
   Add `!` after the type or scope for a breaking change (`feat!: ...`).
   The `Conventional Commit title` check enforces the format.
-- **The title sets the release version.** Every push to `main`
+- **The title sets the release version.** PRs are squash-merged, so the
+  PR title is the commit on `main`, and every release-bearing commit
   publishes a GitHub Release and its container image (build-and-publish.yml,
-  called by ci.yml once CI passed). The bump comes from the
-  titles of the PRs merged since the previous tag: `!` → major,
-  `feat` → minor, anything else → patch.
+  called by ci.yml once CI passed). `!` → major, `feat` → minor, `ci` →
+  no release, anything else → patch (`scripts/release/release.py`, which
+  `.workflow-controller/policy.json` mirrors). Do not edit the squash
+  message in GitHub's merge dialog: the title is what the release reads.
 
 ### Still never
 
-- Never merge a PR. Merging is the user's decision, after the milestone
-  gates (`/approve-review implementation`, `/accept-milestone`). PRs are
-  merged with a **merge commit**; squash and rebase merges are disabled,
-  because they would drop the per-checkpoint commits and their workflow
-  trailers.
+- Never merge a PR by hand, and never press "Update branch" on a
+  milestone PR. Merging follows the milestone gates
+  (`/approve-review implementation`, `/accept-milestone`); once the
+  milestone is accepted and every check is green, Workflow Controller
+  (`.workflow-controller/policy.json`: squash, `auto_merge`) merges the
+  accepted commit itself, and a person may merge instead. PRs are
+  **squash-merged**; merge commits and rebase merges are disabled. The
+  per-checkpoint commits and their workflow trailers stay on the PR
+  branch and in its history, but `main` gets one commit per PR.
 - Never commit or push to `main` directly.
 - Never force-push. Never rebase, amend or otherwise rewrite a commit
   that has been pushed.
