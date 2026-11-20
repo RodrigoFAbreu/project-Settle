@@ -11,3 +11,6 @@ design-ideas/
 
 # Container image build input (container/README.md)
 container/settle.zip
+
+# Release build output (scripts/release/build.sh)
+/dist/

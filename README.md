@@ -184,7 +184,9 @@ which the app also links from Settings.
 ## Roadmap and releases
 
 - The plan, milestone by milestone: [`docs/ROADMAP.md`](docs/ROADMAP.md).
-- Every change merged into `main` is published as a
-  [GitHub Release](https://github.com/jfilipegm/project-Settle/releases). The
-  version number follows the kind of change: a new feature raises the
-  minor version, and any other change raises the patch version.
+- Every release-bearing change merged into `main` is published as a
+  [GitHub Release](https://github.com/RodrigoFAbreu/project-Settle/releases)
+  and as the homelab's container image. The version number follows the PR's
+  Conventional Commit title: a breaking change (`!`) raises the major
+  version, a new feature (`feat`) the minor version, and anything else the
+  patch version. A `ci:` change releases nothing.
