@@ -37,6 +37,40 @@ on update. Add repository-specific guidance below it; it is never touched.
 
 <!-- workflow-manager:end -->
 
+## Running under the Controller
+
+Workflow Controller runs one milestone per item in `docs/backlog.yaml`
+(`docs/BACKLOG.md` is its generated view; `docs/ROADMAP.md` stays the
+hand-written scope). These rules apply to every job:
+
+- **Plan header.** A plan carries exactly one header line of exactly this
+  form, with nothing after the closing backtick:
+  ``Pull request title: `fix: what changed` ``. Use `fix:` for a correction,
+  `feat:` for something new, `test:` or `docs:` as they fit. The title becomes
+  the squash commit's subject and decides the release; any other form declares
+  no title.
+- **Size.** One backlog item is one milestone, one squash PR and one release.
+  Keep it small: one new mechanism at most, a few checkpoints. Split an item
+  before its first review if it needs two mechanisms.
+- **Review severity.** Blocking or Important means wrong code or a missed
+  requirement. Citations, file lists, wording of the plan and similar
+  bookkeeping are Optional, and an Optional finding is never a reason for
+  another round. Say what the user would see go wrong.
+- **Simple commands.** Run `gh` and scripts as separate simple commands.
+- **Acceptance.** Don't check `gh` first (for example `gh auth status`):
+  acceptance runs the Workflow's own GitHub query.
+- **Findings.** Check each Optional finding against the code and give it a
+  disposition before acceptance: `fixed` (only if code or tests changed),
+  `dropped` with a reason, or `follow-up` with a link to a `docs/items/` page.
+- **Real receipts never enter Git.** Fixtures are invented; real receipts stay
+  in the git-ignored `app/src/features/receipt/fixtures/local/`.
+- **Schema changes.** A fresh install skips upgrades, so any change to stored
+  data needs a migration step and an upgrade check against a copy of real data.
+- **Testing.** The app's checks run in `app/` (`npm run typecheck`, `lint`,
+  `format:check`, `npm test`). Browser flows need a build and Chromium, which
+  a job's sandbox may not allow: say so, and the orchestrator records that
+  evidence.
+
 ## Git and GitHub workflow (repository-specific)
 
 This section overrides the managed "Git restrictions" above wherever they
