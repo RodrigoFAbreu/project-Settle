@@ -63,6 +63,9 @@ later, and only around behaviour that real users have shown they value.
   thing that ever leaves it before accounts exist is **anonymous, aggregate
   product telemetry** (M8), which never contains amounts, names, items,
   merchants or receipt content.
+  The one planned exception is a **self-hosted deployment** (M6.5): the
+  owner runs their own server, and their data lives there instead of in each
+  browser. The free static build keeps its data on the device.
 - **Useful for free, not crippled.** The free product must solve the
   problem on its own. Paid features add convenience, automation, sync,
   backup, more powerful processing and collaboration. They never remove or
@@ -115,6 +118,7 @@ scope. Anything not listed as must-have is negotiable there.
 | M4  | Households, members and the expense ledger         | 1 · Free local-first core        | Complete    |
 | M5  | Balances and settling up                           | 1 · Free local-first core        | Complete    |
 | M6  | Export, import, backup and sharing                 | 1 · Free local-first core        | Not started |
+| M6.5| Self-hosted central storage                       | 1 · Free local-first core        | Proposed    |
 | M7  | Installable PWA and public deployment              | 1 · Free local-first core        | Not started |
 | M8  | Privacy-first product analytics                    | 2 · Analytics and developer BO   | Not started |
 | M9  | Minimal developer backoffice                       | 2 · Analytics and developer BO   | Not started |
@@ -624,6 +628,67 @@ to share, even before cloud sync exists.
   review.
 
 **Not yet:** accounts, a server, or any upload of household data.
+
+---
+
+## M6.5 — Self-hosted central storage
+
+**Status:** Proposed (added 2026-11-20). Its order relative to M6 is still to
+confirm: M6's Settle file is a natural way to move existing data in.
+
+**Objective:** a self-hosted Settle keeps its data in a database on the
+server, so every device and browser that opens it shows the same households,
+bills and ledger. The first target is the homelab K3s deployment at
+`settle.home.arpa`.
+
+**Why it matters:** the data lives in each browser today (localStorage and
+IndexedDB, [ADR 0005](adr/0005-local-ledger-store.md)), so a second device,
+or another browser on the same computer, starts empty. For one person with
+several devices, or roommates on one household, that is the main limit of
+the local-first product.
+
+**Must-have**
+- **A server store behind the same data model.** The ledger's records
+  (households, members, expenses, settlements) and their versioned schema
+  stay as ADR 0005 defines them. Storage becomes an interface with two
+  implementations: the browser's (as today) and the server's.
+- **A small API and a database in the cluster**, with retained storage and
+  backups covered by the homelab's existing backup helpers, and a restore
+  that has been tested.
+- **The static build is unchanged.** A deployment opts in to the server
+  store; without it the app runs exactly as now, with no server and no
+  account.
+- **Bringing existing data in**: a one-time import of what a browser already
+  holds (through M6's Settle file once it exists, or a direct upload).
+- **Receipt reading stays in the browser.** Only the structured result is
+  saved. A receipt image is not uploaded unless a plan decides otherwise.
+
+**Not yet:** authentication and accounts. Until they exist, anyone who can
+reach the deployment can read and change all of its data, so the deployment
+stays on a private network. The API should leave room for an identity on
+every request, so adding sign-in later is not a rewrite.
+
+**Open decisions for the plan**
+- Database engine (PostgreSQL as SignalHub uses, or SQLite on a retained
+  volume), and how its schema versions share the ledger's migration runner.
+- The API's shape, and whether it runs in the same container as the static
+  files or as its own workload with the shared `backend-app` chart.
+- What is shared across devices (the ledger) and what stays per device
+  (theme, language, region, the bill being edited).
+- Concurrent edits from two devices: last write wins, or conflict prompts
+  (compare M6's merge).
+- Offline behaviour: whether the installable app (M7) may queue changes
+  while the server is unreachable.
+- The data-protection impact of holding other people's financial data on a
+  server, and what to tell them.
+- How it relates to M14 (accounts, cloud sync and billing): this is its
+  storage half without accounts or billing, and M14 would build on it.
+
+**Completion criteria**
+- Two different browsers on two machines see the same household and ledger.
+- Data survives a redeploy of the app and a restart of the database, and a
+  restore from backup brings it back.
+- The same Settle build still works with no server configured.
 
 ---
 
