@@ -70,7 +70,7 @@ action available while the resolved item's `phase` is exactly
 (`docs/ai-workflow/MILESTONE_WORKFLOW.md`). Implements a model-independent
 **review role**, not a specific model: nothing in this contract, in the
 report it produces, or in any check it performs names a model — running it
-from any capable Claude model produces the same behavior. (For a `"2.2"`
+from any capable model produces the same behavior. (For a `"2.2"`
 item at `AWAITING_LOCAL_IMPLEMENTATION_REVIEW`, see the authoritative branch
 at the end of this file instead — it does enter/exit real state.)
 (That authoritative branch alone writes one model-bearing header line,
@@ -130,7 +130,7 @@ end of this file for the `AWAITING_LOCAL_IMPLEMENTATION_REVIEW` case.
    alongside `<bundle_dir>/REVIEW_REQUEST.md`, `IMPLEMENTATION_SUMMARY.md`,
    `TEST_RESULTS.md`, `CHANGED_FILES.txt`, `COMMITS.txt`, `DIFF.patch`,
    `files/`, `MANIFEST.md`, the required-context file list, and any prior
-   `<feedback_dir>/REVIEW_FEEDBACK.md` for continuity across rounds. An
+   `<feedback_dir>/REVIEW_FEEDBACK.md` for continuity across rounds. **Changes since the last reviewed bundle** (workflow-2.12.0, `D-Changes`): when `<bundle_dir>/../CHANGES_SINCE_REVIEW.md` (the file next to `current/`) exists and its preamble's `review_content_id` is the one recomputed in step 4, read it too: it holds one section per review stage, and you read **the section named for your role** (`## LOCAL_MODEL_IMPLEMENTATION_REVIEW`; the manual external reviewer's is its own `## MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW`). A section carries the previous round's findings of that stage and the diff of the implementation-stage protected content since that stage's previous round. A section reading `not available (<reason>): review the whole bundle.` has no basis: review the whole bundle. You may then review only the changes in your section and check that each previous finding is resolved, declaring `Review scope: changes` in the header; that is valid on a `REVISE` or `BLOCK` only. **Any `APPROVE` is a full review of the whole bundle**: when the changes show nothing to fix, go on to the full pass in the same run, and declare `Review scope: full` or omit the line. A file whose preamble names another id is stale: ignore it. An
    implementation-stage bundle generated without the plan stage's mandatory
    work-item-id argument lands in the flat `.ai-review/current/` path while
    the resolver still prefers a scoped `.ai-review/<work_item_id>/current/`
@@ -358,7 +358,7 @@ mirroring `/review-plan`'s own `"2.1"` authoritative role exactly,
 substituted for the implementation stage. Implements the
 `LOCAL_MODEL_IMPLEMENTATION_REVIEW` **role**, not a specific model: nothing
 in this contract, the written feedback schema, or the state transition it
-produces names a model. Running it from any capable Claude model produces
+produces names a model. Running it from any capable model produces
 the same schema and the same transition. Recommended in a **fresh session**
 for genuine independence from the session that wrote the implementation —
 strongly recommended operational guidance, not a verified precondition; no
@@ -448,6 +448,18 @@ A5. **Decide the verdict** (`Status: APPROVE | REVISE | BLOCK`) and write
     - the round/sequence number (one more than the highest prior
       `LOCAL_MODEL_IMPLEMENTATION_REVIEW` round on record, or `1` if none);
     - a completion timestamp.
+    - **Verdict shape** (workflow-2.12.0, `D-Severity`): a `REVISE` names at
+      least one Blocking or Important finding, and an `APPROVE` lists no
+      Blocking finding and declares no `Review scope: changes` (every
+      `APPROVE` is a full review of the whole bundle). Write the literal
+      `None.` in a severity section with no finding. A round whose only
+      findings are Optional is an `APPROVE`, with them under `## Optional
+      findings`. Before writing, call
+      `workflow_fingerprint.assert_verdict_well_formed(<the text about to be
+      written>)`; on a `MalformedVerdictError`, rewrite your own verdict to
+      conform in this same run and call it again -- never write a verdict it
+      refuses, and never change `Status:` to dodge it without changing the
+      findings.
     Malformed prior feedback is reported and stops rather than guessed at.
 A6. **Write set, exact.** **`REJECTED`-bundle refusal, second of two, under
     this step's own mutation guard** (`WFR-67`): immediately before the
@@ -492,7 +504,12 @@ A6. **Write set, exact.** **`REJECTED`-bundle refusal, second of two, under
       same one name, exactly as `LOCAL_MODEL_PLAN_REVIEW` and
       `MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW` already are for their own
       stages) and its phase transition to
-      `AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW`.
+      `AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW`. **Leave this write
+      uncommitted -- do not commit it** (workflow-2.9.1, `REVIEW_PROTOCOL.md`'s
+      commit rule for review-stage writes): the approval commit
+      (`/approve-review implementation` or `/satisfy-gate implementation`)
+      picks it up, and a commit of its own would put HEAD past the bundle's
+      `generation_head` and raise `bundle_generation_mismatch` at that gate.
     - `REVISE`: `REVIEW_FEEDBACK.md`, plus the phase transition directly to
       `APPLYING_REVIEW_FEEDBACK`
       (`record_local_implementation_review(..., verdict="REVISE", ...)` --
@@ -501,10 +518,26 @@ A6. **Write set, exact.** **`REJECTED`-bundle refusal, second of two, under
       `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`, which is wrong for this
       branch; `record_local_implementation_review` sets
       `APPLYING_REVIEW_FEEDBACK` directly instead, mirroring
-      `record_local_plan_review`'s own `REVISING_PLAN` write).
+      `record_local_plan_review`'s own `REVISING_PLAN` write). **Then commit
+      the write alone** (workflow-2.9.1): after the persist, call
+      `workflow_state.commit_pending_applying_review_feedback_entry(repo_root,
+      work_item_id, attribution=<the Co-Authored-By/Claude-Session lines this
+      session is told to add, or ()>)`. It stages only this work item's state
+      and commits it with a `Workflow-Work-Item` trailer as the final
+      paragraph, before any fix commit, so the post-fix generation record
+      still transitions `phase`; it returns `None` when the write is already
+      committed. Report a `ReviewStageWriteNotCommittableError` or a
+      `DirtyIndexBeforeStagingError` (unstage the unrelated content) and stop.
+      Never a broader `git add`.
     - `BLOCK`: `REVIEW_FEEDBACK.md` only --
       `record_local_implementation_review(..., verdict="BLOCK", ...)` is a
       true no-op; the work item stays at `AWAITING_LOCAL_IMPLEMENTATION_REVIEW`.
+    **Optional findings** (workflow-2.14.0, `D-Ledger`): the
+    `record_local_implementation_review` call, for an `APPROVE` or a
+    `REVISE`, also passes `verdict_text=<the REVIEW_FEEDBACK.md text just
+    written>`, so every finding under `## Optional findings` is recorded in the
+    item's state in the same transaction. A call without `verdict_text` records
+    nothing; a `BLOCK` records nothing.
     Never the plan, registry, mapping, command, product, or bundle-content
     files, and never another work item's fields.
 A7. **Report and stop.** For an `APPROVE`: state the exact bundle path,

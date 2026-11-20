@@ -107,6 +107,41 @@ the design; operationally:
   generator builds the bundle in a staging directory and swaps it in only
   on success, so a failed generation leaves the previous bundle intact and
   writes no `REJECTED` marker.
+- **A new or unbound plan revision without checkpoint anchors fails
+  generation** (2.11.0). Regenerating an already-bound review at a ready
+  phase does not re-judge anchors; a withdrawal or a new revision brings the
+  check back. The plan-stage generator checks the pinned plan bytes with
+  `assert_plan_checkpoint_anchors` and refuses, naming the first uncovered
+  checkpoint, when a registry checkpoint lacks a well-formed
+  `<!-- CPn -->`/`<!-- /CPn -->` pair. Like any failed plan-stage generation it
+  leaves the previous bundle intact and writes no `REJECTED` marker. Add the
+  pair, then run the command again.
+- **A new plan revision that names a list of governing versions fails
+  generation** (2.13.0). Right after the anchor check, at the same command
+  steps and in the plan-stage generator, `assert_plan_governing_version_sweep`
+  runs the installed governing-version sweep on the plan document (when it is
+  a top-level `.md` file of `docs/ai-workflow/`, the sweep's own corpus), so a
+  plan the sweep would reject at pull-request time is refused before any
+  review. Regenerating an already-bound review at a ready phase is not
+  re-judged. The refusal lists each finding as `<path>:<line> (<form>):
+  <snippet>`; like any failed plan-stage generation it leaves the previous
+  bundle intact and writes no `REJECTED` marker. Reword each flagged passage
+  (say a feedback-only item or a two-stage item), then run the command again.
+- **A new plan revision whose artifact declaration leaves a named path
+  unclassified fails generation** (2.14.0). Right after the sweep check, at the
+  same command steps and in the plan-stage generator,
+  `assert_plan_artifact_declaration_coverage` reads each checkpoint's `**Files:**`
+  paragraph (in it every backtick span is a path, apart from a span with
+  whitespace or a glob or placeholder character, a URL, one starting `/`, `~` or
+  `..`, or a version string) and refuses a path that the item's
+  `<id>-artifacts.json` leaves unclassified at the plan stage, the
+  implementation stage or both. Regenerating an already-bound review at a ready
+  phase is not re-judged, and an already approved or bound plan is not
+  re-checked. The refusal names each checkpoint and path; like any failed
+  plan-stage generation it leaves the previous bundle intact and writes no
+  `REJECTED` marker. Add each path (or its directory prefix) to the declaration,
+  or write a non-path without backticks, then run the command again. A
+  checkpoint with no Files paragraph only draws a warning.
 - **A failed generation after the publish** leaves the item at
   `PUBLISHED_UNBOUND`. Re-run the same command with the explicit id —
   `/milestone-plan <id>` or `/apply-plan-review <id>` — which regenerates
@@ -132,6 +167,31 @@ the design; operationally:
   --plan-review-publication-status <work-item-id>` prints the item's
   publication status, its row, and the remedy, as one JSON object, and
   writes nothing.
+
+## Plan-stage writes are not committed (`workflow-2.9.1`)
+
+No plan-stage review write is committed on its own: there is no generation
+record at the plan stage, the plan-approval commit takes the whole
+working-tree state, and a commit of its own raises `bundle_generation_mismatch`
+at the plan-approval gate. A plan-stage `REVISE` therefore lives in the working
+tree until approval. The rule for every review stage is in `REVIEW_PROTOCOL.md`
+("Which review-stage writes are committed").
+
+## Reviewing only the changes (`workflow-2.12.0`)
+
+From the second round, the generator writes `CHANGES_SINCE_REVIEW.md` next to
+`current/` (and into `review-bundle.tar.gz`) with one section per review stage
+(`workflow-2.13.0`): `## LOCAL_MODEL_PLAN_REVIEW` compares against the last
+generation and quotes the last local verdict, `## MANUAL_EXTERNAL_PLAN_REVIEW`
+compares against the content the manual stage last reviewed and quotes its own
+last verdict. A section without a basis says `not available (<reason>): review
+the whole bundle.`; the first manual round after updating to 2.13.0 has none.
+`/review-plan` and the manual reviewer read the section named for their role,
+may review only its changes and check each previous finding is resolved,
+declaring `Review scope: changes`, and return a `REVISE` or `BLOCK`. Any `APPROVE` is a full review of the whole
+bundle, so the round that approves is by rule a full round. The file is
+reviewer convenience, outside `bundle_id` and `review_content_id`; its
+semantics are in `REVIEW_PROTOCOL.md` ("Bundle location").
 
 ## Staleness, in one line
 

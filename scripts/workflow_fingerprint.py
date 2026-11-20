@@ -204,6 +204,7 @@ additions, all previously recorded as forward-looking obligations:
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
 import os
@@ -213,10 +214,11 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import unicodedata
 import uuid
 from pathlib import Path
 from types import MappingProxyType
-from typing import Mapping, NamedTuple
+from typing import Callable, Mapping, NamedTuple
 
 # A bundle-verification run must never write bytecode into a bundle
 # directory it is hashing -- that would change bundle_id as a side effect
@@ -228,7 +230,104 @@ sys.dont_write_bytecode = True
 class UnclassifiedPathError(Exception):
     """Raised when a changed or untracked path is neither protected nor
     excluded — fails closed per PROTO-R7-001's requirement that this
-    actually be reachable, not merely defined."""
+    actually be reachable, not merely defined.
+
+    `str()` is the message `unclassified_path_message` builds (the path, the
+    artifact-declaration file that must list it, the sanctioned route);
+    `path` and `stage` (`"plan"` or `"implementation"`) are kept so a caller
+    that knows the work item can re-raise the same class with its name in
+    the text (`naming_work_item`)."""
+
+    def __init__(self, message, path=None, stage=None):
+        super().__init__(message)
+        self.path = path
+        self.stage = stage
+
+
+#: The one template of an item's artifact declaration; `artifacts_path_for_work_item` and
+#: `unclassified_path_message` both read it, so the message cannot name another file than the helper.
+ARTIFACTS_PATH_TEMPLATE = "docs/ai-workflow/registry/{work_item_id}-artifacts.json"
+
+_UNCLASSIFIED_PROTOCOL_SEE = 'See REVIEW_PROTOCOL.md, "Repairing an artifact declaration after an approval".'
+
+
+def unclassified_path_message(
+    path: str, work_item_id: str | None = None, stage: str = "plan", interval: bool = False,
+    declaration: str | None = None,
+) -> str:
+    """The text of an `UnclassifiedPathError` (W39): names the path, the
+    artifact-declaration file that must list it and the sanctioned route that
+    adds it, for the one stage that refused. With no `work_item_id` the file
+    is named by the placeholder `<work_item_id>` and the text says the item is
+    not known where the path was classified. `interval=True` (only the
+    provenance-interval catch, `stage="implementation"`) replaces the route by
+    the interval form: that check accepts only excluded paths. `declaration`
+    (a repository-relative path, known form only) names the file that was really
+    read in place of the templated one."""
+    known = work_item_id is not None
+    item = work_item_id if known else "<work_item_id>"
+    if declaration is None or not known:
+        declaration = ARTIFACTS_PATH_TEMPLATE.format(work_item_id=item)
+    if known:
+        head = (
+            f"{path} is not classified by the {stage} stage of the artifact declaration of "
+            f"work item {item}, {declaration}. "
+        )
+    else:
+        head = (
+            f"{path} is not classified by the {stage} stage of the artifact declaration of the "
+            f"work item being worked, {declaration} (the work item is not known where this path "
+            f"was classified, so <work_item_id> stands for its id). "
+        )
+    if interval:
+        return head + (
+            "A provenance interval may contain only excluded paths: exclude it in "
+            "implementation_stage only if it is repository territory (a change to the declaration "
+            "stales the technical approval, never widen an exclusion to avoid a re-review); for a "
+            "deliverable the content needs a new implementation round, not a declaration entry. "
+            + _UNCLASSIFIED_PROTOCOL_SEE
+        )
+    if stage == "implementation":
+        return head + (
+            "Add the path to implementation_stage of that file, as a path or a directory prefix: "
+            "protected for a deliverable, excluded for repository territory. The edit needs no plan "
+            "amendment (the plan-stage id does not change); before the technical approval re-run "
+            "the command that refused, after it the edit goes through mark_technical_approval_stale "
+            "and a post-fix round. " + _UNCLASSIFIED_PROTOCOL_SEE
+        )
+    arg = f" {item}" if known else ""
+    return head.rstrip() + "\n" + (
+        "Add the path to plan_stage of that file as excluded, an exact path in excluded_paths or a "
+        "directory prefix in excluded_prefixes (it is protected only if it is one of the plan's own "
+        "documents; a deliverable is excluded here and protected at the implementation stage).\n"
+        "At PLANNING, REVISING_PLAN, AMENDING_PLAN, AWAITING_LOCAL_PLAN_REVIEW, "
+        "AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW or AWAITING_PLAN_APPROVAL, whether or not an "
+        f"amendment is open: edit the file and run /milestone-plan{arg} again.\n"
+        "At IMPLEMENTING or SELF_REVIEWING_IMPLEMENTATION the plan is approved and the edit needs a "
+        f"new plan revision: the user runs /request-plan-amendment{arg}, then /milestone-plan{arg}, "
+        "plan review and the plan approval (/approve-review plan, or /satisfy-gate when the plan "
+        "gate is automatic); at any other phase of a two-stage item neither command is admitted, "
+        "so tell the user.\n"
+        + _UNCLASSIFIED_PROTOCOL_SEE
+    )
+
+
+@contextlib.contextmanager
+def naming_work_item(work_item_id: str, declaration: str | None = None):
+    """Re-raise an `UnclassifiedPathError` that carries a path with the
+    known-item text for `work_item_id` (same class, `from None`); every other
+    exception, and an `UnclassifiedPathError` without a path, passes through
+    unchanged. Wraps only the calls that classify paths for a known item.
+    `declaration` names the file that was really read (see `unclassified_path_message`)."""
+    try:
+        yield
+    except UnclassifiedPathError as exc:
+        if exc.path is None:
+            raise
+        raise UnclassifiedPathError(
+            unclassified_path_message(exc.path, work_item_id, stage=exc.stage or "plan", declaration=declaration),
+            exc.path, exc.stage,
+        ) from None
 
 
 class UnsupportedPathTypeError(Exception):
@@ -907,7 +1006,7 @@ def artifacts_path_for_work_item(work_item_id: str) -> Path:
     `work_item_id`s is structurally impossible since `work_items` map keys
     are already unique."""
     validate_work_item_id(work_item_id)
-    return Path(f"docs/ai-workflow/registry/{work_item_id}-artifacts.json")
+    return Path(ARTIFACTS_PATH_TEMPLATE.format(work_item_id=work_item_id))
 
 
 def load_plan_stage_classification(
@@ -1456,7 +1555,7 @@ def classify_path(
         return "excluded"
     if path in TOOLING_AMBIENT_EXCLUDED_PATHS:
         return "excluded"
-    raise UnclassifiedPathError(path)
+    raise UnclassifiedPathError(unclassified_path_message(path, stage="plan"), path, "plan")
 
 
 def assert_all_changed_paths_classified_worktree(
@@ -1597,10 +1696,11 @@ def compute_review_content_id_plan_stage(
     validate_work_item_id(work_item_id)
     validate_work_item_type(work_item_type)
     base_full = resolve_base(repo_root, base)
-    assert_all_changed_paths_classified_worktree(
-        repo_root, base_full, protected, excluded_paths, excluded_prefixes
-    )
-    manifest = compute_review_content_manifest_plan_stage_worktree(repo_root, protected)
+    with naming_work_item(work_item_id):
+        assert_all_changed_paths_classified_worktree(
+            repo_root, base_full, protected, excluded_paths, excluded_prefixes
+        )
+        manifest = compute_review_content_manifest_plan_stage_worktree(repo_root, protected)
     projection = {
         "stage": "plan",
         "work_item_type": work_item_type,
@@ -1644,10 +1744,11 @@ def compute_review_content_id_plan_stage_at_commit(
     validate_work_item_id(work_item_id)
     validate_work_item_type(work_item_type)
     base_full = resolve_base(repo_root, base)
-    assert_all_changed_paths_classified_commit(
-        repo_root, base_full, commit, protected, excluded_paths, excluded_prefixes
-    )
-    manifest = compute_review_content_manifest_plan_stage_commit(repo_root, commit, protected)
+    with naming_work_item(work_item_id):
+        assert_all_changed_paths_classified_commit(
+            repo_root, base_full, commit, protected, excluded_paths, excluded_prefixes
+        )
+        manifest = compute_review_content_manifest_plan_stage_commit(repo_root, commit, protected)
     projection = {
         "stage": "plan",
         "work_item_type": work_item_type,
@@ -1718,7 +1819,7 @@ DEFAULT_ARTIFACTS_PATH = Path("docs/ai-workflow/registry/workflow-v2-1-core-arti
 
 
 def load_implementation_stage_classification(
-    repo_root: Path, artifacts_path: Path,
+    repo_root: Path, artifacts_path: Path, *, at_commit: str | None = None,
 ) -> tuple[Mapping[str, str], Mapping[str, str], Mapping[str, str], Mapping[str, str]]:
     """Load the implementation-stage protected/excluded path and prefix
     sets from a tracked, machine-readable artifact-declarations file,
@@ -1757,6 +1858,10 @@ def load_implementation_stage_classification(
     to reviewed content -- see `docs/ai-workflow/REVIEW_PROTOCOL.md`'s
     "Repairing an artifact declaration after an approval".
 
+    `at_commit` (workflow-2.12.0, `D-Changes`) reads the declaration as it
+    was at that commit instead of the working tree, like
+    `load_plan_stage_classification`'s own.
+
     Returns `(protected_paths, protected_prefixes, excluded_paths,
     excluded_prefixes)`, each a path/prefix -> category-or-justification
     mapping, in the same shape `classify_path_implementation_stage`
@@ -1792,9 +1897,9 @@ def load_implementation_stage_classification(
     names the work item whose classification it means, via
     `artifacts_path_for_work_item(work_item_id)`."""
     full = repo_root / artifacts_path
-    if not full.is_file():
+    if not _path_exists_at_source(repo_root, artifacts_path, at_commit):
         raise MissingWorkItemArtifactsDeclarationError(_to_posix(artifacts_path))
-    data = json.loads(full.read_text())
+    data = json.loads(_read_bytes_at_source(repo_root, artifacts_path, at_commit))
     implementation_stage = data.get("implementation_stage")
     if implementation_stage is None:
         raise MissingWorkItemArtifactsDeclarationError(
@@ -1838,7 +1943,8 @@ def classify_path_implementation_stage(
         return "excluded"
     if path in TOOLING_AMBIENT_EXCLUDED_PATHS:
         return "excluded"
-    raise UnclassifiedPathError(path)
+    raise UnclassifiedPathError(
+        unclassified_path_message(path, stage="implementation"), path, "implementation")
 
 
 def _implementation_stage_protected_changed_paths(
@@ -1943,9 +2049,10 @@ def compute_review_content_id_implementation_stage(
     validate_work_item_id(work_item_id)
     validate_work_item_type(work_item_type)
     base_full = resolve_base(repo_root, base)
-    manifest = compute_review_content_manifest_implementation_stage_worktree(
-        repo_root, base_full, protected_paths, protected_prefixes, excluded_paths, excluded_prefixes
-    )
+    with naming_work_item(work_item_id):
+        manifest = compute_review_content_manifest_implementation_stage_worktree(
+            repo_root, base_full, protected_paths, protected_prefixes, excluded_paths, excluded_prefixes
+        )
     projection = {
         "stage": "implementation",
         "work_item_type": work_item_type,
@@ -1985,9 +2092,11 @@ def compute_review_content_id_implementation_stage_at_commit(
     validate_work_item_type(work_item_type)
     base_full = resolve_base(repo_root, base)
     commit_full = resolve_base(repo_root, commit)
-    manifest = compute_review_content_manifest_implementation_stage_commit(
-        repo_root, base_full, commit_full, protected_paths, protected_prefixes, excluded_paths, excluded_prefixes
-    )
+    with naming_work_item(work_item_id):
+        manifest = compute_review_content_manifest_implementation_stage_commit(
+            repo_root, base_full, commit_full, protected_paths, protected_prefixes, excluded_paths,
+            excluded_prefixes,
+        )
     projection = {
         "stage": "implementation",
         "work_item_type": work_item_type,
@@ -2937,7 +3046,8 @@ def plan_stage_staging_paths(repo_root: Path, work_item_id: str, token: str) -> 
     `root` (the staging area, `.ai-review/<id>/current.staging-<token>/`),
     `bundle_dir` (its `current/` child, so the archive's member root stays
     the bare literal `current`), `archive` (the temporary archive),
-    `amendment_diff` and `pin_dir` (`.ai-review/<id>/.pin.staging-<token>/`)."""
+    `amendment_diff`, `changes_since_review` and `pin_dir`
+    (`.ai-review/<id>/.pin.staging-<token>/`)."""
     validate_work_item_id(work_item_id)
     if not isinstance(token, str) or not _STAGING_TOKEN_RE.match(token):
         raise InvalidStagingTokenError(f"invalid plan-stage staging token {token!r}")
@@ -2948,6 +3058,7 @@ def plan_stage_staging_paths(repo_root: Path, work_item_id: str, token: str) -> 
         "bundle_dir": staging_root / "current",
         "archive": staging_root / "review-bundle.tar.gz",
         "amendment_diff": staging_root / "AMENDMENT_DIFF.patch",
+        "changes_since_review": staging_root / "CHANGES_SINCE_REVIEW.md",
         "pin_dir": item_root / f".pin.staging-{token}",
     }
 
@@ -3013,8 +3124,9 @@ def seed_plan_review_inputs(repo_root: Path, work_item_id: str, bundle_dir: Path
 
 def _promote_plan_stage_staging(repo_root: Path, work_item_id: str, token: str) -> None:
     """Renames a verified staging generation into place: the pin, then
-    `current/`, then the archive, then `AMENDMENT_DIFF.patch` (removed
-    when this generation wrote none), then removes the superseded copies
+    `current/`, then the archive, then `AMENDMENT_DIFF.patch` and
+    `CHANGES_SINCE_REVIEW.md` (each removed when this generation wrote
+    none), then removes the superseded copies
     and the staging area. The renames are not atomic as a set; INV-2 rests
     on the bind verifier, which refuses the `current/`/manifest/archive
     disagreement a crash between them leaves."""
@@ -3042,6 +3154,11 @@ def _promote_plan_stage_staging(repo_root: Path, work_item_id: str, token: str) 
             os.replace(paths["amendment_diff"], item_root / "AMENDMENT_DIFF.patch")
         else:
             (item_root / "AMENDMENT_DIFF.patch").unlink(missing_ok=True)
+        step = "rename CHANGES_SINCE_REVIEW.md"
+        if paths["changes_since_review"].is_file():
+            os.replace(paths["changes_since_review"], item_root / CHANGES_SINCE_REVIEW_FILE)
+        else:
+            (item_root / CHANGES_SINCE_REVIEW_FILE).unlink(missing_ok=True)
         step = "remove superseded copies"
         for leftover in (old_current, old_pin, paths["root"]):
             if leftover.is_dir():
@@ -3082,6 +3199,614 @@ def finalize_staged_plan_bundle_generation(repo_root: Path, work_item_id: str, t
     _promote_plan_stage_staging(repo_root, work_item_id, token)
     clear_rejected_marker_if_present(repo_root, work_item_id)
     return {"status": "ok", "bundle_id": recorded_bundle_id}
+
+
+# ---------------------------------------------------------------------------
+# workflow-2.12.0 (`D-Changes`): CHANGES_SINCE_REVIEW.md -- what changed since
+# the last reviewed bundle, and what that round found. A sibling of
+# `current/` like AMENDMENT_DIFF.patch: outside `bundle_id` and
+# `review_content_id`, regenerated on every ordinary generation, deleted when
+# there is nothing to compare with. Reviewer convenience only, so a failure to
+# build it never fails a generation (AMENDMENT_DIFF.patch fails closed
+# because an open amendment's reviewer needs it; a missing changes file only
+# means a full review).
+# ---------------------------------------------------------------------------
+
+CHANGES_SINCE_REVIEW_FILE = "CHANGES_SINCE_REVIEW.md"
+_CHANGES_NOT_AVAILABLE = "not available"
+_CHANGES_PREAMBLE_ID_RE = re.compile(r"^review_content_id: ([0-9a-f]{64})$", re.MULTILINE)
+_MANIFEST_REVIEWED_HEAD_LINE_RE = re.compile(r"^reviewed_implementation_head: ([0-9a-f]{40})$", re.MULTILINE)
+_PINNED_DIFF_OPTIONS: tuple[str, ...] = (
+    "--no-ext-diff", "--no-textconv", "--no-color", "--no-renames", "--binary", "-U3",
+)
+
+
+def _pinned_git_diff(args: list[str], cwd: Path, *, prefixes: tuple[str, str] = ("a/", "b/")) -> bytes:
+    """`git diff` with the options `AMENDMENT_DIFF.patch` pins (no external
+    diff driver, no textconv, no colour, explicit prefixes, no renames,
+    `-U3`, `GIT_DIFF_OPTS` removed from the environment), as bytes. A
+    `--no-index` diff exits 1 when the sides differ; that is not a failure."""
+    result = subprocess.run(
+        ["git", "--literal-pathspecs", "diff", *_PINNED_DIFF_OPTIONS,
+         f"--src-prefix={prefixes[0]}", f"--dst-prefix={prefixes[1]}", *args],
+        cwd=cwd, capture_output=True,
+        env={key: value for key, value in os.environ.items() if key != "GIT_DIFF_OPTS"},
+    )
+    if result.returncode not in (0, 1) or (result.returncode == 1 and not result.stdout):
+        raise RuntimeError(f"git diff failed ({result.returncode}): {result.stderr.decode(errors='replace').strip()}")
+    return result.stdout
+
+
+def _consumed_plan_review_content_ids_of(repo_root: Path, work_item_id: str) -> set[str]:
+    """The `review_content_id`s of this item's plan-stage content already taken
+    out of review: the durable `consumed_plan_review_content_ids` list and
+    the `plan_review_binding` slot's consumed id -- the same union
+    `workflow_state._consumed_plan_review_content_ids` reads, without the
+    import cycle."""
+    work_items, _active = _load_workflow_state_work_items(repo_root, None)
+    work_item = work_items.get(work_item_id) or {}
+    ids = {value for value in (work_item.get("consumed_plan_review_content_ids") or []) if isinstance(value, str)}
+    binding = work_item.get("plan_review_binding")
+    consumed = binding.get("consumed") if isinstance(binding, dict) else None
+    if isinstance(consumed, dict) and isinstance(consumed.get("review_content_id"), str):
+        ids.add(consumed["review_content_id"])
+    return ids
+
+
+# ---------------------------------------------------------------------------
+# Stage baselines (workflow-2.13.0, D-Baseline): what the manual review stage
+# last reviewed. A gitignored record under `.ai-review/<id>/review-baselines/
+# <ROLE>/`, written by the manual ingest under the state lock and replaced
+# wholesale by the next accepted verdict. A reviewer aid for the changes file
+# (never a gate, never an input of bundle_id or review_content_id): a record
+# the reader cannot prove consistent is `None`, the full-review fallback.
+# ---------------------------------------------------------------------------
+
+STAGE_BASELINE_DIR = "review-baselines"
+_STAGE_BASELINE_ROLES = {
+    "plan": "MANUAL_EXTERNAL_PLAN_REVIEW",
+    "implementation": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+}
+_STAGE_BASELINE_KEYS = frozenset({
+    "schema_version", "state_revision", "work_item_id", "role", "verdict", "review_content_id", "bundle_id",
+    "revision", "reviewed_implementation_head", "classification", "recorded_at",
+})
+_STAGE_BASELINE_CLASSIFICATION_KEYS = {
+    "plan": frozenset({"protected_paths", "excluded_paths", "excluded_prefixes"}),
+    "implementation": frozenset({
+        "protected_paths", "protected_prefixes", "excluded_paths", "excluded_prefixes"}),
+}
+_STAGE_BASELINE_VERDICTS = ("REVISE", "APPROVE")
+_FULL_SHA256_RE = re.compile(r"[0-9a-f]{64}")
+_FULL_SHA1_RE = re.compile(r"[0-9a-f]{40}")
+
+
+def _stage_baseline_root(repo_root: Path, work_item_id: str) -> Path:
+    return Path(repo_root) / ".ai-review" / work_item_id / STAGE_BASELINE_DIR
+
+
+def _stage_baseline_role_dir(repo_root: Path, work_item_id: str, role: str) -> Path:
+    if role not in _STAGE_BASELINE_ROLES.values():
+        raise ValueError(f"unknown stage baseline role {role!r}")
+    return _stage_baseline_root(repo_root, work_item_id) / role
+
+
+def remove_stage_baseline(
+    repo_root: Path, work_item_id: str, role: str, *, only_state_revision: int | None = None,
+) -> None:
+    """Removes `role`'s baseline record. With `only_state_revision`, only a
+    record carrying exactly that `state_revision` (the handler undoing its own
+    write when the transaction fails). Never raises."""
+    try:
+        role_dir = _stage_baseline_role_dir(repo_root, work_item_id, role)
+        if not (role_dir.is_symlink() or role_dir.exists()):
+            return
+        if only_state_revision is not None:
+            existing = _read_stage_baseline_state_revision(role_dir)
+            if existing != only_state_revision:
+                return
+        if role_dir.is_symlink():
+            role_dir.unlink()
+        else:
+            shutil.rmtree(role_dir)
+    except Exception:  # noqa: BLE001 -- a reviewer aid; removal is best effort
+        pass
+
+
+def _read_stage_baseline_state_revision(role_dir: Path) -> int | None:
+    try:
+        record = json.loads((role_dir / "BASELINE.json").read_text())
+    except (OSError, ValueError):
+        return None
+    value = record.get("state_revision") if isinstance(record, dict) else None
+    return value if isinstance(value, int) and not isinstance(value, bool) else None
+
+
+def record_stage_baseline(
+    repo_root: Path, work_item_id: str, *, stage: str, role: str, verdict: str, review_content_id: str,
+    bundle_id: str | None, revision: int, reviewed_implementation_head: str | None, classification: dict,
+    verdict_text: str, now: str, state_revision: int,
+) -> bool:
+    """Records the manual stage's baseline (D-Baseline) and returns whether it
+    did. The role's existing record is removed first, then a sibling directory
+    is staged and renamed into place, so a reader sees the old record, the new
+    one, or none. A record with a higher `state_revision` than `state_revision`
+    is left alone (`False`). It catches its own errors: one warning, `False`,
+    and the role then has no record (the next manual round is a full review)."""
+    staging: Path | None = None
+    try:
+        validate_work_item_id(work_item_id)
+        if _STAGE_BASELINE_ROLES.get(stage) != role:
+            raise ValueError(f"stage {stage!r} has no baseline role {role!r}")
+        if verdict not in _STAGE_BASELINE_VERDICTS:
+            raise ValueError(f"a {verdict!r} verdict records no baseline")
+        role_dir = _stage_baseline_role_dir(repo_root, work_item_id, role)
+        existing = _read_stage_baseline_state_revision(role_dir) if role_dir.is_dir() else None
+        if existing is not None and existing > state_revision:
+            return False
+        remove_stage_baseline(repo_root, work_item_id, role)
+        if role_dir.is_symlink() or role_dir.exists():
+            raise OSError(f"{role_dir} could not be removed")
+        root = _stage_baseline_root(repo_root, work_item_id)
+        root.mkdir(parents=True, exist_ok=True)
+        staging = root / f".{role}.staging-{uuid.uuid4().hex}"
+        staging.mkdir()
+        record = {
+            "schema_version": 1, "state_revision": state_revision, "work_item_id": work_item_id, "role": role,
+            "verdict": verdict, "review_content_id": review_content_id, "bundle_id": bundle_id,
+            "revision": revision, "reviewed_implementation_head": reviewed_implementation_head,
+            "classification": classification, "recorded_at": now,
+        }
+        (staging / "BASELINE.json").write_bytes(_canonical_json(record) + b"\n")
+        (staging / "VERDICT.md").write_text(verdict_text)
+        if stage == "plan":
+            pin = _pin_dir_for_work_item(Path(repo_root), work_item_id)
+            for rel, source in _pin_files(pin).items():
+                dest = staging / "pin" / rel
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source, dest)
+            if not (staging / "pin").is_dir():
+                raise ValueError("the item's .pin holds no files")
+        os.replace(staging, role_dir)
+        staging = None
+        return True
+    except Exception as exc:  # noqa: BLE001 -- reviewer convenience; never fails the ingest
+        print(f"warning: stage baseline not recorded ({type(exc).__name__}: {exc})", file=sys.stderr)
+        remove_stage_baseline(repo_root, work_item_id, role)
+        return False
+    finally:
+        if staging is not None:
+            shutil.rmtree(staging, ignore_errors=True)
+
+
+def _stage_baseline_known_to_state(work_item: dict, stage: str, record: dict) -> bool:
+    """Whether the item's state knows the record's round: a plan id the item
+    consumed (or approved), an `APPROVE` whose bundle is the manual ledger
+    entry's, or an implementation round not newer than the item's."""
+    review_content_id = record["review_content_id"]
+    if stage == "plan":
+        consumed = {value for value in (work_item.get("consumed_plan_review_content_ids") or [])
+                    if isinstance(value, str)}
+        binding = work_item.get("plan_review_binding")
+        slot = binding.get("consumed") if isinstance(binding, dict) else None
+        if isinstance(slot, dict) and isinstance(slot.get("review_content_id"), str):
+            consumed.add(slot["review_content_id"])
+        approval = work_item.get("plan_approval")
+        if isinstance(approval, dict) and isinstance(approval.get("approved_review_content_id"), str):
+            consumed.add(approval["approved_review_content_id"])
+        if review_content_id in consumed:
+            return True
+    else:
+        current = work_item.get("implementation_revision")
+        if (isinstance(current, int) and not isinstance(current, bool)
+                and isinstance(record["revision"], int) and record["revision"] <= current
+                and record["verdict"] == "REVISE"):
+            return True
+    ledger = work_item.get("plan_review_stages" if stage == "plan" else "implementation_review_stages")
+    entry = ledger.get(record["role"]) if isinstance(ledger, dict) else None
+    return (record["verdict"] == "APPROVE" and isinstance(entry, dict)
+            and entry.get("bundle_id") == record["bundle_id"])
+
+
+def _read_stage_baseline_checked(repo_root: Path, work_item_id: str, role: str) -> dict:
+    """`read_stage_baseline`'s body: raises on any inconsistency."""
+    stage = next(key for key, value in _STAGE_BASELINE_ROLES.items() if value == role)
+    role_dir = _stage_baseline_role_dir(repo_root, work_item_id, role)
+    root = _stage_baseline_root(repo_root, work_item_id)
+    for directory in (root.parent, root, role_dir):
+        if directory.is_symlink() or not directory.is_dir():
+            raise ValueError(f"{directory} is not a directory")
+    record_path, verdict_path = role_dir / "BASELINE.json", role_dir / "VERDICT.md"
+    for path in (record_path, verdict_path):
+        if path.is_symlink() or not path.is_file():
+            raise ValueError(f"{path} is not a regular file")
+    record = json.loads(record_path.read_text())
+    if not isinstance(record, dict) or set(record) != _STAGE_BASELINE_KEYS:
+        raise ValueError("the record's key set is wrong")
+    if record["schema_version"] != 1 or record["work_item_id"] != work_item_id or record["role"] != role:
+        raise ValueError("the record names another item, role or schema")
+    if record["verdict"] not in _STAGE_BASELINE_VERDICTS:
+        raise ValueError("the record's verdict is neither REVISE nor APPROVE")
+    for key in ("state_revision", "revision"):
+        if not isinstance(record[key], int) or isinstance(record[key], bool) or record[key] < 1:
+            raise ValueError(f"the record's {key} is not a positive integer")
+    review_content_id = record["review_content_id"]
+    if not isinstance(review_content_id, str) or not _FULL_SHA256_RE.fullmatch(review_content_id):
+        raise ValueError("the record's review_content_id is not 64 hex")
+    if record["bundle_id"] is not None and not isinstance(record["bundle_id"], str):
+        raise ValueError("the record's bundle_id is neither a string nor null")
+    if not isinstance(record["recorded_at"], str):
+        raise ValueError("the record's recorded_at is not a string")
+    classification = record["classification"]
+    if not isinstance(classification, dict) or set(classification) != _STAGE_BASELINE_CLASSIFICATION_KEYS[stage]:
+        raise ValueError("the record's classification key set is wrong")
+    head = record["reviewed_implementation_head"]
+    if stage == "plan":
+        if head is not None:
+            raise ValueError("a plan baseline names no implementation head")
+    elif not isinstance(head, str) or not _FULL_SHA1_RE.fullmatch(head):
+        raise ValueError("the record's reviewed_implementation_head is not 40 hex")
+
+    verdict_text = verdict_path.read_text()
+    header = parse_review_feedback_header(verdict_text)
+    if (header["work_item"] is not None and header["work_item"] != work_item_id) or (
+            header["reviewer_role"] != role or header["status"] != record["verdict"]
+            or header["review_content_id"] != review_content_id):
+        raise ValueError("VERDICT.md disagrees with the record")
+
+    work_items, _active = _load_workflow_state_work_items(Path(repo_root), None)
+    work_item = work_items.get(work_item_id)
+    if not isinstance(work_item, dict):
+        raise ValueError("the work item is unknown")
+    base, work_item_type = work_item["base_commit"], work_item["work_item_type"]
+    pin_dir = None
+    if stage == "plan":
+        pin_dir = role_dir / "pin"
+        _pin_files(pin_dir)
+        recomputed, _ = compute_review_content_id_plan_stage_from_pin(
+            Path(repo_root), pin_dir, base, work_item_type, work_item_id, record["revision"],
+            frozenset(classification["protected_paths"]),
+            MappingProxyType(dict(classification["excluded_paths"])),
+            MappingProxyType(dict(classification["excluded_prefixes"])),
+        )
+    else:
+        _run(["git", "merge-base", "--is-ancestor", head, "HEAD"], cwd=Path(repo_root))
+        recomputed, _ = compute_review_content_id_implementation_stage_at_commit(
+            Path(repo_root), base, head, work_item_type, work_item_id,
+            *(MappingProxyType(dict(classification[key])) for key in (
+                "protected_paths", "protected_prefixes", "excluded_paths", "excluded_prefixes")),
+        )
+    if recomputed != review_content_id:
+        raise ValueError("the recorded content no longer recomputes to the recorded review_content_id")
+    if not _stage_baseline_known_to_state(work_item, stage, record):
+        raise ValueError("the item's state does not know the recorded round")
+    return dict(record, verdict_text=verdict_text, pin_dir=pin_dir)
+
+
+def read_stage_baseline(repo_root: Path, work_item_id: str, role: str) -> dict | None:
+    """The role's baseline record (D-Baseline), plus `verdict_text` and
+    `pin_dir` (the copied pin at the plan stage, else `None`), or `None` for
+    anything missing, malformed, inconsistent with itself or with the
+    repository: the explicit full-review fallback of the manual section."""
+    try:
+        validate_work_item_id(work_item_id)
+        return _read_stage_baseline_checked(Path(repo_root), work_item_id, role)
+    except Exception:  # noqa: BLE001 -- every inconsistency is the same fallback
+        return None
+
+
+def _previous_findings_text(repo_root: Path, work_item_id: str, previous_id: str | None) -> str:
+    """The text of `<feedback_dir>/REVIEW_FEEDBACK.md` when its header's
+    `review_content_id` is the previous round's id, else "not available"."""
+    if previous_id is None:
+        return _CHANGES_NOT_AVAILABLE
+    path = Path(repo_root) / resolve_feedback_dir(repo_root, work_item_id) / "REVIEW_FEEDBACK.md"
+    if path.is_symlink() or not path.is_file():
+        return _CHANGES_NOT_AVAILABLE
+    content = path.read_text(errors="replace")
+    if parse_feedback_review_content_id(content) != previous_id:
+        return _CHANGES_NOT_AVAILABLE
+    return content.rstrip("\n")
+
+
+_CHANGES_ROLES = {
+    "plan": ("LOCAL_MODEL_PLAN_REVIEW", "MANUAL_EXTERNAL_PLAN_REVIEW"),
+    "implementation": ("LOCAL_MODEL_IMPLEMENTATION_REVIEW", "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW"),
+}
+_SECTION_NO_RECORD = "no previous review of this stage is recorded"
+_SECTION_UNIDENTIFIABLE = "the previous round cannot be identified"
+
+
+class _NoSectionBasis(Exception):
+    """A section builder's way to say "this stage has no basis" with one of the
+    two closed reasons (`D-Keyed`)."""
+
+
+def _render_section(role: str, section: dict | str) -> list[bytes]:
+    """One `## <ROLE>` section: the unavailable line when `section` is a reason
+    string, else the basis lines, the previous findings and the fenced diff."""
+    if isinstance(section, str):
+        return [f"## {role}\n\nnot available ({section}): review the whole bundle.\n".encode("utf-8")]
+    head = [
+        f"## {role}", "",
+        f"previous_review_content_id: {section['previous_id'] or _CHANGES_NOT_AVAILABLE}",
+        "previous_revision: "
+        f"{section['previous_revision'] if section['previous_revision'] is not None else _CHANGES_NOT_AVAILABLE}",
+        *section["extra_lines"], "",
+        "### Previous findings", "", section["findings"], "",
+        "### Changes", "", "```diff",
+    ]
+    diff = section["diff"]
+    body = ("\n".join(head) + "\n").encode("utf-8") + diff
+    if diff and not diff.endswith(b"\n"):
+        body += b"\n"
+    if not diff:
+        body += b"(no change to the protected content)\n"
+    return [body + b"```\n"]
+
+
+def _render_changes_since_review(
+    *, work_item_id: str, stage: str, current_id: str, current_revision: object, sections: list[tuple[str, dict | str]],
+) -> bytes:
+    lines = [
+        "# CHANGES_SINCE_REVIEW.md -- reviewer convenience only: outside bundle_id and",
+        "# review_content_id. One section per review stage: read the one named for your role.",
+        "# Its stage's protected content, previous round -> this round, and that round's",
+        "# findings. A round may review only these changes (`Review scope: changes`); any",
+        "# APPROVE is a full review of the whole bundle; a role whose section is not",
+        "# available reviews the whole bundle.",
+        f"work_item_id: {work_item_id}",
+        f"stage: {stage}",
+        f"review_content_id: {current_id}",
+        f"revision: {current_revision if current_revision is not None else _CHANGES_NOT_AVAILABLE}",
+        "",
+    ]
+    out = ("\n".join(lines)).encode("utf-8")
+    for index, (role, section) in enumerate(sections):
+        if index:
+            out += b"\n"
+        out += b"".join(_render_section(role, section))
+    return out
+
+
+def _collect_sections(stage: str, builders: dict[str, Callable[[], dict]]) -> list[tuple[str, dict | str]]:
+    """Runs each role's builder separately: a `_NoSectionBasis` is that
+    section's reason, any other error is "the previous round cannot be
+    identified" plus one warning line. One section failing never touches the
+    other."""
+    sections: list[tuple[str, dict | str]] = []
+    for role in _CHANGES_ROLES[stage]:
+        try:
+            sections.append((role, builders[role]()))
+        except _NoSectionBasis as exc:
+            sections.append((role, str(exc)))
+        except Exception as exc:  # noqa: BLE001 -- reviewer convenience; never fails a generation
+            print(f"warning: {CHANGES_SINCE_REVIEW_FILE} {role} section not written "
+                  f"({type(exc).__name__}: {exc})", file=sys.stderr)
+            sections.append((role, _SECTION_UNIDENTIFIABLE))
+    return sections
+
+
+def _pin_files(pin_dir: Path) -> dict[str, Path]:
+    """Every file of a plan-stage pin, keyed by its repo-relative path. A
+    missing directory, a symlink or a non-regular entry refuses."""
+    if pin_dir.is_symlink() or not pin_dir.is_dir():
+        raise ValueError(f"{pin_dir} is not a pin directory")
+    files: dict[str, Path] = {}
+    for dirpath, dirnames, filenames in os.walk(pin_dir, followlinks=False):
+        for name in dirnames:
+            if (Path(dirpath) / name).is_symlink():
+                raise ValueError(f"{Path(dirpath) / name} is a symlink inside a pin")
+        for name in filenames:
+            entry = Path(dirpath) / name
+            if entry.is_symlink() or not entry.is_file():
+                raise ValueError(f"{entry} is not a regular file inside a pin")
+            files[entry.relative_to(pin_dir).as_posix()] = entry
+    return files
+
+
+def _plan_pin_diff(old_pin_dir: Path, new_pin_dir: Path) -> bytes:
+    """The shared plan-stage diff loop: one pin tree against another."""
+    old_files = _pin_files(Path(old_pin_dir))
+    new_files = _pin_files(Path(new_pin_dir))
+    diff = b""
+    with tempfile.TemporaryDirectory() as tmp:
+        os.symlink(Path(old_pin_dir).resolve(), Path(tmp) / "a")
+        os.symlink(Path(new_pin_dir).resolve(), Path(tmp) / "b")
+        for rel in sorted(set(old_files) | set(new_files)):
+            left = f"a/{rel}" if rel in old_files else "/dev/null"
+            right = f"b/{rel}" if rel in new_files else "/dev/null"
+            diff += _pinned_git_diff(["--no-index", "--", left, right], Path(tmp), prefixes=("", ""))
+    return diff
+
+
+def _plan_stage_changes(
+    repo_root: Path, work_item_id: str, out_path: Path, outgoing_bundle_dir: Path,
+    outgoing_pin_dir: Path, staging_pin_dir: Path,
+) -> bytes | None:
+    new_fields = read_plan_stage_manifest_fields(out_path.parent / "current" / "MANIFEST.md")
+    current_id = new_fields["review_content_id"]
+    if new_fields["stage"] != "plan" or new_fields["work_item_id"] != work_item_id or not current_id:
+        return None
+    old_manifest = Path(outgoing_bundle_dir) / "MANIFEST.md"
+    old_fields = read_plan_stage_manifest_fields(old_manifest)
+    previous_id = old_fields["review_content_id"]
+    if previous_id == current_id and old_fields["stage"] == "plan" and old_fields["work_item_id"] == work_item_id:
+        # A wrapper-only regeneration of unchanged, bound content: the outgoing pin is
+        # already this round's pin, so the previous round's pin is gone. Carry the live
+        # file (both sections) forward when it names this content, else there is nothing to say.
+        live = Path(outgoing_bundle_dir).parent / CHANGES_SINCE_REVIEW_FILE
+        if live.is_symlink() or not live.is_file():
+            return None
+        data = live.read_bytes()
+        match = _CHANGES_PREAMBLE_ID_RE.search(data.decode("utf-8", errors="replace"))
+        return data if match and match.group(1) == current_id else None
+
+    def local_section() -> dict:
+        if not old_manifest.is_file():
+            raise _NoSectionBasis(_SECTION_NO_RECORD)
+        if old_fields["stage"] != "plan" or old_fields["work_item_id"] != work_item_id or not previous_id:
+            raise _NoSectionBasis(_SECTION_UNIDENTIFIABLE)
+        if previous_id not in _consumed_plan_review_content_ids_of(repo_root, work_item_id):
+            raise _NoSectionBasis(_SECTION_NO_RECORD)
+        return {
+            "previous_id": previous_id, "previous_revision": old_fields["plan_revision"], "extra_lines": [],
+            "findings": _previous_findings_text(repo_root, work_item_id, previous_id),
+            "diff": _plan_pin_diff(Path(outgoing_pin_dir), Path(staging_pin_dir)),
+        }
+
+    def manual_section() -> dict:
+        baseline = read_stage_baseline(repo_root, work_item_id, _CHANGES_ROLES["plan"][1])
+        if baseline is None:
+            raise _NoSectionBasis(_SECTION_NO_RECORD)
+        # Equal ids: the round is identified and nothing changed since it, but the section
+        # still reads "cannot be identified" (REVIEW_PROTOCOL.md says so; no third reason).
+        if baseline["review_content_id"] == current_id:
+            raise _NoSectionBasis(_SECTION_UNIDENTIFIABLE)
+        return {
+            "previous_id": baseline["review_content_id"], "previous_revision": baseline["revision"],
+            "extra_lines": [], "findings": baseline["verdict_text"].rstrip("\n"),
+            "diff": _plan_pin_diff(Path(baseline["pin_dir"]), Path(staging_pin_dir)),
+        }
+
+    local_role, manual_role = _CHANGES_ROLES["plan"]
+    sections = _collect_sections("plan", {local_role: local_section, manual_role: manual_section})
+    if all(isinstance(section, str) for _role, section in sections):
+        return None
+    return _render_changes_since_review(
+        work_item_id=work_item_id, stage="plan", current_id=current_id,
+        current_revision=new_fields["plan_revision"], sections=sections,
+    )
+
+
+def _implementation_diff(
+    repo_root: Path, old_head: str, old_sets: tuple[Mapping[str, str], ...], new_sets: tuple[Mapping[str, str], ...],
+) -> bytes:
+    """The protected-set diff from `old_head` to the working tree; its paths
+    are selected from the union of the old and the new classification."""
+    changed = _run(["git", "-c", "core.quotepath=off", "diff", "--no-renames", "--name-only", "-z", old_head], cwd=repo_root)
+    protected: set[str] = set()
+    for path in filter(None, changed.split("\0")):
+        for sets in (old_sets, new_sets):
+            try:
+                if classify_path_implementation_stage(path, *sets) == "protected":
+                    protected.add(path)
+            except UnclassifiedPathError:
+                continue
+    return _pinned_git_diff([old_head, "--", *sorted(protected)], repo_root) if protected else b""
+
+
+def _implementation_stage_changes(
+    repo_root: Path, work_item_id: str, out_path: Path, outgoing_bundle_dir: Path,
+) -> bytes | None:
+    import workflow_state  # deferred: workflow_state imports this module
+
+    work_items, _active = _load_workflow_state_work_items(repo_root, None)
+    work_item = work_items.get(work_item_id) or {}
+    revision = work_item.get("implementation_revision")
+    new_fields = read_manifest_identifiers(out_path.parent / "current" / "MANIFEST.md")
+    current_id = new_fields.get("review_content_id")
+    if not current_id:
+        return None
+    artifacts_path = artifacts_path_for_work_item(work_item_id)
+    new_sets = load_implementation_stage_classification(repo_root, artifacts_path)
+
+    def local_section() -> dict:
+        if not isinstance(revision, int) or isinstance(revision, bool) or revision < 2:
+            raise _NoSectionBasis(_SECTION_NO_RECORD)
+        records = workflow_state.discover_bundle_generation_record_commits(
+            repo_root, work_item_id, work_item["base_commit"], "HEAD",
+        )
+        record_commit = records.get(f"{work_item_id}/{revision - 1}")
+        if record_commit is None:
+            raise _NoSectionBasis(_SECTION_UNIDENTIFIABLE)
+        old_state = json.loads(_read_bytes_at_source(repo_root, "docs/ai-workflow/WORKFLOW_STATE.json", record_commit))
+        old_head = old_state["work_items"][work_item_id]["reviewed_implementation_head"]
+        if not isinstance(old_head, str) or not re.fullmatch(r"[0-9a-f]{40}", old_head):
+            raise _NoSectionBasis(_SECTION_UNIDENTIFIABLE)
+        old_sets = load_implementation_stage_classification(repo_root, artifacts_path, at_commit=old_head)
+        diff = _implementation_diff(repo_root, old_head, old_sets, new_sets)
+        previous_id = None
+        old_manifest = Path(outgoing_bundle_dir) / "MANIFEST.md"
+        if old_manifest.is_file():
+            text = old_manifest.read_text(errors="replace")
+            stage_match = _MANIFEST_STAGE_LINE_RE.search(text)
+            head_match = _MANIFEST_REVIEWED_HEAD_LINE_RE.search(text)
+            if (
+                stage_match and stage_match.group(1) == "implementation"
+                and _read_manifest_binding_fields(old_manifest)["work_item_id"] == work_item_id
+                and head_match and head_match.group(1) == old_head
+            ):
+                previous_id = read_manifest_identifiers(old_manifest).get("review_content_id")
+        return {
+            "previous_id": previous_id, "previous_revision": revision - 1,
+            "extra_lines": [f"previous_reviewed_implementation_head: {old_head}"],
+            "findings": _previous_findings_text(repo_root, work_item_id, previous_id), "diff": diff,
+        }
+
+    def manual_section() -> dict:
+        baseline = read_stage_baseline(repo_root, work_item_id, _CHANGES_ROLES["implementation"][1])
+        if baseline is None:
+            raise _NoSectionBasis(_SECTION_NO_RECORD)
+        # Equal ids: the round is identified and nothing changed since it, but the section
+        # still reads "cannot be identified" (REVIEW_PROTOCOL.md says so; no third reason).
+        if baseline["review_content_id"] == current_id:
+            raise _NoSectionBasis(_SECTION_UNIDENTIFIABLE)
+        old_head = baseline["reviewed_implementation_head"]
+        old_sets = tuple(MappingProxyType(dict(baseline["classification"][key])) for key in (
+            "protected_paths", "protected_prefixes", "excluded_paths", "excluded_prefixes"))
+        return {
+            "previous_id": baseline["review_content_id"], "previous_revision": baseline["revision"],
+            "extra_lines": [f"previous_reviewed_implementation_head: {old_head}"],
+            "findings": baseline["verdict_text"].rstrip("\n"),
+            "diff": _implementation_diff(repo_root, old_head, old_sets, new_sets),
+        }
+
+    local_role, manual_role = _CHANGES_ROLES["implementation"]
+    sections = _collect_sections("implementation", {local_role: local_section, manual_role: manual_section})
+    if all(isinstance(section, str) for _role, section in sections):
+        return None
+    return _render_changes_since_review(
+        work_item_id=work_item_id, stage="implementation", current_id=current_id,
+        current_revision=revision, sections=sections,
+    )
+
+
+def write_changes_since_review(
+    repo_root: Path, work_item_id: str, stage: str, out_path: Path, *,
+    outgoing_bundle_dir: Path, outgoing_pin_dir: Path | None = None, staging_pin_dir: Path | None = None,
+) -> bool:
+    """Builds `CHANGES_SINCE_REVIEW.md` at `out_path` (`D-Keyed`) and returns
+    whether it wrote one. `stage` is `"plan"` (the outgoing `current/` and pin,
+    and the manual baseline's pin, against the new staging pin; `out_path`'s
+    sibling `current/` holds the new manifest) or `"implementation"` (the
+    previous round's generation-record commit, and the manual baseline's head,
+    against the working tree; `outgoing_bundle_dir` holds the outgoing
+    `MANIFEST.md`). The file holds one section per review stage and is written
+    when at least one has a basis. Each section's errors are caught on their
+    own; any other failure deletes `out_path`, prints one warning line and
+    returns `False`."""
+    out_path = Path(out_path)
+    repo_root = Path(repo_root)
+    try:
+        if stage == "plan":
+            content = _plan_stage_changes(
+                repo_root, work_item_id, out_path, Path(outgoing_bundle_dir),
+                Path(outgoing_pin_dir), Path(staging_pin_dir),
+            )
+        elif stage == "implementation":
+            content = _implementation_stage_changes(repo_root, work_item_id, out_path, Path(outgoing_bundle_dir))
+        else:
+            raise ValueError(f"unknown stage {stage!r}")
+    except Exception as exc:  # noqa: BLE001 -- reviewer convenience; never fails a generation
+        out_path.unlink(missing_ok=True)
+        print(f"warning: {CHANGES_SINCE_REVIEW_FILE} not written ({type(exc).__name__}: {exc})", file=sys.stderr)
+        return False
+    if content is None:
+        out_path.unlink(missing_ok=True)
+        return False
+    out_path.write_bytes(content)
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -3447,6 +4172,182 @@ def parse_review_feedback_header(content: str) -> dict[str, str | None]:
     fields["review_content_id"] = parse_feedback_review_content_id(content)
     fields["reviewer_model"] = parse_feedback_reviewer_model(content)
     return fields
+
+
+class MalformedVerdictError(Exception):
+    """Raised by `assert_verdict_well_formed` (workflow-2.12.0,
+    `D-Severity`) when a two-stage verdict contradicts its own severity
+    sections or its declared review scope. Nothing is written; the verdict is
+    reissued, never converted."""
+
+
+_FEEDBACK_REVIEW_SCOPE_RE = re.compile(
+    r"^[ \t]*(?:[-*][ \t]+)?`?Review scope:`?[ \t]*`?(\S.*?)`?[ \t]*$", re.MULTILINE | re.IGNORECASE)
+
+
+def _declared_review_scopes(content: str) -> set[str]:
+    """Every distinct `Review scope:` value the header states, lowercased."""
+    header = feedback_header_block(content)
+    return {match.group(1).lower() for match in _FEEDBACK_REVIEW_SCOPE_RE.finditer(header)}
+
+
+def parse_review_scope(content: str) -> str | None:
+    """The `Review scope: full|changes` a verdict declares (`D-Changes`),
+    header-only exactly like `parse_feedback_reviewer_model`. `None` when
+    absent, when it states another value, or when the header states more than
+    one distinct value."""
+    values = _declared_review_scopes(content)
+    if len(values) != 1:
+        return None
+    value = values.pop()
+    return value if value in ("full", "changes") else None
+
+
+_FINDING_ITEM_RE = re.compile(r"^(?: {0,3})(?:(?:[-*][ \t]+)|(?:\d+[.)][ \t]+)|(?:###[ \t]+))(.*\S)\s*$")
+_NO_FINDINGS_RE = re.compile(r"^no(?: \w+)? findings$")
+_PLACEHOLDERS = frozenset({"none", "n/a", "-", "none identified"})
+
+
+def _is_placeholder(text: str) -> bool:
+    plain = re.sub(r"[*_`]", "", text).strip()
+    plain = re.sub(r"\s+", " ", plain).lower()
+    if plain in _PLACEHOLDERS:
+        return True
+    plain = plain.strip("".join(
+        ch for ch in set(plain) if unicodedata.category(ch)[0] in "PSZ"))
+    return not plain or plain in _PLACEHOLDERS or bool(_NO_FINDINGS_RE.match(plain))
+
+
+def _section_has_finding(content: str, heading: str) -> bool:
+    """Whether the `## <heading>` section of `content` holds a finding: a list
+    item or a `### ` heading whose text is neither empty nor a "none"
+    placeholder (`D-Severity`)."""
+    in_section = False
+    for line in content.splitlines():
+        if line.startswith("## "):
+            in_section = line[3:].strip().lower() == heading.lower()
+            continue
+        if not in_section:
+            continue
+        match = _FINDING_ITEM_RE.match(line)
+        if match is not None and not _is_placeholder(match.group(1)):
+            return True
+    return False
+
+
+OPTIONAL_FINDING_TEXT_LIMIT = 1200
+_OPTIONAL_FINDING_LABEL_RE = re.compile(
+    r"^(?P<label>[A-Za-z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)*)(?: (?:remains|persists))?(?:[:.)]|\s[\u2014\u2013-]\s)")
+
+
+class OptionalFinding(NamedTuple):
+    """One Optional finding of a verdict (`D-Parse`, workflow-2.14.0): `key`
+    (`F-` plus 12 hex characters of `digest`) identifies the whole entry as
+    written; `label` is display only; `text` is the entry as written, cut to
+    `OPTIONAL_FINDING_TEXT_LIMIT` characters."""
+
+    key: str
+    digest: str
+    label: str | None
+    text: str
+
+
+def _optional_finding_label(first_line: str) -> str | None:
+    plain = re.sub(r"[*_`]", "", first_line).strip()
+    match = _OPTIONAL_FINDING_LABEL_RE.match(plain)
+    if match is None or not any(ch.isdigit() for ch in match.group("label")):
+        return None
+    return match.group("label")
+
+
+def parse_optional_findings(content: str) -> list[OptionalFinding]:
+    """The Optional findings of a verdict, in order (`D-Parse`). Reads the
+    text only. The section is the lines under `## Optional findings`; a `### `
+    heading is an item whose body runs to the next heading; list items before
+    the first heading are items by indentation, a more indented one being the
+    previous item's body. The identity text is the entry as written (label
+    included) with whitespace runs collapsed; identical entries inside one
+    verdict are separate findings, the later ones keyed with a newline and an
+    ordinal appended (a newline cannot occur in an identity)."""
+    entries: list[tuple[str, list[str]]] = []  # (first line, body lines)
+    in_section = False
+    seen_heading = False
+    skipping = False
+    indent: int | None = None
+    for line in content.splitlines():
+        if line.startswith("## "):
+            in_section = line[3:].strip().lower() == "optional findings"
+            continue
+        if not in_section:
+            continue
+        match = _FINDING_ITEM_RE.match(line)
+        starts = False
+        if match is not None:
+            heading = line.lstrip(" ").startswith("###")
+            width = len(line) - len(line.lstrip(" "))
+            if heading:
+                starts, seen_heading, indent = True, True, None
+            elif not seen_heading:
+                if indent is None or width <= indent:
+                    starts, indent = True, width
+        if starts:
+            first = match.group(1)
+            skipping = _is_placeholder(first)
+            if not skipping:
+                entries.append((first, []))
+        elif entries and not skipping:
+            entries[-1][1].append(line)
+    findings: list[OptionalFinding] = []
+    ordinals: dict[str, int] = {}
+    for first, body in entries:
+        while body and not body[-1].strip():
+            body.pop()
+        identity = re.sub(r"\s+", " ", " ".join([first, *body])).strip()
+        ordinals[identity] = ordinals.get(identity, 0) + 1
+        # A newline never occurs in an identity (whitespace runs collapse to one
+        # space), so no literal entry can equal a later duplicate's key text.
+        keyed = identity if ordinals[identity] == 1 else f"{identity}\n@{ordinals[identity]}"
+        digest = hashlib.sha256(keyed.encode("utf-8")).hexdigest()
+        text = "\n".join([first, *body])[:OPTIONAL_FINDING_TEXT_LIMIT]
+        findings.append(OptionalFinding(
+            key="F-" + digest[:12], digest=digest, label=_optional_finding_label(first), text=text))
+    return findings
+
+
+def assert_verdict_well_formed(content: str) -> None:
+    """`D-Severity`, workflow-2.12.0: refuses (`MalformedVerdictError`) a
+    `REVISE` that names no Blocking or Important finding, an `APPROVE` that
+    lists a Blocking finding, an `APPROVE` that declares `Review scope:
+    changes`, and an `APPROVE` whose header states a conflicting or
+    unrecognised `Review scope` (exactly one `Review scope: full` line, or
+    none, is accepted). Leading, trailing and wrapping punctuation or
+    symbols on a "none" placeholder are ignored, and an entry made only of
+    punctuation or symbols is also a placeholder. An `APPROVE` whose Important section
+    holds an entry is not refused: the reviewer should reissue it as a
+    `REVISE` (or move the entry to Optional), and the entry stays recorded as
+    written. `BLOCK` and every other status pass unchecked.
+    Reads the text only."""
+    status = parse_review_feedback_binding_fields(content)["status"]
+    blocking = _section_has_finding(content, "Blocking findings")
+    if status == "REVISE" and not blocking and not _section_has_finding(content, "Important findings"):
+        raise MalformedVerdictError(
+            "the verdict is Status: REVISE but names no Blocking or Important finding -- a round with only "
+            "Optional findings is an APPROVE. Reissue it as APPROVE with the findings under 'Optional "
+            "findings', or as REVISE with the finding that requires a change moved to Blocking or Important. "
+            "Nothing was written")
+    if status == "APPROVE" and blocking:
+        raise MalformedVerdictError(
+            "the verdict is Status: APPROVE but lists a Blocking finding -- an approval cannot contradict "
+            "itself. Reissue it as REVISE, or remove the finding. Nothing was written")
+    if status == "APPROVE" and _declared_review_scopes(content) not in (set(), {"full"}, {"changes"}):
+        raise MalformedVerdictError(
+            "the verdict is Status: APPROVE but its header declares a conflicting or unrecognised Review scope "
+            "-- state exactly one 'Review scope: full' line (or none) and reissue it. Nothing was written")
+    if status == "APPROVE" and parse_review_scope(content) == "changes":
+        raise MalformedVerdictError(
+            "the verdict is Status: APPROVE with 'Review scope: changes' -- every APPROVE is a full review of "
+            "the whole bundle. Review the whole bundle and reissue it with 'Review scope: full' (or no "
+            "Review scope line), or reissue it as REVISE. Nothing was written")
 
 
 def assert_manual_feedback_names_work_item(content: str, *, work_item_id: str) -> None:

@@ -828,7 +828,12 @@ class TestRouteWorkItemResumeBranchDeclarationFacts(unittest.TestCase):
             repo.write_plan_docs(work_item_id=work_item_id, plan_revision=1)
             repo.commit_plan_docs_as_base()
 
-            config = self._config()
+            # A new item cannot start on "2.1" from 2.10.0, so the creation
+            # branch runs under the "2.2" default the release prescribes.
+            config = dict(
+                self._config(), default_workflow_version="2.2",
+                supported_versions=["1", "2.1", "2.2"],
+            )
             state = {"schema_version": 1, "active_work_item_id": None, "work_items": {}}
             self.assertNotIn(work_item_id, state["work_items"])
             new_state = ws.route_work_item(
@@ -862,7 +867,7 @@ class TestRouteWorkItemResumeBranchDeclarationFacts(unittest.TestCase):
 
             scripts_dir = repo.root / "scripts"
             scripts_dir.mkdir(parents=True, exist_ok=True)
-            for name in ("prepare-ai-review.sh", "workflow_fingerprint.py", "workflow_state.py", "workflow_gate_policy.py", "workflow_forge.py"):
+            for name in ("prepare-ai-review.sh", "workflow_fingerprint.py", "workflow_state.py", "workflow_gate_policy.py", "workflow_forge.py", "workflow_backlog.py"):
                 dest = scripts_dir / name
                 shutil.copy(_REAL_SCRIPTS_DIR / name, dest)
             script_path = scripts_dir / "prepare-ai-review.sh"
@@ -876,6 +881,23 @@ class TestRouteWorkItemResumeBranchDeclarationFacts(unittest.TestCase):
             manifest_text = (bundle_dir / "MANIFEST.md").read_text()
             self.assertIn(f"work_item_id: {work_item_id}", manifest_text)
             self.assertIn(f"review_content_id: {digest}", manifest_text)
+
+    def test_creation_branch_refuses_under_a_2_1_default(self):
+        """workflow-2.10.0: the same fresh id, the same inputs, but the
+        configuration still names "2.1" -- the creation branch refuses
+        before returning any state, and the input state is untouched."""
+        state = {"schema_version": 1, "active_work_item_id": None, "work_items": {}}
+        before = json.dumps(state, sort_keys=True)
+        with self.assertRaises(ws.DefaultWorkflowVersionRetiredError) as ctx:
+            ws.route_work_item(
+                state, self._config(), work_item_id="fresh-item", work_item_type="process",
+                work_item_kind="process", plan_path="docs/ai-workflow/WORKFLOW_V2_PLAN.md",
+                registry_path="docs/ai-workflow/registry/fresh-item-registry.json",
+                mapping_path="docs/ai-workflow/requirements/fresh-item-mapping.json",
+                base_commit="a" * 40, plan_revision=1, now="t0",
+            )
+        self.assertTrue(str(ctx.exception).endswith(ws.RETIRED_DEFAULT_NEXT_STEP))
+        self.assertEqual(json.dumps(state, sort_keys=True), before)
 
 
 class TestArtifactsDeclarationsGenerator(unittest.TestCase):
@@ -1132,7 +1154,7 @@ class TestPrepareAiReviewShPlanStageRequiredArgument(unittest.TestCase):
     def _install_scripts(self, repo):
         scripts_dir = repo.root / "scripts"
         scripts_dir.mkdir(parents=True, exist_ok=True)
-        for name in ("prepare-ai-review.sh", "workflow_fingerprint.py", "workflow_state.py", "workflow_gate_policy.py", "workflow_forge.py"):
+        for name in ("prepare-ai-review.sh", "workflow_fingerprint.py", "workflow_state.py", "workflow_gate_policy.py", "workflow_forge.py", "workflow_backlog.py"):
             dest = scripts_dir / name
             shutil.copy(_REAL_SCRIPTS_DIR / name, dest)
         script_path = scripts_dir / "prepare-ai-review.sh"
@@ -1353,7 +1375,7 @@ class TestPrepareAiReviewShAmendmentDiffWorkingTreeAnchor(unittest.TestCase):
     def _install_scripts(self, repo):
         scripts_dir = repo.root / "scripts"
         scripts_dir.mkdir(parents=True, exist_ok=True)
-        for name in ("prepare-ai-review.sh", "workflow_fingerprint.py", "workflow_state.py", "workflow_gate_policy.py", "workflow_forge.py"):
+        for name in ("prepare-ai-review.sh", "workflow_fingerprint.py", "workflow_state.py", "workflow_gate_policy.py", "workflow_forge.py", "workflow_backlog.py"):
             shutil.copy(_REAL_SCRIPTS_DIR / name, scripts_dir / name)
         script_path = scripts_dir / "prepare-ai-review.sh"
         script_path.chmod(script_path.stat().st_mode | stat.S_IEXEC)
@@ -1781,7 +1803,7 @@ class TestPrepareAiReviewShImplementationStageHeadGuard(unittest.TestCase):
     def _install_scripts(self, repo):
         scripts_dir = repo.root / "scripts"
         scripts_dir.mkdir(parents=True, exist_ok=True)
-        for name in ("prepare-ai-review.sh", "workflow_fingerprint.py", "workflow_state.py", "workflow_gate_policy.py", "workflow_forge.py"):
+        for name in ("prepare-ai-review.sh", "workflow_fingerprint.py", "workflow_state.py", "workflow_gate_policy.py", "workflow_forge.py", "workflow_backlog.py"):
             dest = scripts_dir / name
             shutil.copy(_REAL_SCRIPTS_DIR / name, dest)
         script_path = scripts_dir / "prepare-ai-review.sh"
@@ -2585,7 +2607,7 @@ class TestPrepareAiReviewShPlanStageStaging(unittest.TestCase):
     def _install_scripts(self, repo):
         scripts_dir = repo.root / "scripts"
         scripts_dir.mkdir(parents=True, exist_ok=True)
-        for name in ("prepare-ai-review.sh", "workflow_fingerprint.py", "workflow_state.py", "workflow_gate_policy.py", "workflow_forge.py"):
+        for name in ("prepare-ai-review.sh", "workflow_fingerprint.py", "workflow_state.py", "workflow_gate_policy.py", "workflow_forge.py", "workflow_backlog.py"):
             shutil.copy(_REAL_SCRIPTS_DIR / name, scripts_dir / name)
         script_path = scripts_dir / "prepare-ai-review.sh"
         script_path.chmod(script_path.stat().st_mode | stat.S_IEXEC)
@@ -2787,6 +2809,971 @@ class TestPrepareAiReviewShPlanStageStaging(unittest.TestCase):
                 fingerprint.resolve_plan_review_inputs_dir(repo.root, self.ITEM).parent,
                 fingerprint.resolve_bundle_dir(repo.root, self.ITEM, stage="plan").parent,
             )
+
+
+class TestPrepareAiReviewShEarlyAnchorCheck(unittest.TestCase):
+    """workflow-2.11.0 CP2 (`D-Check`, `D-Where` 2): plan-stage generation
+    refuses, on the pinned bytes, a plan lacking a well-formed checkpoint
+    anchor pair for a registry checkpoint -- before any review round, with
+    the previous bundle untouched, nothing `REJECTED` and no state written.
+    Driven through the real `prepare-ai-review.sh`."""
+
+    WI = "wi"
+    CHECKPOINTS = [{"id": "CP1", "depends_on": []}, {"id": "CP2", "depends_on": ["CP1"]}]
+    ANCHORLESS_PLAN = "# Plan (Revision 1)\n\nplan v1 with no checkpoint sections\n"
+
+    def _item_root(self, repo):
+        return repo.root / ".ai-review" / self.WI
+
+    def _prepare(self, repo):
+        digest, _ = fingerprint.compute_review_content_id_plan_stage_for_work_item(repo.root, self.WI)
+        bundle_dir = self._item_root(repo) / "current"
+        bundle_dir.mkdir(parents=True, exist_ok=True)
+        (bundle_dir / "REVIEW_REQUEST.md").write_text(f"stage: plan\nreview_content_id: {digest}\n")
+        _, head = fingerprint.current_worktree_root_and_head(repo.root)
+        revision = h.read_state(repo)["work_items"][self.WI]["plan_revision"]
+        (bundle_dir / "TEST_RESULTS.md").write_text(f"stage: plan (revision {revision})\nhead: {head}\n")
+
+    def _run(self, repo):
+        return subprocess.run(
+            ["bash", "scripts/prepare-ai-review.sh", h.read_state(repo)["work_items"][self.WI]["base_commit"],
+             "plan", self.WI],
+            cwd=repo.root, capture_output=True, text=True,
+        )
+
+    def _generate(self, repo):
+        self._prepare(repo)
+        return self._run(repo)
+
+    def _snapshot(self, repo):
+        root = self._item_root(repo)
+        snapshot = {}
+        for name in ("current", "review-bundle.tar.gz", ".pin"):
+            path = root / name
+            files = [path] if path.is_file() else sorted(q for q in path.rglob("*") if q.is_file())
+            snapshot[name] = {q.relative_to(root).as_posix(): hashlib.sha256(q.read_bytes()).hexdigest() for q in files}
+        return snapshot
+
+    def _write_plan(self, repo, text):
+        (repo.root / "docs" / "ai-workflow" / "WORKFLOW_V2_PLAN.md").write_text(text)
+
+    def _seed(self, repo, **kwargs):
+        kwargs.setdefault("phase", "PLANNING")
+        return h.seed_bundle_item(repo, self.WI, registry_checkpoints=self.CHECKPOINTS, **kwargs)
+
+    def _assert_refused_cleanly(self, repo, result, before, error_class="AmendmentAnchorCoverageError"):
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn(f"error: {error_class}:", result.stderr)
+        self.assertIn("CP2", result.stderr)
+        self.assertEqual(self._snapshot(repo), before)
+        names = sorted(q.name for q in self._item_root(repo).iterdir())
+        self.assertEqual([n for n in names if n.startswith(("current.staging-", ".pin.staging-"))], [], names)
+        self.assertFalse((self._item_root(repo) / "REJECTED").exists())
+        self.assertEqual(list(self._item_root(repo).glob("current.rejected-*")), [])
+        fingerprint.assert_bundle_not_rejected(repo.root, self.WI)
+
+    def test_a_plan_with_a_pair_per_checkpoint_generates(self):
+        with h.ScratchRepo() as repo:
+            self._seed(repo)
+            result = self._generate(repo)
+            self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_a_plan_without_a_pair_is_refused_and_the_previous_bundle_is_untouched(self):
+        with h.ScratchRepo() as repo:
+            self._seed(repo)
+            self.assertEqual(self._generate(repo).returncode, 0)
+            state_bytes = (repo.root / "docs" / "ai-workflow" / "WORKFLOW_STATE.json").read_bytes()
+            plan = (repo.root / "docs" / "ai-workflow" / "WORKFLOW_V2_PLAN.md").read_text()
+            self._write_plan(repo, plan.replace("<!-- CP2 -->", "").replace("<!-- /CP2 -->", ""))
+            self._prepare(repo)
+            before = self._snapshot(repo)
+            result = self._run(repo)
+            self._assert_refused_cleanly(repo, result, before)
+            self.assertEqual(
+                (repo.root / "docs" / "ai-workflow" / "WORKFLOW_STATE.json").read_bytes(), state_bytes)
+
+    FLAGGED_LINE = 'Plan review is scoped entirely to "2.1" work items.\n'
+
+    def test_a_plan_the_governing_version_sweep_flags_is_refused_and_the_previous_bundle_is_untouched(self):
+        with h.ScratchRepo() as repo:
+            self._seed(repo)
+            self.assertEqual(self._generate(repo).returncode, 0)
+            state_bytes = (repo.root / "docs" / "ai-workflow" / "WORKFLOW_STATE.json").read_bytes()
+            plan = (repo.root / "docs" / "ai-workflow" / "WORKFLOW_V2_PLAN.md").read_text()
+            self._write_plan(repo, plan + self.FLAGGED_LINE)
+            self._prepare(repo)
+            before = self._snapshot(repo)
+            result = self._run(repo)
+            self.assertEqual(result.returncode, 1, result.stderr)
+            self.assertIn("error: PlanGoverningVersionSweepError:", result.stderr)
+            self.assertIn("docs/ai-workflow/WORKFLOW_V2_PLAN.md:", result.stderr)
+            self.assertIn(ws.PLAN_SWEEP_NEXT_STEP, result.stderr)
+            self.assertEqual(self._snapshot(repo), before)
+            names = sorted(q.name for q in self._item_root(repo).iterdir())
+            self.assertEqual([n for n in names if n.startswith(("current.staging-", ".pin.staging-"))], [], names)
+            self.assertFalse((self._item_root(repo) / "REJECTED").exists())
+            self.assertEqual(list(self._item_root(repo).glob("current.rejected-*")), [])
+            fingerprint.assert_bundle_not_rejected(repo.root, self.WI)
+            self.assertEqual(
+                (repo.root / "docs" / "ai-workflow" / "WORKFLOW_STATE.json").read_bytes(), state_bytes)
+
+    UNDECLARED_FILES = "\n<!-- CP1 -->\n**Files:** `uncovered_new.py`\n<!-- /CP1 -->\n"
+
+    def test_a_plan_naming_an_unclassified_path_is_refused_and_the_previous_bundle_is_untouched(self):
+        with h.ScratchRepo() as repo:
+            self._seed(repo)
+            self.assertEqual(self._generate(repo).returncode, 0)
+            state_bytes = (repo.root / "docs" / "ai-workflow" / "WORKFLOW_STATE.json").read_bytes()
+            plan = (repo.root / "docs" / "ai-workflow" / "WORKFLOW_V2_PLAN.md").read_text()
+            self._write_plan(repo, plan + self.UNDECLARED_FILES)
+            self._prepare(repo)
+            before = self._snapshot(repo)
+            result = self._run(repo)
+            self.assertEqual(result.returncode, 1, result.stderr)
+            self.assertIn("error: PlanArtifactDeclarationCoverageError:", result.stderr)
+            self.assertIn("CP1: uncovered_new.py (unclassified at both stages)", result.stderr)
+            self.assertIn(ws.PLAN_DECLARATION_NEXT_STEP, result.stderr)
+            self.assertEqual(self._snapshot(repo), before)
+            names = sorted(q.name for q in self._item_root(repo).iterdir())
+            self.assertEqual([n for n in names if n.startswith(("current.staging-", ".pin.staging-"))], [], names)
+            self.assertFalse((self._item_root(repo) / "REJECTED").exists())
+            self.assertEqual(list(self._item_root(repo).glob("current.rejected-*")), [])
+            fingerprint.assert_bundle_not_rejected(repo.root, self.WI)
+            self.assertEqual(
+                (repo.root / "docs" / "ai-workflow" / "WORKFLOW_STATE.json").read_bytes(), state_bytes)
+
+    def test_a_bound_ready_item_regenerates_an_undeclared_path_without_the_check(self):
+        with h.ScratchRepo() as repo:
+            self._seed(repo)
+            h.publish_and_bind_plan_bundle(repo, self.WI)
+            h.commit_state(repo, "bound")
+            plan = (repo.root / "docs" / "ai-workflow" / "WORKFLOW_V2_PLAN.md").read_text()
+            self._write_plan(repo, plan + self.UNDECLARED_FILES)
+            self.assertEqual(self._generate(repo).returncode, 0)
+
+    def test_anchors_are_refused_before_the_sweep(self):
+        with h.ScratchRepo() as repo:
+            self._seed(repo)
+            self._write_plan(repo, self.ANCHORLESS_PLAN + self.FLAGGED_LINE)
+            result = self._generate(repo)
+            self.assertEqual(result.returncode, 1, result.stderr)
+            self.assertIn("error: AmendmentAnchorCoverageError:", result.stderr)
+            self.assertNotIn("PlanGoverningVersionSweepError", result.stderr)
+
+    def test_a_bound_ready_item_regenerates_a_flagged_plan_without_the_sweep(self):
+        with h.ScratchRepo() as repo:
+            self._seed(repo)
+            h.publish_and_bind_plan_bundle(repo, self.WI)
+            h.commit_state(repo, "bound")
+            plan = (repo.root / "docs" / "ai-workflow" / "WORKFLOW_V2_PLAN.md").read_text()
+            self._write_plan(repo, plan + self.FLAGGED_LINE)
+            self.assertEqual(self._generate(repo).returncode, 0)
+
+    def test_a_refusal_during_an_open_amendment_says_so(self):
+        with h.ScratchRepo() as repo:
+            self._seed(repo, phase="AMENDING_PLAN", amendment_history=[{"resolved_at_plan_revision": None}])
+            self._write_plan(repo, self.ANCHORLESS_PLAN)
+            before = self._snapshot(repo) if (self._item_root(repo) / "current").exists() else None
+            result = self._generate(repo)
+            self.assertEqual(result.returncode, 1, result.stderr)
+            self.assertIn("error: AmendmentAnchorCoverageError:", result.stderr)
+            self.assertIn("(amendment open)", result.stderr)
+            self.assertIn("CP1", result.stderr)
+            self.assertIsNone(before)
+            self.assertFalse((self._item_root(repo) / "review-bundle.tar.gz").exists())
+
+    def test_a_version_1_item_without_anchors_generates_as_before(self):
+        with h.ScratchRepo() as repo:
+            self._seed(repo, governing_workflow_version="1")
+            self._write_plan(repo, self.ANCHORLESS_PLAN)
+            result = self._generate(repo)
+            self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_a_bound_ready_item_regenerates_without_the_check_but_other_phases_are_refused(self):
+        with h.ScratchRepo() as repo:
+            self._seed(repo)
+            h.publish_and_bind_plan_bundle(repo, self.WI)
+            h.commit_state(repo, "bound")
+            # Row 4a: the worktree plan drifted at a ready phase; the readers
+            # accept only the bound review_content_id, so regenerating is safe.
+            self._write_plan(repo, self.ANCHORLESS_PLAN)
+            self.assertEqual(self._generate(repo).returncode, 0)
+            for variant in ("non-ready phase", "no binding record"):
+                with self.subTest(variant=variant):
+                    state = h.read_state(repo)
+                    item = state["work_items"][self.WI]
+                    original = json.loads(json.dumps(item))
+                    if variant == "non-ready phase":
+                        item["phase"] = "REVISING_PLAN"
+                    else:
+                        item.pop("plan_review_binding", None)
+                    h.write_state(repo, state)
+                    self._prepare(repo)
+                    before = self._snapshot(repo)
+                    result = self._run(repo)
+                    self.assertEqual(result.returncode, 1, result.stderr)
+                    self.assertIn("error: AmendmentAnchorCoverageError:", result.stderr)
+                    self.assertEqual(self._snapshot(repo), before)
+                    state["work_items"][self.WI] = original
+                    h.write_state(repo, state)
+
+    def test_the_check_decides_on_the_pinned_bytes(self):
+        """The generator calls the function with `pin_dir`; the pinned bytes,
+        not the worktree, decide."""
+        with h.ScratchRepo() as repo:
+            self._seed(repo)
+            self._write_plan(repo, self.ANCHORLESS_PLAN)
+            pin = repo.root / "pin"
+            pin.mkdir()
+            metadata = fingerprint.resolve_plan_stage_metadata(repo.root, self.WI)
+            for rel in metadata.protected_paths:
+                source = repo.root / rel
+                if source.is_file():
+                    (pin / rel).parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy(source, pin / rel)
+            with self.assertRaises(ws.AmendmentAnchorCoverageError):
+                ws.assert_plan_checkpoint_anchors(repo.root, self.WI, pin_dir=pin, allow_bound_regeneration=True)
+
+
+class TestChangesSinceReview(unittest.TestCase):
+    """workflow-2.12.0 `D-Changes`: `CHANGES_SINCE_REVIEW.md`, generated by the
+    real script at both stages, outside `bundle_id` and `review_content_id`."""
+
+    WI = "wi"
+    PLAN = "docs/ai-workflow/WORKFLOW_V2_PLAN.md"
+
+    def _changes(self, repo):
+        return repo.root / ".ai-review" / self.WI / "CHANGES_SINCE_REVIEW.md"
+
+    def _consume(self, repo, review_content_id):
+        state = h.read_state(repo)
+        state["work_items"][self.WI]["consumed_plan_review_content_ids"] = [review_content_id]
+        h.write_state(repo, state)
+
+    def _feedback(self, repo, review_content_id, text="- X-1 Blocking: the plan is wrong."):
+        path = repo.root / ".ai-review" / self.WI / "feedback" / "REVIEW_FEEDBACK.md"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(f"Status: REVISE\nReviewed review_content_id: {review_content_id}\n\n## Findings\n{text}\n")
+
+    def _edit_plan(self, repo, line):
+        path = repo.root / self.PLAN
+        path.write_text(path.read_text() + line + "\n")
+
+    def _members(self, repo):
+        with tarfile.open(repo.root / ".ai-review" / self.WI / "review-bundle.tar.gz") as tar:
+            return tar.getnames()
+
+    # -- plan stage ---------------------------------------------------------
+
+    def test_plan_round_one_writes_no_file(self):
+        with h.ScratchRepo() as repo:
+            h.seed_bundle_item(repo)
+            h.generate_plan_bundle(repo)
+            self.assertFalse(self._changes(repo).exists())
+
+    def test_a_plan_revision_after_a_revise_writes_the_edited_lines_and_the_findings(self):
+        with h.ScratchRepo() as repo:
+            h.seed_bundle_item(repo)
+            first = h.generate_plan_bundle(repo)
+            self._consume(repo, first)
+            self._feedback(repo, first)
+            self._edit_plan(repo, "a revised plan line")
+            second = h.generate_plan_bundle(repo)
+            self.assertNotEqual(first, second)
+            text = self._changes(repo).read_text()
+            self.assertIn(f"previous_review_content_id: {first}", text)
+            self.assertIn(f"review_content_id: {second}", text)
+            self.assertIn("- X-1 Blocking: the plan is wrong.", text)
+            self.assertIn("+a revised plan line", text)
+            self.assertIn(f"diff --git a/{self.PLAN} b/{self.PLAN}", text)
+            self.assertEqual(text.count("diff --git "), 1)
+            self.assertIn("CHANGES_SINCE_REVIEW.md", self._members(repo))
+
+    def test_a_feedback_naming_another_id_prints_not_available(self):
+        with h.ScratchRepo() as repo:
+            h.seed_bundle_item(repo)
+            first = h.generate_plan_bundle(repo)
+            self._consume(repo, first)
+            self._feedback(repo, "f" * 64)
+            self._edit_plan(repo, "a revised plan line")
+            h.generate_plan_bundle(repo)
+            text = self._changes(repo).read_text()
+            self.assertIn("## Previous findings\n\nnot available\n", text)
+            self.assertIn("+a revised plan line", text)
+
+    def test_an_unconsumed_outgoing_round_writes_no_file(self):
+        with h.ScratchRepo() as repo:
+            h.seed_bundle_item(repo)
+            h.generate_plan_bundle(repo)
+            self._edit_plan(repo, "a revised plan line")
+            h.generate_plan_bundle(repo)
+            self.assertFalse(self._changes(repo).exists())
+
+    def test_a_wrapper_only_regeneration_carries_the_live_file_forward(self):
+        with h.ScratchRepo() as repo:
+            h.seed_bundle_item(repo)
+            first = h.generate_plan_bundle(repo)
+            self._consume(repo, first)
+            self._edit_plan(repo, "a revised plan line")
+            h.generate_plan_bundle(repo)
+            before = self._changes(repo).read_bytes()
+            h.generate_plan_bundle(repo)
+            self.assertEqual(self._changes(repo).read_bytes(), before)
+            self.assertIn("CHANGES_SINCE_REVIEW.md", self._members(repo))
+
+    def test_a_live_file_naming_another_id_is_deleted_on_a_wrapper_only_regeneration(self):
+        with h.ScratchRepo() as repo:
+            h.seed_bundle_item(repo)
+            first = h.generate_plan_bundle(repo)
+            self._consume(repo, first)
+            self._edit_plan(repo, "a revised plan line")
+            h.generate_plan_bundle(repo)
+            text = self._changes(repo).read_text()
+            self._changes(repo).write_text(text.replace("\nreview_content_id: ", "\nreview_content_id: 0", 1).replace("review_content_id: 0", "review_content_id: " + "0" * 64, 1))
+            h.generate_plan_bundle(repo)
+            self.assertFalse(self._changes(repo).exists())
+            self.assertNotIn("CHANGES_SINCE_REVIEW.md", self._members(repo))
+
+    def test_the_identifiers_are_identical_with_and_without_the_file(self):
+        with h.ScratchRepo() as repo:
+            h.seed_bundle_item(repo)
+            first = h.generate_plan_bundle(repo)
+            self._consume(repo, first)
+            self._edit_plan(repo, "a revised plan line")
+            h.generate_plan_bundle(repo)
+            manifest = repo.root / ".ai-review" / self.WI / "current" / "MANIFEST.md"
+            with_file = fingerprint.read_manifest_identifiers(manifest)
+            archive = repo.root / ".ai-review" / self.WI / "review-bundle.tar.gz"
+            archived_with = fingerprint.compute_archived_bundle_id(archive)
+            self._changes(repo).unlink()
+            h.generate_plan_bundle(repo)
+            without_file = fingerprint.read_manifest_identifiers(manifest)
+            self.assertEqual(with_file["review_content_id"], without_file["review_content_id"])
+            self.assertEqual(with_file["bundle_id"], without_file["bundle_id"])
+            self.assertEqual(archived_with, with_file["bundle_id"])
+
+    def test_a_corrupt_outgoing_pin_writes_no_file_and_the_generation_succeeds(self):
+        with h.ScratchRepo() as repo:
+            h.seed_bundle_item(repo)
+            first = h.generate_plan_bundle(repo)
+            self._consume(repo, first)
+            self._edit_plan(repo, "a revised plan line")
+            pin = repo.root / ".ai-review" / self.WI / ".pin"
+            victim = next(p for p in pin.rglob("*") if p.is_file())
+            victim.unlink()
+            victim.symlink_to("/etc/hostname")
+            h.generate_plan_bundle(repo)
+            self.assertFalse(self._changes(repo).exists())
+            self.assertTrue((repo.root / ".ai-review" / self.WI / "current" / "MANIFEST.md").is_file())
+
+    # -- implementation stage -----------------------------------------------
+
+    def _round_one(self, repo):
+        h.seed_bundle_item(repo, phase="SELF_REVIEWING_IMPLEMENTATION")
+        repo.commit("implement", filename=h.BUNDLE_ITEM_IMPLEMENTATION_PATH)
+        return h.generate_implementation_bundle(repo)
+
+    def _applying(self, repo):
+        state = h.read_state(repo)
+        state["work_items"][self.WI]["phase"] = "APPLYING_REVIEW_FEEDBACK"
+        h.write_state(repo, state)
+        h.commit_state(repo, "record the REVISE")
+
+    def test_implementation_round_one_writes_no_file(self):
+        with h.ScratchRepo() as repo:
+            self._round_one(repo)
+            self.assertFalse(self._changes(repo).exists())
+
+    def test_implementation_round_two_diffs_the_protected_set_only_with_the_matched_findings(self):
+        with h.ScratchRepo() as repo:
+            first = self._round_one(repo)
+            self._feedback(repo, first, "- I-1 Important: fix impl.")
+            self._applying(repo)
+            repo.commit("fix", filename=h.BUNDLE_ITEM_IMPLEMENTATION_PATH)
+            repo.commit("excluded change", filename="docs/ROADMAP.md")
+            second = h.generate_implementation_bundle(repo, stage="post-fix")
+            text = self._changes(repo).read_text()
+            self.assertIn(f"previous_review_content_id: {first}", text)
+            self.assertIn(f"review_content_id: {second}", text)
+            self.assertIn("- I-1 Important: fix impl.", text)
+            self.assertIn(f"diff --git a/{h.BUNDLE_ITEM_IMPLEMENTATION_PATH} b/{h.BUNDLE_ITEM_IMPLEMENTATION_PATH}", text)
+            self.assertNotIn("ROADMAP.md", text.split("## Changes", 1)[1])
+            self.assertIn("CHANGES_SINCE_REVIEW.md", self._members(repo))
+
+    def test_implementation_round_two_without_a_matching_id_prints_not_available_but_writes_the_diff(self):
+        with h.ScratchRepo() as repo:
+            first = self._round_one(repo)
+            self._feedback(repo, "e" * 64)
+            self._applying(repo)
+            repo.commit("fix", filename=h.BUNDLE_ITEM_IMPLEMENTATION_PATH)
+            h.generate_implementation_bundle(repo, stage="post-fix")
+            text = self._changes(repo).read_text()
+            self.assertIn(f"previous_review_content_id: {first}", text)
+            self.assertIn("## Previous findings\n\nnot available\n", text)
+            self.assertIn("diff --git a/", text)
+
+    def test_implementation_round_two_with_the_outgoing_manifest_absent_still_writes_the_diff(self):
+        with h.ScratchRepo() as repo:
+            first = self._round_one(repo)
+            self._feedback(repo, first)
+            self._applying(repo)
+            repo.commit("fix", filename=h.BUNDLE_ITEM_IMPLEMENTATION_PATH)
+            (repo.root / ".ai-review" / self.WI / "current" / "MANIFEST.md").unlink()
+            h.generate_implementation_bundle(repo, stage="post-fix")
+            text = self._changes(repo).read_text()
+            self.assertIn("previous_review_content_id: not available", text)
+            self.assertIn("diff --git a/", text)
+
+    def test_a_same_content_republication_leaves_the_file_untouched(self):
+        with h.ScratchRepo() as repo:
+            first = self._round_one(repo)
+            self._feedback(repo, first)
+            self._applying(repo)
+            repo.commit("fix", filename=h.BUNDLE_ITEM_IMPLEMENTATION_PATH)
+            h.generate_implementation_bundle(repo, stage="post-fix")
+            record = repo.head()
+            self._changes(repo).write_text(self._changes(repo).read_text() + "sentinel\n")
+            before = self._changes(repo).read_bytes()
+            repo.commit("excluded change", filename="docs/ROADMAP.md")
+            self._applying(repo)
+            state = ws.record_bundle_generation(
+                h.read_state(repo), self.WI, stage="post-fix", head=repo.head(), now="t-same",
+                outcome="same_content")
+            h.write_state(repo, state)
+            revision = state["work_items"][self.WI]["implementation_revision"]
+            h.commit_state(repo, "republish", {
+                "Workflow-Bundle-Generation-Record": f"{self.WI}/{revision}", "Workflow-Work-Item": self.WI,
+                "Workflow-Supersedes": record})
+            h._run_generator(repo, "post-fix", self.WI)
+            self.assertEqual(self._changes(repo).read_bytes(), before)
+
+
+class TestChangesSinceReviewSections(unittest.TestCase):
+    """workflow-2.13.0 `D-Keyed`/`D-Baseline` (CP3): one section per review
+    stage; the manual section compares against the manual stage's own baseline
+    and quotes its own last verdict; the local section is unchanged."""
+
+    WI = "wi"
+    PLAN = "docs/ai-workflow/WORKFLOW_V2_PLAN.md"
+    PLAN_LOCAL = "LOCAL_MODEL_PLAN_REVIEW"
+    PLAN_MANUAL = "MANUAL_EXTERNAL_PLAN_REVIEW"
+    IMPL_LOCAL = "LOCAL_MODEL_IMPLEMENTATION_REVIEW"
+    IMPL_MANUAL = "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW"
+    NO_RECORD = "not available (no previous review of this stage is recorded): review the whole bundle."
+    UNIDENTIFIED = "not available (the previous round cannot be identified): review the whole bundle."
+
+    def _path(self, repo):
+        return repo.root / ".ai-review" / self.WI / "CHANGES_SINCE_REVIEW.md"
+
+    def _text(self, repo):
+        return self._path(repo).read_text()
+
+    def _section(self, repo, role):
+        text = self._text(repo)
+        head = f"## {role}\n"
+        self.assertIn(head, text)
+        rest = text.split(head, 1)[1]
+        for other in (self.PLAN_LOCAL, self.PLAN_MANUAL, self.IMPL_LOCAL, self.IMPL_MANUAL):
+            rest = rest.split(f"\n## {other}\n", 1)[0]
+        return rest
+
+    def _consume(self, repo, *ids):
+        state = h.read_state(repo)
+        state["work_items"][self.WI]["consumed_plan_review_content_ids"] = list(ids)
+        h.write_state(repo, state)
+
+    def _local_feedback(self, repo, review_content_id, text):
+        path = repo.root / ".ai-review" / self.WI / "feedback" / "REVIEW_FEEDBACK.md"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(f"Status: REVISE\nReviewed review_content_id: {review_content_id}\n\n## Findings\n{text}\n")
+
+    def _edit_plan(self, repo, line):
+        path = repo.root / self.PLAN
+        path.write_text(path.read_text() + line + "\n")
+
+    def _record_manual(self, repo, stage, content_id, finding):
+        role = self.PLAN_MANUAL if stage == "plan" else self.IMPL_MANUAL
+        state = h.read_state(repo)["work_items"][self.WI]
+        if stage == "plan":
+            metadata = fingerprint.resolve_plan_stage_metadata(repo.root, self.WI)
+            revision, head = metadata.plan_revision, None
+            classification = {
+                "protected_paths": sorted(metadata.protected_paths),
+                "excluded_paths": dict(metadata.excluded_paths),
+                "excluded_prefixes": dict(metadata.excluded_prefixes),
+            }
+        else:
+            revision, head = state["implementation_revision"], state["reviewed_implementation_head"]
+            sets = fingerprint.load_implementation_stage_classification(
+                repo.root, fingerprint.artifacts_path_for_work_item(self.WI))
+            classification = dict(zip(
+                ("protected_paths", "protected_prefixes", "excluded_paths", "excluded_prefixes"),
+                (dict(mapping) for mapping in sets)))
+        text = (f"Work item: {self.WI}\nReviewer role: {role}\nStatus: REVISE\n"
+                f"Reviewed review_content_id: {content_id}\n\n## Findings\n{finding}\n")
+        self.assertTrue(fingerprint.record_stage_baseline(
+            repo.root, self.WI, stage=stage, role=role, verdict="REVISE", review_content_id=content_id,
+            bundle_id=None, revision=revision, reviewed_implementation_head=head,
+            classification=classification, verdict_text=text, now="t-man", state_revision=1))
+        self.assertIsNotNone(fingerprint.read_stage_baseline(repo.root, self.WI, role))
+
+    def _baseline_dir(self, repo, role):
+        return repo.root / ".ai-review" / self.WI / fingerprint.STAGE_BASELINE_DIR / role
+
+    def _members(self, repo):
+        with tarfile.open(repo.root / ".ai-review" / self.WI / "review-bundle.tar.gz") as tar:
+            return tar.getnames()
+
+    # -- plan stage ---------------------------------------------------------
+
+    def test_local_round_two_has_the_headings_the_basis_and_the_unavailable_manual_section(self):
+        with h.ScratchRepo() as repo:
+            h.seed_bundle_item(repo)
+            first = h.generate_plan_bundle(repo)
+            self._consume(repo, first)
+            self._local_feedback(repo, first, "- L-1 Blocking: local finding.")
+            self._edit_plan(repo, "a revised plan line")
+            second = h.generate_plan_bundle(repo)
+            text = self._text(repo)
+            self.assertLess(text.index(f"## {self.PLAN_LOCAL}\n"), text.index(f"## {self.PLAN_MANUAL}\n"))
+            self.assertIn(f"review_content_id: {second}", text.split("## ", 1)[0])
+            self.assertNotIn("previous_review_content_id", text.split("## ", 1)[0])
+            local = self._section(repo, self.PLAN_LOCAL)
+            self.assertIn(f"previous_review_content_id: {first}", local)
+            self.assertIn("### Previous findings\n\nStatus: REVISE\n", local)
+            self.assertIn("- L-1 Blocking: local finding.", local)
+            self.assertIn("+a revised plan line", local)
+            # (c) no manual baseline: the explicit fallback; the file is still written for the local section
+            self.assertEqual(self._section(repo, self.PLAN_MANUAL).strip(), self.NO_RECORD)
+
+    def test_the_manual_section_diffs_from_the_manual_baseline_and_quotes_the_manual_verdict(self):
+        with h.ScratchRepo() as repo:
+            h.seed_bundle_item(repo)
+            first = h.generate_plan_bundle(repo)
+            self._consume(repo, first)
+            self._record_manual(repo, "plan", first, "- M-1 Blocking: manual finding.")
+            self._edit_plan(repo, "line added for round two")
+            second = h.generate_plan_bundle(repo)
+            self._consume(repo, first, second)
+            self._local_feedback(repo, second, "- L-2 Blocking: local finding of round two.")
+            self._edit_plan(repo, "line added for round three")
+            h.generate_plan_bundle(repo)
+            local = self._section(repo, self.PLAN_LOCAL)
+            manual = self._section(repo, self.PLAN_MANUAL)
+            self.assertIn(f"previous_review_content_id: {second}", local)
+            self.assertIn("L-2 Blocking", local)
+            self.assertNotIn("M-1", local)
+            self.assertIn("+line added for round three", local)
+            self.assertNotIn("+line added for round two", local)
+            self.assertIn(f"previous_review_content_id: {first}", manual)
+            self.assertIn("M-1 Blocking: manual finding.", manual)
+            self.assertNotIn("L-2", manual)
+            self.assertIn("+line added for round two", manual)
+            self.assertIn("+line added for round three", manual)
+
+    def test_no_basis_in_either_section_deletes_the_file(self):
+        with h.ScratchRepo() as repo:
+            h.seed_bundle_item(repo)
+            h.generate_plan_bundle(repo)
+            self._edit_plan(repo, "a revised plan line")
+            self._path(repo).write_text("stale\n")
+            h.generate_plan_bundle(repo)
+            self.assertFalse(self._path(repo).exists())
+            self.assertNotIn("CHANGES_SINCE_REVIEW.md", self._members(repo))
+
+    def test_a_baseline_naming_this_generations_id_gives_no_manual_section(self):
+        with h.ScratchRepo() as repo:
+            h.seed_bundle_item(repo)
+            plan_path = repo.root / self.PLAN
+            original = plan_path.read_text()
+            first = h.generate_plan_bundle(repo)
+            self._consume(repo, first)
+            self._record_manual(repo, "plan", first, "- M-1 manual.")
+            self._edit_plan(repo, "a transient line")
+            second = h.generate_plan_bundle(repo)
+            plan_path.write_text(original)
+            self._consume(repo, first, second)
+            self.assertEqual(h.generate_plan_bundle(repo), first)
+            self.assertEqual(self._section(repo, self.PLAN_MANUAL).strip(), self.UNIDENTIFIED)
+            self.assertIn(f"previous_review_content_id: {second}", self._section(repo, self.PLAN_LOCAL))
+
+    def test_a_corrupt_baseline_or_a_missing_pin_fails_only_the_manual_section(self):
+        for damage in ("json", "pin"):
+            with self.subTest(damage=damage), h.ScratchRepo() as repo:
+                h.seed_bundle_item(repo)
+                first = h.generate_plan_bundle(repo)
+                self._consume(repo, first)
+                self._record_manual(repo, "plan", first, "- M-1 manual.")
+                role_dir = self._baseline_dir(repo, self.PLAN_MANUAL)
+                if damage == "json":
+                    (role_dir / "BASELINE.json").write_text("{not json")
+                else:
+                    shutil.rmtree(role_dir / "pin")
+                self._edit_plan(repo, "a revised plan line")
+                h.generate_plan_bundle(repo)
+                self.assertEqual(self._section(repo, self.PLAN_MANUAL).strip(), self.NO_RECORD)
+                self.assertIn("+a revised plan line", self._section(repo, self.PLAN_LOCAL))
+
+    def test_a_failing_section_builder_fails_only_that_section(self):
+        ok = {"previous_id": "a" * 64, "previous_revision": 1, "extra_lines": [], "findings": "f", "diff": b""}
+
+        def boom():
+            raise RuntimeError("boom")
+
+        local, manual = fingerprint._CHANGES_ROLES["plan"]
+        for failing, fine in ((manual, local), (local, manual)):
+            with self.subTest(failing=failing), mock.patch("sys.stderr"):
+                sections = dict(fingerprint._collect_sections(
+                    "plan", {failing: boom, fine: lambda: ok}))
+                self.assertEqual(sections[failing], "the previous round cannot be identified")
+                self.assertIs(sections[fine], ok)
+
+    def test_a_wrapper_only_regeneration_keeps_both_sections_and_the_archive_carries_the_file(self):
+        with h.ScratchRepo() as repo:
+            h.seed_bundle_item(repo)
+            first = h.generate_plan_bundle(repo)
+            self._consume(repo, first)
+            self._record_manual(repo, "plan", first, "- M-1 manual.")
+            self._edit_plan(repo, "a revised plan line")
+            h.generate_plan_bundle(repo)
+            before = self._path(repo).read_bytes()
+            h.generate_plan_bundle(repo)
+            self.assertEqual(self._path(repo).read_bytes(), before)
+            self.assertIn(f"## {self.PLAN_LOCAL}", before.decode())
+            self.assertIn(f"## {self.PLAN_MANUAL}", before.decode())
+            with tarfile.open(repo.root / ".ai-review" / self.WI / "review-bundle.tar.gz") as tar:
+                member = tar.extractfile("CHANGES_SINCE_REVIEW.md").read().decode()
+            self.assertIn("\nstage: plan\n", member)
+            self.assertEqual(member.encode(), before)
+
+    def test_the_identifiers_are_identical_with_and_without_the_file_and_the_baselines(self):
+        with h.ScratchRepo() as repo:
+            h.seed_bundle_item(repo)
+            first = h.generate_plan_bundle(repo)
+            self._consume(repo, first)
+            self._record_manual(repo, "plan", first, "- M-1 manual.")
+            self._edit_plan(repo, "a revised plan line")
+            h.generate_plan_bundle(repo)
+            manifest = repo.root / ".ai-review" / self.WI / "current" / "MANIFEST.md"
+            with_files = fingerprint.read_manifest_identifiers(manifest)
+            self.assertIn(self.PLAN_MANUAL, self._text(repo))
+            self._path(repo).unlink()
+            shutil.rmtree(self._baseline_dir(repo, self.PLAN_MANUAL).parent)
+            h.generate_plan_bundle(repo)
+            without = fingerprint.read_manifest_identifiers(manifest)
+            self.assertEqual(with_files["review_content_id"], without["review_content_id"])
+            self.assertEqual(with_files["bundle_id"], without["bundle_id"])
+
+    # -- implementation stage -----------------------------------------------
+
+    def _impl_round_one(self, repo):
+        h.seed_bundle_item(repo, phase="SELF_REVIEWING_IMPLEMENTATION")
+        repo.commit("excluded file", filename="README.md")
+        repo.commit("implement", filename=h.BUNDLE_ITEM_IMPLEMENTATION_PATH)
+        return h.generate_implementation_bundle(repo)
+
+    def _applying(self, repo):
+        state = h.read_state(repo)
+        state["work_items"][self.WI]["phase"] = "APPLYING_REVIEW_FEEDBACK"
+        h.write_state(repo, state)
+        h.commit_state(repo, "record the REVISE")
+
+    def test_implementation_sections_quote_each_stages_own_verdict_and_diff_from_its_own_head(self):
+        with h.ScratchRepo() as repo:
+            first = self._impl_round_one(repo)
+            self._record_manual(repo, "implementation", first, "- M-1 Important: manual finding.")
+            manual_head = h.read_state(repo)["work_items"][self.WI]["reviewed_implementation_head"]
+            self._local_feedback(repo, first, "- L-1 Important: local finding.")
+            self._applying(repo)
+            repo.commit("fix one", filename=h.BUNDLE_ITEM_IMPLEMENTATION_PATH)
+            second = h.generate_implementation_bundle(repo, stage="post-fix")
+            self.assertNotEqual(first, second)
+            self._applying(repo)
+            self._local_feedback(repo, second, "- L-2 Important: second local finding.")
+            repo.commit("fix two", filename=h.BUNDLE_ITEM_IMPLEMENTATION_PATH)
+            third = h.generate_implementation_bundle(repo, stage="post-fix")
+            text = self._text(repo)
+            self.assertIn(f"review_content_id: {third}", text.split("## ", 1)[0])
+            local = self._section(repo, self.IMPL_LOCAL)
+            manual = self._section(repo, self.IMPL_MANUAL)
+            self.assertIn(f"previous_review_content_id: {second}", local)
+            self.assertIn("L-2 Important", local)
+            self.assertNotIn("M-1", local)
+            self.assertIn(f"previous_review_content_id: {first}", manual)
+            self.assertIn(f"previous_reviewed_implementation_head: {manual_head}", manual)
+            self.assertIn("M-1 Important: manual finding.", manual)
+            self.assertNotIn("L-", manual)
+            self.assertGreater(manual.count("diff --git "), 0)
+            self.assertNotEqual(manual.split("### Changes", 1)[1], local.split("### Changes", 1)[1])
+
+    def test_an_implementation_round_with_no_baseline_prints_the_fallback_and_keeps_the_local_section(self):
+        with h.ScratchRepo() as repo:
+            first = self._impl_round_one(repo)
+            self._local_feedback(repo, first, "- L-1 Important: local finding.")
+            self._applying(repo)
+            repo.commit("fix", filename=h.BUNDLE_ITEM_IMPLEMENTATION_PATH)
+            h.generate_implementation_bundle(repo, stage="post-fix")
+            self.assertEqual(self._section(repo, self.IMPL_MANUAL).strip(), self.NO_RECORD)
+            self.assertIn("L-1 Important", self._section(repo, self.IMPL_LOCAL))
+            self.assertIn("CHANGES_SINCE_REVIEW.md", self._members(repo))
+
+    def test_an_unreachable_baseline_head_fails_only_the_manual_section(self):
+        with h.ScratchRepo() as repo:
+            first = self._impl_round_one(repo)
+            self._record_manual(repo, "implementation", first, "- M-1 manual.")
+            record = self._baseline_dir(repo, self.IMPL_MANUAL) / "BASELINE.json"
+            data = json.loads(record.read_text())
+            data["reviewed_implementation_head"] = "1" * 40
+            record.write_text(json.dumps(data))
+            self._local_feedback(repo, first, "- L-1 Important: local.")
+            self._applying(repo)
+            repo.commit("fix", filename=h.BUNDLE_ITEM_IMPLEMENTATION_PATH)
+            h.generate_implementation_bundle(repo, stage="post-fix")
+            self.assertEqual(self._section(repo, self.IMPL_MANUAL).strip(), self.NO_RECORD)
+            self.assertIn("diff --git a/", self._section(repo, self.IMPL_LOCAL))
+
+    def test_the_manual_diff_paths_are_the_union_of_the_recorded_and_the_current_classifications(self):
+        with h.ScratchRepo() as repo:
+            first = self._impl_round_one(repo)
+            self._record_manual(repo, "implementation", first, "- M-1 manual.")
+            artifacts = repo.root / fingerprint.artifacts_path_for_work_item(self.WI)
+            declarations = json.loads(artifacts.read_text())
+            stage = declarations["implementation_stage"]
+            reason = stage["excluded_paths"].pop("README.md")
+            stage["protected_paths"]["README.md"] = reason
+            artifacts.write_text(json.dumps(declarations) + "\n")
+            repo.commit_files("amend the declaration", {
+                str(artifacts.relative_to(repo.root)): json.dumps(declarations) + "\n"})
+            self._applying(repo)
+            repo.commit_files("edit the newly protected file", {"README.md": "newly protected edit\n"})
+            h.generate_implementation_bundle(repo, stage="post-fix")
+            manual = self._section(repo, self.IMPL_MANUAL)
+            self.assertIn(f"previous_review_content_id: {first}", manual)
+            self.assertIn("diff --git a/README.md b/README.md", manual)
+            self.assertIn("newly protected edit", manual)
+
+
+# ---------------------------------------------------------------------------
+# W39 (`unclassified-path-message`): an unclassified path is refused with a
+# message that names the path, the declaration file and the sanctioned route.
+# The expected texts are written out in full on purpose: a drift in either
+# the builder or the test must show as a failure.
+# ---------------------------------------------------------------------------
+
+_UPM_REVIEW_PROTOCOL = 'See REVIEW_PROTOCOL.md, "Repairing an artifact declaration after an approval".'
+_UPM_IMPL_ROUTE = (
+    "Add the path to implementation_stage of that file, as a path or a directory prefix: "
+    "protected for a deliverable, excluded for repository territory. The edit needs no plan "
+    "amendment (the plan-stage id does not change); before the technical approval re-run the "
+    "command that refused, after it the edit goes through mark_technical_approval_stale and a "
+    "post-fix round. " + _UPM_REVIEW_PROTOCOL
+)
+
+
+def _upm_plan_route(item: str = "") -> str:
+    """`item` is ` <id>` for the known form, empty for the unknown form."""
+    return (
+        "Add the path to plan_stage of that file as excluded, an exact path in excluded_paths or "
+        "a directory prefix in excluded_prefixes (it is protected only if it is one of the plan's "
+        "own documents; a deliverable is excluded here and protected at the implementation stage).\n"
+        "At PLANNING, REVISING_PLAN, AMENDING_PLAN, AWAITING_LOCAL_PLAN_REVIEW, "
+        "AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW or AWAITING_PLAN_APPROVAL, whether or not an "
+        f"amendment is open: edit the file and run /milestone-plan{item} again.\n"
+        "At IMPLEMENTING or SELF_REVIEWING_IMPLEMENTATION the plan is approved and the edit needs "
+        f"a new plan revision: the user runs /request-plan-amendment{item}, then "
+        f"/milestone-plan{item}, plan review and the plan approval (/approve-review plan, or "
+        "/satisfy-gate when the plan gate is automatic); at any other phase of a two-stage item "
+        "neither command is admitted, so tell the user.\n" + _UPM_REVIEW_PROTOCOL
+    )
+
+
+def _upm_known(path: str, item: str, stage: str) -> str:
+    route = _upm_plan_route(f" {item}") if stage == "plan" else _UPM_IMPL_ROUTE
+    sep = "\n" if stage == "plan" else " "
+    return (
+        f"{path} is not classified by the {stage} stage of the artifact declaration of work item "
+        f"{item}, docs/ai-workflow/registry/{item}-artifacts.json.{sep}{route}"
+    )
+
+
+def _upm_unknown(path: str, stage: str) -> str:
+    route = _upm_plan_route() if stage == "plan" else _UPM_IMPL_ROUTE
+    sep = "\n" if stage == "plan" else " "
+    return (
+        f"{path} is not classified by the {stage} stage of the artifact declaration of the work "
+        "item being worked, docs/ai-workflow/registry/<work_item_id>-artifacts.json (the work "
+        f"item is not known where this path was classified, so <work_item_id> stands for its id).{sep}"
+        f"{route}"
+    )
+
+
+_UPM_PATH = "other/mystery.txt"
+_UPM_PLAN_SETS = (frozenset({"src/a.txt"}), {}, {})
+_UPM_IMPL_SETS = ({}, {"src/": "p"}, {}, {})
+
+
+class TestUnclassifiedPathMessage(unittest.TestCase):
+    def _scratch(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        root = Path(tmp.name)
+
+        def git(*args):
+            return subprocess.run(
+                ["git", "-c", "user.name=t", "-c", "user.email=t@t", *args],
+                cwd=root, check=True, capture_output=True, text=True).stdout.strip()
+
+        git("init", "-q")
+        (root / "src").mkdir()
+        (root / "src/a.txt").write_text("a\n")
+        git("add", "-A")
+        git("commit", "-qm", "base")
+        base = git("rev-parse", "HEAD")
+        (root / "other").mkdir()
+        (root / _UPM_PATH).write_text("x\n")
+        return root, base, git
+
+    def test_t1_plan_classifier_unknown_item_text(self):
+        with self.assertRaises(fingerprint.UnclassifiedPathError) as ctx:
+            fingerprint.classify_path(_UPM_PATH, *_UPM_PLAN_SETS)
+        exc = ctx.exception
+        self.assertEqual(str(exc), _upm_unknown(_UPM_PATH, "plan"))
+        self.assertEqual((exc.path, exc.stage), (_UPM_PATH, "plan"))
+        self.assertEqual(len(exc.args), 1)
+        self.assertIs(type(exc).__mro__[1], Exception)
+
+    def test_t2_implementation_classifier_unknown_item_text(self):
+        with self.assertRaises(fingerprint.UnclassifiedPathError) as ctx:
+            fingerprint.classify_path_implementation_stage(_UPM_PATH, *_UPM_IMPL_SETS)
+        exc = ctx.exception
+        self.assertEqual(str(exc), _upm_unknown(_UPM_PATH, "implementation"))
+        self.assertEqual((exc.path, exc.stage), (_UPM_PATH, "implementation"))
+        self.assertEqual(len(exc.args), 1)
+
+    def test_t3_each_entry_point_names_the_item(self):
+        root, base, git = self._scratch()
+        plan = _upm_known(_UPM_PATH, "demo-item", "plan")
+        impl = _upm_known(_UPM_PATH, "demo-item", "implementation")
+        worktree_cases = {
+            "plan_stage": (plan, lambda: fingerprint.compute_review_content_id_plan_stage(
+                root, base, "process", "demo-item", 1, *_UPM_PLAN_SETS)),
+            "implementation_stage": (impl, lambda: fingerprint.compute_review_content_id_implementation_stage(
+                root, base, "process", "demo-item", *_UPM_IMPL_SETS)),
+        }
+        for name, (expected, call) in worktree_cases.items():
+            with self.subTest(entry_point=name):
+                with self.assertRaises(fingerprint.UnclassifiedPathError) as ctx:
+                    call()
+                self.assertEqual(str(ctx.exception), expected)
+        git("add", "-A")
+        git("commit", "-qm", "c")
+        commit_cases = {
+            "plan_stage_at_commit": (plan, lambda: fingerprint.compute_review_content_id_plan_stage_at_commit(
+                root, base, "HEAD", "process", "demo-item", 1, *_UPM_PLAN_SETS)),
+            "implementation_stage_at_commit": (
+                impl, lambda: fingerprint.compute_review_content_id_implementation_stage_at_commit(
+                    root, base, "HEAD", "process", "demo-item", *_UPM_IMPL_SETS)),
+        }
+        for name, (expected, call) in commit_cases.items():
+            with self.subTest(entry_point=name):
+                with self.assertRaises(fingerprint.UnclassifiedPathError) as ctx:
+                    call()
+                self.assertEqual(str(ctx.exception), expected)
+
+    def test_t6_the_message_and_the_helper_share_one_template(self):
+        self.assertEqual(fingerprint.ARTIFACTS_PATH_TEMPLATE, "docs/ai-workflow/registry/{work_item_id}-artifacts.json")
+        for item in ("demo-item", "acceptance-gate-robustness", "a1"):
+            with self.subTest(item=item):
+                named = fingerprint.artifacts_path_for_work_item(item).as_posix()
+                self.assertIn(f"work item {item}, {named}.", fingerprint.unclassified_path_message("p", item))
+        self.assertIn("work item being worked, docs/ai-workflow/registry/<work_item_id>-artifacts.json (",
+                      fingerprint.unclassified_path_message("p"))
+
+    def test_t7_declaration_replaces_the_named_file_in_the_known_form_only(self):
+        default = fingerprint.unclassified_path_message("p", "demo-item", stage="implementation")
+        named = fingerprint.unclassified_path_message(
+            "p", "demo-item", stage="implementation", declaration="docs/other/legacy.json")
+        self.assertEqual(named, default.replace("docs/ai-workflow/registry/demo-item-artifacts.json",
+                                                "docs/other/legacy.json"))
+        self.assertEqual(fingerprint.unclassified_path_message("p", "demo-item", declaration=None),
+                         fingerprint.unclassified_path_message("p", "demo-item"))
+        self.assertEqual(fingerprint.unclassified_path_message("p", None, declaration="docs/other/legacy.json"),
+                         fingerprint.unclassified_path_message("p"))
+        with self.assertRaises(fingerprint.UnclassifiedPathError) as ctx:
+            with fingerprint.naming_work_item("demo-item", declaration="docs/other/legacy.json"):
+                raise fingerprint.UnclassifiedPathError("raw", "p", "plan")
+        self.assertIn("docs/other/legacy.json", str(ctx.exception))
+
+    def test_t8_the_plan_stage_text_is_five_lines_and_the_same_words(self):
+        text = fingerprint.unclassified_path_message(_UPM_PATH, "demo-item", stage="plan")
+        lines = text.split("\n")
+        self.assertEqual(len(lines), 5)
+        self.assertTrue(all(len(line) < 400 for line in lines), [len(line) for line in lines])
+        self.assertEqual(text, _upm_known(_UPM_PATH, "demo-item", "plan"))
+        old = " ".join(lines).replace("of a two-stage item ", "")
+        self.assertNotIn("\n", old)
+        self.assertIn("at any other phase neither command is admitted, so tell the user. See REVIEW_PROTOCOL.md", old)
+        for stage in ("implementation",):
+            self.assertNotIn("\n", fingerprint.unclassified_path_message(_UPM_PATH, "demo-item", stage=stage))
+        self.assertNotIn("\n", fingerprint.unclassified_path_message(_UPM_PATH, "demo-item", stage="implementation", interval=True))
+
+    def test_t5_nothing_changes_where_nothing_is_refused(self):
+        self.assertEqual(fingerprint.classify_path("src/a.txt", *_UPM_PLAN_SETS), "protected")
+        self.assertEqual(
+            fingerprint.classify_path_implementation_stage("src/a.txt", *_UPM_IMPL_SETS), "protected")
+        self.assertEqual(
+            fingerprint.classify_path(".workflow-manager/installation.json", *_UPM_PLAN_SETS), "excluded")
+        self.assertIs(fingerprint.UnclassifiedPathError.__bases__[0], Exception)
+        # a plain error raised inside an entry point passes through untouched
+        marker = ValueError("not an unclassified path")
+        with mock.patch.object(fingerprint, "resolve_base", side_effect=marker):
+            with self.assertRaises(ValueError) as ctx:
+                fingerprint.compute_review_content_id_plan_stage(
+                    Path("."), "base", "process", "demo-item", 1, *_UPM_PLAN_SETS)
+        self.assertIs(ctx.exception, marker)
+        # the plan-declaration coverage refusal keeps its own text
+        self.assertEqual(
+            ws.PLAN_DECLARATION_NEXT_STEP,
+            "add each path, or its directory prefix, to `plan_stage` and/or `implementation_stage` of "
+            "`docs/ai-workflow/registry/<id>-artifacts.json` (protected for a deliverable, excluded for "
+            "repository territory); a bare file name is a root-level path, so write every path in full "
+            "from the repository root; when the span is not a path (a dotted identifier, a function name, "
+            "a flag), drop its backticks or move it out of the Files paragraph; then run the command again",
+        )
+
+    def test_t5_naming_work_item_lets_other_errors_through(self):
+        marker = ValueError("x")
+        with self.assertRaises(ValueError) as ctx:
+            with fingerprint.naming_work_item("demo-item"):
+                raise marker
+        self.assertIs(ctx.exception, marker)
+        # an unclassified error without a path (a bare construction) is also left as it was
+        bare = fingerprint.UnclassifiedPathError("just a message")
+        with self.assertRaises(fingerprint.UnclassifiedPathError) as ctx:
+            with fingerprint.naming_work_item("demo-item"):
+                raise bare
+        self.assertIs(ctx.exception, bare)
+
+    def test_t9_the_declaration_advice_is_true_as_run(self):
+        plan = fingerprint.unclassified_path_message(_UPM_PATH, "demo-item", stage="plan")
+        impl = fingerprint.unclassified_path_message(_UPM_PATH, "demo-item", stage="implementation")
+        self.assertNotIn("protected for a deliverable", plan)
+        self.assertIn("a deliverable is excluded here and protected at the implementation stage", plan)
+        self.assertIn("an exact path in excluded_paths or a directory prefix in excluded_prefixes", plan)
+        self.assertIn("protected for a deliverable, excluded for repository territory", impl)
+        self.assertIn("as a path or a directory prefix", impl)
+        deliverable = "payload/scripts/new_tool.py"
+        # plan stage: a deliverable as an exact excluded path, and under an excluded prefix
+        self.assertEqual(fingerprint.classify_path(
+            deliverable, frozenset(), {deliverable: "d"}, {}), "excluded")
+        self.assertEqual(fingerprint.classify_path(
+            deliverable, frozenset(), {}, {"payload/": "d"}), "excluded")
+        # implementation stage: protected as a path or a prefix, excluded as a path or a prefix
+        classify = fingerprint.classify_path_implementation_stage
+        self.assertEqual(classify(deliverable, {deliverable: "d"}, {}, {}, {}), "protected")
+        self.assertEqual(classify(deliverable, {}, {"payload/": "d"}, {}, {}), "protected")
+        self.assertEqual(classify(deliverable, {}, {}, {deliverable: "t"}, {}), "excluded")
+        self.assertEqual(classify(deliverable, {}, {}, {}, {"payload/": "t"}), "excluded")
 
 
 if __name__ == "__main__":

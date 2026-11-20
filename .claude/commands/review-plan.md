@@ -13,7 +13,7 @@ Enter the `AWAITING_LOCAL_PLAN_REVIEW` state of
 not a specific model: nothing in this contract, the written feedback
 schema, or the state transition it produces names a model, except the
 `Reviewer model:` line when the gate policy requires distinct reviewer models
-(step 7, workflow-2.8.0). Running it from any capable Claude model produces the
+(step 7, workflow-2.8.0). Running it from any capable model produces the
 same schema and the same transition.
 Recommended in a **fresh session** for genuine independence from the
 session that wrote the plan — strongly recommended operational guidance,
@@ -61,6 +61,7 @@ normative definition.
    prior `<feedback_dir>/REVIEW_FEEDBACK.md` (for continuity across
    rounds), and `docs/ai-workflow/REVIEW_PROTOCOL.md`'s feedback-structure
    contract.
+   **Changes since the last reviewed bundle** (workflow-2.12.0, `D-Changes`): when `<bundle_dir>/../CHANGES_SINCE_REVIEW.md` (the file next to `current/`) exists and its preamble's `review_content_id` is the one recomputed in step 5, read it too: it holds one section per review stage, and you read **the section named for your role** (`## LOCAL_MODEL_PLAN_REVIEW`; the manual external reviewer's is its own `## MANUAL_EXTERNAL_PLAN_REVIEW`). A section carries the previous round's findings of that stage and the diff of the plan content since that stage's previous round. A section reading `not available (<reason>): review the whole bundle.` has no basis: review the whole bundle. You may then review only the changes in your section and check that each previous finding is resolved, declaring `Review scope: changes` in the header; that is valid on a `REVISE` or `BLOCK` only. **Any `APPROVE` is a full review of the whole bundle**: when the changes show nothing to fix, go on to the full pass in the same run, and declare `Review scope: full` or omit the line. A file whose preamble names another id is stale: ignore it. 
 5. **Recompute fresh, before writing anything**: the current `bundle_id`
    and the plan-stage `review_content_id`, the latter through the single
    canonical entry point `docs/ai-workflow/REVIEW_PROTOCOL.md`'s
@@ -103,6 +104,13 @@ normative definition.
    addressed against the actual repository state — never take the
    disposition table's word for it — and search for new findings, exactly
    as thoroughly as `/apply-plan-review`'s own validation requirement.
+   The declaration gate (workflow-2.14.0, `D-Coverage`) reads only the
+   `**Files:**` paragraphs of the checkpoints: in one, every backtick span is a
+   path, apart from a span with whitespace or a glob or placeholder character,
+   a URL, one starting `/`, `~` or `..`, or a version string. It does not
+   decide whether a path is rightly protected or excluded; that judgment is
+   yours, and so is a path named in prose, a glob or a path outside the
+   repository, which the gate does not read.
 7. **Decide the verdict** (`Status: APPROVE | REVISE | BLOCK`) and write
    `<feedback_dir>/REVIEW_FEEDBACK.md` per
    `docs/ai-workflow/REVIEW_PROTOCOL.md`'s required structure, **plus**
@@ -128,6 +136,18 @@ normative definition.
      `LOCAL_MODEL_PLAN_REVIEW` round on record, counting a round entry under
      either casing of the stage key, or `1` if none);
    - a completion timestamp.
+   - **Verdict shape** (workflow-2.12.0, `D-Severity`): a `REVISE` names at
+     least one Blocking or Important finding, and an `APPROVE` lists no
+     Blocking finding and declares no `Review scope: changes` (every
+     `APPROVE` is a full review of the whole bundle). Write the literal
+     `None.` in a severity section with no finding. A round whose only
+     findings are Optional is an `APPROVE`, with them under `## Optional
+     findings`. Before writing, call
+     `workflow_fingerprint.assert_verdict_well_formed(<the text about to be
+     written>)`; on a `MalformedVerdictError`, rewrite your own verdict to
+     conform in this same run and call it again -- never write a verdict it
+     refuses, and never change `Status:` to dodge it without changing the
+     findings.
    Malformed prior feedback is reported and stops rather than guessed at.
 8. **Write set, exact.** **`REJECTED`-bundle refusal, second of two,
    under this step's own mutation guard** (`WFR-67`): immediately before
@@ -183,6 +203,16 @@ normative definition.
    - `BLOCK`: `REVIEW_FEEDBACK.md` only — `record_local_plan_review(...,
      verdict="BLOCK", ...)` is a true no-op; the work item stays at
      `AWAITING_LOCAL_PLAN_REVIEW`.
+   **Optional findings** (workflow-2.14.0, `D-Ledger`): the `record_local_plan_review`
+   call, for an `APPROVE` or a `REVISE`, also passes `verdict_text=<the
+   REVIEW_FEEDBACK.md text just written>`, so every finding under `## Optional
+   findings` is recorded in the item's state in the same transaction. A call
+   without `verdict_text` records nothing; a `BLOCK` records nothing.
+   Plan-stage writes are not committed here (workflow-2.9.1,
+   `REVIEW_PROTOCOL.md`'s commit rule for review-stage writes): there is no
+   generation-record commit at the plan stage, the plan-approval commit
+   takes the whole working-tree state, and a commit of its own would raise
+   `bundle_generation_mismatch` at the plan-approval gate.
    Never the plan, registry, mapping, command, product, or bundle-content
    files, and never another work item's fields.
 9. **Report and stop.** For an `APPROVE`: state the exact bundle path,

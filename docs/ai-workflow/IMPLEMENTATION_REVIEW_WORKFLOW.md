@@ -95,6 +95,35 @@ Whichever command stops, it states, in its own report:
   the ordinary `REVISE` loop or from a `"2.2"` item's functional-review
   bounded-fix branch (`/apply-functional-review`).
 
+## Committing a review-stage write (`workflow-2.9.1`)
+
+A `REVISE` is committed on its own, before any fix commit, so the post-fix
+generation record still transitions `phase`; an `APPROVE` is left uncommitted
+for the approval commit to take, because a commit of its own puts `HEAD` past
+the bundle's `generation_head`. `/apply-implementation-review` step 1 commits
+a still-pending `REVISE` write (or step 0's own entry) as a safety net and
+does nothing when it is already committed. The full rule, with the helper
+and its refusals, is in `REVIEW_PROTOCOL.md` ("Which review-stage writes are
+committed"); it does not depend on the governing version.
+
+## Reviewing only the changes (`workflow-2.12.0`)
+
+From the second round, the generator writes `CHANGES_SINCE_REVIEW.md` next to
+`current/` (and into `review-bundle.tar.gz`) with one section per review stage
+(`workflow-2.13.0`): `## LOCAL_MODEL_IMPLEMENTATION_REVIEW` holds the diff of
+the implementation-stage protected content from the previous round's reviewed
+head to this one and that round's findings, `## MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW`
+holds the diff from the head the manual stage last reviewed and that stage's
+own last verdict. A section without a basis says `not available (<reason>):
+review the whole bundle.`; the first manual round after updating to 2.13.0 has
+none. `/review-implementation` and the manual reviewer read the section named
+for their role, may review only its changes and check each previous finding is
+resolved, declaring `Review scope: changes`, and return a `REVISE` or `BLOCK`.
+Any `APPROVE` is a full review of the whole bundle. A same-content
+republication leaves the file as it was. The file is reviewer convenience,
+outside `bundle_id` and `review_content_id`; its semantics are in
+`REVIEW_PROTOCOL.md` ("Bundle location").
+
 ## Staleness, in one line
 
 Both ledger stages are valid only while the ledger's stored
@@ -166,6 +195,13 @@ implementation-review flow unchanged. An operator updating
 automatically upgraded. Only a *new* work item created after activation
 gets the two-stage implementation-review flow.
 
+**From 2.10.0, a default that is `"2.1"` no longer starts new work.**
+Creating a new work item (a fresh `/milestone-plan`, or a broad remediation
+child from `/apply-functional-review` or `/apply-pr-review`) refuses before any
+write with `DefaultWorkflowVersionRetiredError` while `default_workflow_version`
+is `"2.1"`. Activate `"2.2"` as above to continue. Existing work items keep
+their governing version and finish on it.
+
 ## Rolling back
 
 A `Workflow-Rollback: 2.2` commit reverts `default_workflow_version` to
@@ -177,7 +213,8 @@ validation only ever checks the active `default_workflow_version` value
 itself, never an independently requested one.
 
 After a `Workflow-Rollback: 2.2` commit, the repository is still
-`"2.1"`-configured, and `ConfigMissingAfterActivationError`'s hard stop
+`"2.1"`-configured (and, from 2.10.0, cannot create a new work item until
+`"2.2"` is activated again), and `ConfigMissingAfterActivationError`'s hard stop
 correctly stays armed — this is why rollback is version-aware rather than
 a binary "activated"/"not activated" flag. An unresolvable
 `Workflow-Rollback` trailer value (blank, a typo, or a version this

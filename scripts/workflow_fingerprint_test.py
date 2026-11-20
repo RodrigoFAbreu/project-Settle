@@ -4433,5 +4433,199 @@ class TestFeedbackLayout(unittest.TestCase):
         )
 
 
+class VerdictWellFormedTest(unittest.TestCase):
+    """workflow-2.12.0, CP1 (`D-Severity`): `assert_verdict_well_formed`."""
+
+    @staticmethod
+    def _verdict(status, blocking="None.", important="None.", optional="None.", scope=None):
+        header = ["# Review Decision", "", f"Status: {status}", "Reviewer role: LOCAL_MODEL_PLAN_REVIEW"]
+        if scope is not None:
+            header.append(f"Review scope: {scope}")
+        lines = header + ["", "## Blocking findings", "", blocking, "", "## Important findings", "", important,
+                          "", "## Optional findings", "", optional, "", "## Missing tests", "", "None.", ""]
+        return "\n".join(lines)
+
+    def _refused(self, text):
+        with self.assertRaises(wf.MalformedVerdictError) as ctx:
+            wf.assert_verdict_well_formed(text)
+        return str(ctx.exception)
+
+    def test_a_revise_with_only_optional_findings_is_refused(self):
+        message = self._refused(self._verdict("REVISE", optional="- tidy the wording"))
+        self.assertIn("Optional", message)
+        self.assertIn("Nothing was written", message)
+
+    def test_a_revise_with_a_blocking_important_or_heading_finding_is_accepted(self):
+        wf.assert_verdict_well_formed(self._verdict("REVISE", blocking="- the digest is wrong"))
+        wf.assert_verdict_well_formed(self._verdict("REVISE", important="1. add the missing test"))
+        wf.assert_verdict_well_formed(self._verdict("REVISE", important="### F1\n\nbody"))
+        wf.assert_verdict_well_formed(self._verdict("REVISE", important="* a starred item"))
+
+    def test_placeholders_and_an_empty_section_are_not_findings(self):
+        for placeholder in ("None.", "- None.", "- n/a", "- N/A", "-", "- **None**", "- None identified",
+                            "- No important findings.", "- No blocking findings", "* none", "1. None", "", "### None"):
+            with self.subTest(placeholder=placeholder):
+                self._refused(self._verdict("REVISE", blocking=placeholder, important=placeholder,
+                                            optional="- a suggestion"))
+
+    def test_trailing_punctuation_on_a_placeholder_is_ignored(self):
+        """EIR-R1-002: `D-Severity` ignores trailing punctuation."""
+        for placeholder in ("- None,", "None,", "- None?", "- None;", "- none.,", "- N/A,", "- No findings!",
+                            "- None —", "- None…", "- None)", "- None -", "- No findings—"):
+            with self.subTest(placeholder=placeholder):
+                self._refused(self._verdict("REVISE", blocking=placeholder, important=placeholder,
+                                            optional="- a suggestion"))
+
+    WRAPPED_PLACEHOLDERS = ("- (none)", "- [none]", '- "None"', "- \u2014 None", "- ~~none~~")
+
+    def test_a_wrapped_or_prefixed_placeholder_is_not_a_finding(self):
+        """workflow-2.18.1, 31b: leading and wrapping punctuation or symbols on `None` are ignored."""
+        for placeholder in self.WRAPPED_PLACEHOLDERS:
+            with self.subTest(placeholder=placeholder):
+                self._refused(self._verdict("REVISE", blocking=placeholder, important="None.",
+                                            optional="- a suggestion"))
+                self._refused(self._verdict("REVISE", blocking="None.", important=placeholder,
+                                            optional="- a suggestion"))
+                self.assertEqual(
+                    wf.parse_optional_findings(self._verdict("REVISE", optional=placeholder)), [])
+
+    def test_an_approve_with_only_a_wrapped_placeholder_under_blocking_is_accepted(self):
+        for placeholder in self.WRAPPED_PLACEHOLDERS:
+            with self.subTest(placeholder=placeholder):
+                wf.assert_verdict_well_formed(self._verdict("APPROVE", blocking=placeholder))
+
+    def test_a_finding_that_merely_starts_with_or_quotes_none_stays_a_finding(self):
+        for finding in ("- none of the tests were run", '- "None" handling is wrong', "- (none) of these hold"):
+            with self.subTest(finding=finding):
+                wf.assert_verdict_well_formed(self._verdict("REVISE", blocking=finding))
+                self._refused(self._verdict("APPROVE", blocking=finding))
+                self.assertEqual(
+                    len(wf.parse_optional_findings(self._verdict("REVISE", optional=finding))), 1)
+
+    def test_punctuation_only_entry_is_a_placeholder(self):
+        """EIR-R2-001: an entry that is nothing but punctuation or symbols names no finding."""
+        for placeholder in ("- -.", "- --", "- —", "- ...", "- *", "- `-`", "- !?", "1. -"):
+            with self.subTest(placeholder=placeholder):
+                self._refused(self._verdict("REVISE", blocking=placeholder, important="None.",
+                                            optional="- a suggestion"))
+
+    def test_a_conflicting_or_unrecognised_scope_on_an_approve_is_refused(self):
+        """EIR-R1-001: only one `full` (or no) scope line approves; `changes.`,
+        `changes only` and a header stating two scopes never pass as omitted."""
+        for scope in ("changes.", "changes only", "everything", "full."):
+            with self.subTest(scope=scope):
+                self.assertIn("Review scope", self._refused(self._verdict("APPROVE", scope=scope)))
+        both = self._verdict("APPROVE", scope="full").replace(
+            "Review scope: full", "Review scope: full\nReview scope: changes")
+        self._refused(both)
+        wf.assert_verdict_well_formed(self._verdict("APPROVE", scope="full"))
+        wf.assert_verdict_well_formed(self._verdict("APPROVE"))
+        wf.assert_verdict_well_formed(self._verdict("REVISE", blocking="- x", scope="changes"))
+
+    def test_a_placeholder_in_one_section_does_not_hide_a_finding_in_the_other(self):
+        wf.assert_verdict_well_formed(self._verdict("REVISE", blocking="- None.", important="- a real finding"))
+
+    def test_a_revise_with_no_severity_sections_at_all_is_refused(self):
+        self._refused("# Review Decision\n\nStatus: REVISE\n\n## Optional findings\n\n- x\n")
+
+    def test_an_approve_with_a_blocking_finding_is_refused(self):
+        self._refused(self._verdict("APPROVE", blocking="- the digest is wrong"))
+        wf.assert_verdict_well_formed(self._verdict("APPROVE", blocking="None."))
+        wf.assert_verdict_well_formed(self._verdict("APPROVE", blocking="- None.", important="- must fix"))
+
+    def test_an_approve_declaring_a_changes_only_review_is_refused(self):
+        message = self._refused(self._verdict("APPROVE", scope="changes"))
+        self.assertIn("full review", message)
+        wf.assert_verdict_well_formed(self._verdict("APPROVE", scope="full"))
+        wf.assert_verdict_well_formed(self._verdict("APPROVE"))
+        wf.assert_verdict_well_formed(self._verdict("REVISE", blocking="- x", scope="changes"))
+
+    def test_block_and_other_statuses_are_not_checked(self):
+        wf.assert_verdict_well_formed(self._verdict("BLOCK"))
+        wf.assert_verdict_well_formed("# Review Decision\n\nno status here\n")
+
+    def test_the_scope_is_read_from_the_header_only(self):
+        body_scope = self._verdict("APPROVE") + "\nReview scope: changes\n"
+        self.assertIsNone(wf.parse_review_scope(body_scope))
+        wf.assert_verdict_well_formed(body_scope)
+        self.assertEqual(wf.parse_review_scope(self._verdict("REVISE", blocking="- x", scope="Changes")), "changes")
+        self.assertEqual(wf.parse_review_scope(self._verdict("APPROVE", scope="`full`")), "full")
+        self.assertIsNone(wf.parse_review_scope(self._verdict("APPROVE", scope="partial")))
+
+
+class TestParseOptionalFindings(unittest.TestCase):
+    """workflow-2.14.0 CP1, `D-Parse`."""
+
+    @staticmethod
+    def _verdict(optional: str) -> str:
+        return f"# Review\n\n## Important findings\n\nNone.\n\n## Optional findings\n\n{optional}\n\n## Missing tests\n\n- not an optional finding\n"
+
+    def _keys(self, text):
+        return [f.key for f in wf.parse_optional_findings(self._verdict(text))]
+
+    def test_bullets_numbered_and_headings_are_items(self):
+        found = wf.parse_optional_findings(self._verdict("- one\n* two\n3. three\n### four\nbody"))
+        self.assertEqual([f.text.splitlines()[0] for f in found], ["one", "two", "three", "four"])
+        self.assertEqual(found[3].text, "four\nbody")
+
+    def test_placeholders_and_absent_section_yield_nothing(self):
+        for text in ("None.", "- none", "- n/a", "- No findings", "- ...", "- **None**"):
+            with self.subTest(text=text):
+                self.assertEqual(self._keys(text), [])
+        self.assertEqual(wf.parse_optional_findings("## Important findings\n- x\n"), [])
+        self.assertEqual(len(wf.parse_optional_findings("## optional FINDINGS\n- x\n")), 1)
+
+    def test_section_ends_at_the_next_level_two_heading(self):
+        self.assertEqual(len(self._keys("- one")), 1)
+
+    def test_sub_bullets_are_one_finding_with_the_whole_entry_as_text(self):
+        found = wf.parse_optional_findings(self._verdict("- Fix x; or\n  - option a; or\n  - option b"))
+        self.assertEqual(len(found), 1)
+        self.assertIn("option b", found[0].text)
+
+    def test_later_item_at_same_indentation_is_a_new_item_and_heading_then_list_is_body(self):
+        self.assertEqual(len(self._keys("- a\n- b\n  - nested\n- c")), 3)
+        found = wf.parse_optional_findings(self._verdict("- O1: Keep a cache.\n### O2: Document it.\n- detail\n- more"))
+        self.assertEqual(len(found), 2)
+        self.assertIn("- detail", found[1].text)
+
+    def test_identity_is_the_whole_entry_label_included(self):
+        a, b = self._keys("- **O1:** x"), self._keys("- O2: x")
+        self.assertNotEqual(a, b)
+        self.assertNotEqual(self._keys("- CP1: tests miss failures"), self._keys("- CP2: tests miss failures"))
+        self.assertNotEqual(self._keys("- user_id leaks"), self._keys("- userid leaks"))
+        self.assertNotEqual(self._keys("- O1: same words"), self._keys("- EXT-R2-O1: same words"))
+        self.assertNotEqual(self._keys("- O1: same\n  body a"), self._keys("- O1: same\n  body b"))
+
+    def test_whitespace_and_wrapping_only_changes_keep_the_key(self):
+        self.assertEqual(self._keys("- O1: add   a test\n  for it"), self._keys("- O1: add a test for it"))
+
+    def test_identical_entries_in_one_verdict_are_separate_findings(self):
+        keys = self._keys("- O1: x\n- O1: x\n- O1: x")
+        self.assertEqual(len(set(keys)), 3)
+        self.assertEqual(keys[0], self._keys("- O1: x")[0])
+
+    def test_a_duplicate_ordinal_never_collides_with_a_literal_entry(self):
+        found = wf.parse_optional_findings(self._verdict("- O1: x\n- O1: x\n- O1: x @2"))
+        self.assertEqual(len({f.digest for f in found}), 3)
+        self.assertEqual(len({f.key for f in found}), 3)
+
+    def test_labels_are_display_only_and_read_from_real_shapes(self):
+        shapes = {
+            "O3: x": "O3", "OPT-2. x": "OPT-2", "**O1 \u2014 Stale test-results metadata.**": "O1",
+            "EXT-R2-O1 \u2014 x": "EXT-R2-O1", "EXT6-O2 \u2014 x": "EXT6-O2",
+            "LIR-R5-001 remains: x": "LIR-R5-001", "Note: x": None, "plain text": None,
+        }
+        for first, label in shapes.items():
+            with self.subTest(first=first):
+                self.assertEqual(wf.parse_optional_findings(self._verdict(f"- {first}"))[0].label, label)
+
+    def test_key_and_digest_shape_and_text_limit(self):
+        finding = wf.parse_optional_findings(self._verdict("- " + "y" * 3000))[0]
+        self.assertRegex(finding.key, r"^F-[0-9a-f]{12}$")
+        self.assertEqual(finding.key, "F-" + finding.digest[:12])
+        self.assertEqual(len(finding.text), wf.OPTIONAL_FINDING_TEXT_LIMIT)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

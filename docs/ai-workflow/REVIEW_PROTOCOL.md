@@ -163,7 +163,7 @@ copy. The copy is byte-exact, so `bundle_id` is computed over exactly the
 bytes an in-place generation would have hashed. Only once
 `finalize_staged_plan_bundle_generation`'s closing checks (the same checks
 `finalize_bundle_generation` runs in place) succeed are the pin, `current/`, the archive
-and `AMENDMENT_DIFF.patch` renamed into place, and any `REJECTED` marker
+`AMENDMENT_DIFF.patch` and `CHANGES_SINCE_REVIEW.md` renamed into place, and any `REJECTED` marker
 cleared. So, in the real command order (refresh the inputs, then
 generate), nothing writes `current/` until that final rename.
 
@@ -172,7 +172,10 @@ generate), nothing writes `current/` until that final rename.
 `WFR-67` requires that a failed closing binding assertion leave no
 review-ready artifact. A failed plan-stage generation's artifacts exist
 only in the staging directory, the staging pin and the staging archive, and
-the failure path removes exactly those: it **does not** call
+the failure path removes exactly those (2.11.0: a new or unbound plan revision whose pinned bytes lack
+a registry checkpoint's `<!-- CPn -->`/`<!-- /CPn -->` anchor pair fails the
+plan-stage generation this way, through `assert_plan_checkpoint_anchors`): it
+**does not** call
 `withdraw_bundle` on `current/` and **writes no `REJECTED` marker**. The
 previous `current/`, its archive and `.pin` are left byte-identical. That
 previous bundle is review-ready only for its own content, and only while it
@@ -280,7 +283,7 @@ all, and no supported invocation is blocked here — only delayed by one
 retry, with the error naming the directory to author into.
 
 `.ai-review/` is entirely gitignored, including `.ai-review/source/` —
-files a human places there as raw proposal material for Claude to read,
+files a human places there as raw proposal material for the agent to read,
 never review-bundle content. `CONTEXT_FILES.txt` must never list a path
 under `.ai-review/source/`; `scripts/prepare-ai-review.sh` skips (and
 warns on) any such entry as defense in depth.
@@ -320,6 +323,97 @@ reviewer convenience only, and deletes any stale copy once no amendment is
 open. The manual-external-review archive (`review-bundle.tar.gz`) bundles
 it alongside `current/` when present, so both the local and the
 manual-external reviewer see the identical convenience diff.
+
+**`workflow-2.12.0`, `D-Changes`**: `CHANGES_SINCE_REVIEW.md` is a second
+such sibling, at `.ai-review/<work_item_id>/CHANGES_SINCE_REVIEW.md`, outside
+`bundle_id` and `review_content_id` and bundled into `review-bundle.tar.gz`
+when present. `scripts/prepare-ai-review.sh` regenerates it on every ordinary
+generation, at the plan stage and at the implementation and post-fix stages,
+and deletes it when there is nothing to compare with (a first round, or a
+previous round that cannot be identified). It holds a preamble (`work_item_id:`, `stage:`, this
+generation's `review_content_id:` and `revision:`) and, from 2.13.0, one
+section per review stage (`D-Keyed`), with these exact headings in this order:
+`## LOCAL_MODEL_PLAN_REVIEW` then `## MANUAL_EXTERNAL_PLAN_REVIEW` at the plan
+stage, `## LOCAL_MODEL_IMPLEMENTATION_REVIEW` then
+`## MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW` at the implementation stages. A
+section with a basis holds `previous_review_content_id:`, `previous_revision:`
+(and, at the implementation stage, `previous_reviewed_implementation_head:`),
+`### Previous findings` and `### Changes` (a fenced unified diff of the
+stage's protected content, or `(no change to the protected content)`). A
+section without a basis is the single line `not available (<reason>): review
+the whole bundle.`, `<reason>` being `no previous review of this stage is
+recorded` or `the previous round cannot be identified`; the reviewer reads the
+section named for its role, and a role whose section is not available reviews
+the whole bundle. The file is written when at least one section has a basis
+and deleted otherwise; each section is built and fails on its own. The
+*local* section is the 2.12.0 content: the previous findings are the text of
+`REVIEW_FEEDBACK.md` when its header names the previous `review_content_id`,
+else "not available". The *manual* section compares against the stage
+baseline (`D-Baseline`, below): its basis holds when a valid baseline exists
+for the role and its `review_content_id` differs from this generation's, its
+findings are the baseline's stored verdict text (never `REVIEW_FEEDBACK.md`),
+at the plan stage the diff is the baseline's pin against the staging pin, and
+at the implementation stages it is the baseline's reviewed head against the
+working tree over the union of the recorded and the current protected
+classifications; for a newly protected path that union diff also shows the edits made while
+the path was excluded, which is the safe direction. When the baseline's `review_content_id` equals this generation's, the round is
+identified and there is no change since it, and the section reads "cannot be
+identified". A manual round with no valid baseline (the first one after
+updating to 2.13.0, or after `review-baselines/` was deleted) is a full review.
+The file stays outside `bundle_id` and `review_content_id` and is a reviewer
+aid, never a gate: since every `APPROVE` is a full review, a wrong baseline can
+cost review efficiency, never approval. At the plan stage the
+previous round is the outgoing `current/` and `.pin`, used only when its
+`review_content_id` was reviewed and consumed; a wrapper-only regeneration of
+unchanged content carries the live file (both sections) forward when it names
+the unchanged `review_content_id`. At the implementation stages it is the previous round's
+`reviewed_implementation_head` against the working tree; a same-content
+republication leaves it alone. The file is built by
+`workflow_fingerprint.write_changes_since_review`, which never fails a
+generation: on any error it deletes the file and prints one warning.
+
+**`workflow-2.13.0`, `D-Baseline`**: the manual review stage keeps a *stage
+baseline*, a gitignored record of what that stage last reviewed, at
+`.ai-review/<work_item_id>/review-baselines/<ROLE>/` (next to `current/`, never
+inside it; `<ROLE>` is `MANUAL_EXTERNAL_PLAN_REVIEW` or
+`MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW`). `workflow_fingerprint.record_stage_baseline`
+writes it, called by the one manual ingest (`ingest_manual_review_verdict`, so
+by `/record-manual-*-review` and the protocol's `record-external-result` alike)
+inside the same state transaction, for a `REVISE` or an `APPROVE` verdict; a
+`BLOCK`, a refused verdict and a feedback-only row record nothing. Each such
+verdict replaces the role's record wholesale (the old one is removed, a sibling
+directory is renamed in, a record with a higher `state_revision` is never
+replaced). It holds `BASELINE.json` (`schema_version`, `state_revision`,
+`work_item_id`, `role`, `verdict`, `review_content_id`, `bundle_id`, `revision`,
+`reviewed_implementation_head`, `classification`, `recorded_at`), `VERDICT.md`
+(the verdict exactly as stored in `REVIEW_FEEDBACK.md`) and, at the plan stage,
+`pin/` (a copy of the item's `.pin`). `workflow_fingerprint.read_stage_baseline`
+returns the record only when it is consistent with itself and the repository:
+the key set and types, the item and role, `VERDICT.md`'s header, the content id
+recomputed from the copied `pin/` (plan stage) or from the reachable recorded
+head (implementation stage) with the record's own revision and classification,
+and the id being known to the item's state (at the plan stage `classification.protected_paths`
+is a sorted list, the plan-stage metadata carrying no reasons; at the implementation stage it is
+an object of path to reason; at the implementation stage a `REVISE` record is known to the
+item's state when its revision is at most `implementation_revision`, and an `APPROVE` record
+when the manual ledger entry's `bundle_id` equals the record's); anything else is `None`, the
+explicit full-review fallback.
+
+The baseline is a reviewer aid, never a gate: it is outside `bundle_id` and
+`review_content_id`, and every `APPROVE` is a full review, so a wrong baseline
+costs review efficiency and can never let unreviewed content be approved. In
+supported operation it is the latest accepted manual verdict of its stage.
+Outside that guarantee, stated as limits and not detected: (a) a deliberately
+edited or restored baseline file (these local files are under the operator's
+control); (b) a downgrade below `2.13.0` followed by a manual review and a
+re-upgrade, so delete `.ai-review/<work_item_id>/review-baselines/` when
+downgrading. The first manual round after the first update to `2.13.0` has no
+baseline and is a full review.
+
+A reviewer who finds the file next to `current/`, with a preamble naming this
+bundle's `review_content_id`, may review only the changes and check that each
+previous finding is resolved, declaring `Review scope: changes` (valid on a
+`REVISE` or a `BLOCK`). Any `APPROVE` is a full review of the whole bundle.
 
 **`workflow-2.6.0`** (`v2.4.0-003`): the patch is anchored at the **working
 tree** — `git diff --no-renames <amendment_base_commit> -- <pathspec>` —
@@ -385,6 +479,16 @@ This is **portability vs. local staleness, split by consumer**:
   `review_content_id` and is not covered by the Reviewed bundle ID above."
   No validator enforces this line's presence — author-written prose like
   every other field on this list.
+  **`workflow-2.12.0`, `D-Changes`**: the request is also worded
+  conditionally about `CHANGES_SINCE_REVIEW.md`, because it is written before
+  the generator decides whether that file exists: "If
+  `CHANGES_SINCE_REVIEW.md` is present next to `current/` and its preamble
+  names this bundle's `review_content_id`, you may review only the changes
+  and check each previous finding is resolved, declaring `Review scope:
+  changes` in the section named for your role (a role whose section is not
+  available reviews the whole bundle); any `APPROVE` is a full review of the
+  whole bundle. The file is reviewer convenience only, outside `bundle_id` and
+  `review_content_id`."
 - **PLAN.md** — populated at the `plan` stage: the actual execution plan
   being reviewed. Leave empty (or omit updating it) at later stages. Must
   state the plan's current `(Revision N)` marker — a bundle whose `PLAN.md`
@@ -394,10 +498,53 @@ This is **portability vs. local staleness, split by consumer**:
   stages: what was built, checkpoint by checkpoint, and why. Must state
   `implementation_revision: <N>` matching the work item's current counter
   (`WORKFLOW_STATE.json`'s `implementation_revision`) — same
-  stage-completeness discipline as `PLAN.md`'s revision marker.
-- **TEST_RESULTS.md** — exact commands run and their real outcome. Never
-  state a check passed unless it actually ran in this session. **At the
-  `plan` stage**, must additionally open with a `stage: plan (revision N)`
+  stage-completeness discipline as `PLAN.md`'s revision marker. **The form
+  at the `implementation`/`post-fix` stages** (a worker writes it; no script
+  does): that one label line first, and no other line of that shape (the
+  check takes the first match), then one entry per review round, ascending,
+  each headed `^## Round (\d+)$`, where the round number **is** the
+  implementation revision. Round 1 is what was built, checkpoint by
+  checkpoint; each later round lists every finding applied (file, line, test)
+  and every finding rejected with its evidence, and the commit that holds the
+  fix. A `same_content` round keeps `N`: it adds its lines to the entry of
+  round `N` and opens none. Entries below `N` are carried forward unchanged.
+- **TEST_RESULTS.md** — exact commands run and their real outcome. **At the
+  `implementation`/`post-fix` stages** it is a list of sections, ascending,
+  one for **every** implementation revision from 1 to `N` (`N` is the counter
+  `record_bundle_generation` just wrote), each headed
+  `^## Implementation revision (\d+)$` and of the same shape:
+
+  ```
+  ## Implementation revision 2
+  - commit: <40-hex sha the commands ran at>
+  - commands: <each exact command, one per line>
+  - result: <the real outcome of each; a command not run says so and why>
+  ```
+
+  Sections below `N` are carried forward unchanged: never edited, never
+  relabelled as a run of this round. Section `N` is written fresh at this
+  round, against this round's commit; a `same_content` round keeps `N` and
+  rewrites section `N` with its new commit and results. Section `N` states
+  only checks that actually ran in this session, at its stated commit;
+  sections below `N` are the record of their own commit and are never
+  restated as this round's runs. A reviewer reruns section `N` only; the
+  earlier sections are history tied to their own `commit:` line. No script
+  checks the sections: the generator only creates an empty stub when a file is
+  missing, so a bundle written in an older form still passes. Two rules for a
+  worker who finds either file short: (1) any instruction to write or refresh
+  `TEST_RESULTS.md` or `IMPLEMENTATION_SUMMARY.md` "for this round", including
+  a Controller's recovery text, means section `N` and round entry `N` only,
+  never the earlier ones; (2) when `<bundle_dir>` was withdrawn and
+  regenerated, the generator has stubbed both files empty, so sections 1 to
+  `N-1` and round entries 1 to `N-1` are restored **byte for byte** from the
+  newest (by modification time, since the token is a `uuid4` hex)
+  `current.rejected-*` sibling whose files hold those sections ("Bundle
+  location"), checking that the restored sections run from 1 to `N-1` (two
+  withdrawals in a row leave the generator's empty stubs in the newest one and
+  the history in an older one), never rewritten from memory; with no
+  quarantine, the worker says so in the entry and states no earlier result it
+  cannot show. **At the `plan` stage**, state only checks that actually ran in this
+  session, and open with a `stage: plan (revision N)`
   line (`N` matching the plan document's current revision) and a
   `head: <sha>` line (matching this generation's own HEAD) — a bundle
   whose `TEST_RESULTS.md` is missing, empty, names a different round, a
@@ -501,7 +648,7 @@ still classify `.workflow-manager/` itself.
 
 ### What the script does NOT do
 
-- It does not judge relevance — `CONTEXT_FILES.txt` is a human/Claude
+- It does not judge relevance — `CONTEXT_FILES.txt` is a human/agent
   decision.
 - It does not include build outputs, `.gradle/`, APKs, generated binaries,
   secrets, or the full repository — only files that are part of the diff or
@@ -550,9 +697,11 @@ self-protection entry (`OPUS-R25-006`/`OPUS-R26-004`) exists to prevent.
 2. **After the plan approval, `plan_stage` half.** The approval is stale
    the moment the edit is committed, and `implementing_entry_reachable`
    and `/accept-milestone`'s own registry-coverage check both refuse. Run
-   the plan revision through its real gate: `/apply-plan-review` (or
-   `/milestone-plan` again) to publish a new `plan_revision`, then the
-   two-stage plan review, then `/approve-review plan`. Do **not**
+   the plan revision through its real gate: `/request-plan-amendment` (admitted
+   only at `IMPLEMENTING` or `SELF_REVIEWING_IMPLEMENTATION`) and then
+   `/milestone-plan` to publish a new `plan_revision`, then the
+   two-stage plan review, then `/approve-review plan` (or `/satisfy-gate`
+   when the plan gate is automatic). Do **not**
    hand-edit `plan_approval`, and do not report the item as `CURRENT` on
    the strength of the stored `status` field — that field is a cache, and
    recomputation is the authority.
@@ -653,6 +802,46 @@ Reviewed review_content_id: <the exact review_content_id this feedback reviewed>
 ## Required acceptance criteria
 ```
 
+**Severity and verdict shape** (workflow-2.12.0). Blocking: the content is
+wrong or unsafe and must change. Important: it must change before approval,
+though it is not wrong in itself. Optional: a suggestion. A `REVISE` names at
+least one Blocking or Important finding; a round with only Optional findings
+is an `APPROVE`, with the findings recorded under `## Optional findings`. An
+`APPROVE` lists no Blocking finding, and every `APPROVE` is a full review of
+the whole bundle: a header line `Review scope: full|changes` is optional, and
+`Review scope: changes` is valid on a `REVISE` or a `BLOCK` only. An
+`APPROVE`'s header has exactly one `Review scope: full` line or none; any
+other or conflicting value is refused. A finding is a list item
+or a `### ` heading in its section; write `None.` in a section with no
+finding (leading, trailing and wrapping punctuation or symbols on `None` are
+ignored, and an entry made only of punctuation or symbols is also a
+placeholder). The shape check
+refuses an `APPROVE` that lists a Blocking finding; it does not refuse an
+`APPROVE` whose Important section holds an entry. By the severity meaning that
+is the reviewer's own contradiction: the reviewer should reissue it as a
+`REVISE` (or move the entry to Optional), and an Important entry on an
+accepted `APPROVE` stays recorded in the verdict as written. A verdict that breaks these rules is refused as malformed
+(`workflow_fingerprint.assert_verdict_well_formed`, `MalformedVerdictError`)
+before it becomes state, and is reissued, never converted: the local reviewers
+check their own text before writing it, and the manual ingest
+(`ingest_manual_review_verdict`, so `record-external-result` too) refuses it
+with nothing written. A verdict already recorded is applied as before.
+
+**Optional findings are recorded** (workflow-2.14.0, `D-Parse`, `D-Ledger`).
+The writer of every `APPROVE` or `REVISE` of a two-stage item (the local
+reviewers and the manual ingest, plan and implementation stages) also records
+each finding under `## Optional findings` in the item's `optional_findings`
+state, in the verdict's own transaction. An entry is a top-level list item or a
+`### ` heading (a nested or sub-bullet line is body; a placeholder is skipped).
+Its identity is the whole entry as written, label included, whitespace
+collapsed; the key is `F-` plus 12 hex characters of its sha256. Identical
+entries merge across verdicts into one entry with several references; two
+identical entries inside one verdict are two findings. Declared limits: (a) a
+finding under another heading is not an Optional finding; (b) a re-raise
+changed by any non-whitespace character is a new key; (c) a verdict that no
+writer received records nothing; (d) two findings with the same twelve hex
+characters would merge.
+
 The three binding fields (`Reviewed bundle ID:`, `Reviewed base commit:`,
 `Work item:`) are required on every ordinary review round, not only WF0's
 one-time bootstrap check (`OPUS-R14-002`, generalized here), and they keep
@@ -738,7 +927,7 @@ User functional-testing feedback is placed at:
 has no `bundle_id`/`review_content_id` of its own to bind against —
 `/apply-functional-review` classifies each finding.)
 
-**Claude must validate feedback, never apply it blindly.** Every blocking and
+**The agent must validate feedback, never apply it blindly.** Every blocking and
 important finding must end up either resolved, or explicitly rejected in the
 plan/summary with repository evidence (file, line, test, or doc reference)
 and a clear explanation.
@@ -926,6 +1115,89 @@ both halves of this against a real Git history: the ordinary carry-through
 succeeds unchanged, and a simulated regeneration between the two stages is
 hard-blocked rather than silently ingested.
 
+### Which review-stage writes are committed (`workflow-2.9.1`)
+
+A review stage persists its verdict in `WORKFLOW_STATE.json`. Whether that
+write is committed on its own depends on what reads the history next, so the
+rule is written down once, here, and the command texts point at it:
+
+| Write | Stage | Committed on its own? | Why |
+| --- | --- | --- | --- |
+| `REVISE` (a `"2.2"` item: `/review-implementation` or `/record-manual-implementation-review`) | implementation | **Yes, alone, before any fix commit** | `/apply-implementation-review`'s fix commits and its post-fix generation-record commit would otherwise sweep the write up, and a generation record must always transition `phase` (`OPUS-R101-001`); a swept-up write shows no change and is refused |
+| Entry into `APPLYING_REVIEW_FEEDBACK` by `/apply-implementation-review` step 0 (`enter_applying_review_feedback`, from the terminal `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW`, every governing version) | implementation | **Yes, alone, before any fix commit** (an uncommitted `APPROVE` ledger rides in with it) | the same dead end: the post-fix record would otherwise absorb the move and show a net no-change `phase` (a recovered `"2.2"` HEAD already at `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` is the one exception -- its generation would move to `AWAITING_LOCAL_IMPLEMENTATION_REVIEW` -- but the entry is committed the same way, keeping the rule uniform) |
+| `APPROVE` (`/review-implementation` or `/record-manual-implementation-review`) | implementation | **No** | `/approve-review implementation` or `/satisfy-gate implementation` takes it; a commit of its own puts `HEAD` past the bundle's `generation_head` and both gates refuse with `bundle_generation_mismatch` |
+| `BLOCK` | either | nothing to commit | no state is written |
+| any write | plan | **No** | there is no generation record at the plan stage; the plan-approval commit takes the whole working-tree state, and a commit of its own raises `bundle_generation_mismatch` at the plan-approval gate |
+
+The committed writes go through one idempotent helper,
+`workflow_state.commit_pending_applying_review_feedback_entry(repo_root,
+work_item_id, attribution=())`. It stages only the target work item's entry
+(foreign work-item residue stays in the working tree), commits it with the
+subject `chore(workflow): record entry into APPLYING_REVIEW_FEEDBACK for
+<id>` and a `Workflow-Work-Item` trailer as the final paragraph, and returns
+the commit SHA, or `None` when nothing is pending (the write is already
+committed, or none was made). The review commands call it after a `REVISE`
+write; `/apply-implementation-review` step 1 calls it again as a safety net,
+so a crash between the write and the commit, or between the staging and the
+commit, is repaired and exactly one entry commit ever exists. It refuses
+with `ReviewStageWriteNotCommittableError` for an uncommitted `APPROVE` (the
+row above says to leave it) and for any field outside
+`REVIEW_STAGE_WRITE_COMMIT_FIELDS`, for example `reviewed_implementation_head`
+or a persisted but uncommitted `technical_review_block_pins` entry. It
+raises `DirtyIndexBeforeStagingError` when another path, or a different
+state-file blob, is already staged; unstage that unrelated content, then
+re-run. For a leftover pin, `/apply-implementation-review` step 1 stops on the
+refusal. The remedy is to stage the state file with
+`workflow_state.stage_scoped_state(repo_root, <id>)` (when it returns `False`,
+stage exactly `docs/ai-workflow/WORKFLOW_STATE.json`) and commit it with a
+`Workflow-Work-Item` trailer as the final paragraph; never stage the whole
+file while another work item holds uncommitted state. The helper then returns
+`None` and the post-fix generation proceeds. When a pin and another field are
+both left, resolve the other field first (it is not a pure review-stage
+entry) and commit the pin only afterwards.
+
+The read side is unchanged and strict: `bundle_generation_mismatch` and the
+provenance-interval check do not tolerate a state-only commit past the
+generation record, and the Orchestration Protocol version is unchanged.
+
+### A generation record is the last commit, and its trailer paragraph (`workflow-2.9.2`)
+
+**Last commit.** A generation record is the last commit of the invocation that
+writes it. Every commit a round needs (the fix, the narrative and checklist
+update, a stale or review-stage state write) lands before the record. The
+read side refuses anything after it with `bundle_generation_mismatch`, because
+`HEAD` has moved past the bundle's `generation_head`, and only
+`/recover-implementation-provenance` repairs that, at the cost of a new bundle
+id and a fresh review round. The bounded branch of `/apply-functional-review`
+is the example: it commits the stale `technical_approval` write alone before
+the first edit, then each fix, then the "no code change" fixes and the
+functional-review checklist in `docs/ACTIVE_MILESTONE.md`, and only then
+regenerates the bundle once and commits the record. Nothing is committed after
+it. In a mixed round, the new remediation child's entry in
+`WORKFLOW_STATE.json` stays uncommitted: the child's own plan-approval commit
+(`/approve-review plan <child-id>` or `/satisfy-gate plan <child-id>`) first
+commits it, and the scoped staging keeps it out of every commit of the
+parent's round, the record included. `/milestone-implement`, `/apply-implementation-review`, `/apply-pr-review`
+and `/recover-implementation-provenance` already end on their record.
+
+**Trailer paragraph.** Every command that writes a `Workflow-*` trailer (the
+`OPUS-R129-001` rule) puts those trailers in the commit message's final
+paragraph, and nothing else is in that paragraph. Git parses only the last
+paragraph as trailers. Any `Co-Authored-By:` or `Claude-Session:` lines go in
+their own paragraph before it, separated by a blank line. For a generation
+record the rule is enforced: the record's trailer set is checked exactly, so a
+`Co-Authored-By:` line in the trailer paragraph is refused
+(`MalformedBundleGenerationRecordCommitError`). While the refused commit is still
+the unpublished `HEAD`, rewrite its message; a later recovery cannot supersede
+it.
+
+The read side stays strict, the Orchestration Protocol version is unchanged
+(1.2), and no state field or commit shape is added. A project on 2.9.1 keeps
+the old order and must follow it by hand: commit the stale `technical_approval`
+write alone before the first fix edit, commit the checklist before the record,
+and keep `Co-Authored-By:` out of the trailer paragraph. Downgrading to
+2.9.1 loses nothing but the corrected command text.
+
 ## Context-efficiency rules
 
 - Load only the active status (`docs/ACTIVE_MILESTONE.md`), `docs/ROADMAP.md`,
@@ -950,4 +1222,4 @@ hard-blocked rather than silently ingested.
   boundaries when the session has grown large.
 - Never list a `.ai-review/source/` path in `CONTEXT_FILES.txt` or treat it
   as review content — it is raw proposal material a human places there for
-  Claude to read, not part of any bundle (`WFR-16`).
+  the agent to read, not part of any bundle (`WFR-16`).
