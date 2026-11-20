@@ -47,6 +47,22 @@ describe('fragmentsToLines (D6, R2-O-1)', () => {
     expect(lines).toHaveLength(2)
   })
 
+  it('reads a name overprinted by an amount at the same position before the amount', () => {
+    // Lidl prints the tail of a long name at the position of the unit price.
+    const lines = fragmentsToLines([
+      at('PREPARADO', 10, 401),
+      at('CARNE', 70, 401),
+      at('PIC.', 106, 401),
+      at('11,69', 136, 401),
+      at('BOVINO', 136, 401),
+      at('x 2', 184, 401),
+      at('23,38 B', 220, 401),
+    ])
+    expect(lines.map((line) => line.text)).toEqual([
+      'PREPARADO CARNE PIC. BOVINO 11,69 x 2 23,38 B',
+    ])
+  })
+
   it('joins with single spaces and drops empty fragments', () => {
     const lines = fragmentsToLines([
       at(' Pastel ', 20, 100),
