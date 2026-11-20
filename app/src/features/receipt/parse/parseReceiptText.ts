@@ -1258,12 +1258,23 @@ function parse(input: readonly TextLine[]): ParsedReceipt {
   )
 
   // Rules 3 and 4: classify each line in its region. R18: after an item, a
-  // tax-table header or a separator row ends the items too; R23 records
-  // which footer line ended them.
+  // tax-table header or a separator row ends the items too (but not a
+  // separator under a discount row); R23 records which footer line ended
+  // them.
   const classified: Classified[] = []
   let region: Region = 'header'
   let itemsEndedBy: ItemsEnd | undefined
   for (const line of lines) {
+    // A separator right under a discount row underlines that amount (Lidl's
+    // loyalty discount), with more items below it: it doesn't end the items.
+    if (
+      region === 'items' &&
+      isSeparator(line) &&
+      classified.at(-1)?.group === 'discount'
+    ) {
+      classified.push({ group: 'ignore', payment: false, line, region })
+      continue
+    }
     if (region === 'items' && (isTaxTableHeader(line) || isSeparator(line))) {
       region = 'after'
       itemsEndedBy = isSeparator(line) ? 'separator' : 'taxTableHeader'
@@ -1488,6 +1499,8 @@ function roleOf(entry: Classified, item: number | undefined): LineRole {
     return entry.region === 'items' ? 'item' : 'ignored'
   }
   if (entry.payment) return 'payment'
+  // A separator row is no part of an item, even right under one.
+  if (isSeparator(entry.line)) return 'ignored'
   // A total, tax, tip or discount line counts only with its amount (a
   // column header with a tax word is no tax line).
   if (
