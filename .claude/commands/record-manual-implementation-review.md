@@ -99,6 +99,16 @@ and refuses before writing anything.
    read from the header block only. `Work item:`, `Reviewed bundle ID:`,
    `Reviewed base commit:` and `Round:` are optional; a `Round:` that is
    present must be a positive integer.
+   **Verdict shape** (workflow-2.12.0, `D-Severity`): a `REVISE` that names
+   no Blocking or Important finding, an `APPROVE` that lists a Blocking
+   finding, an `APPROVE` that declares `Review scope: changes`, and an
+   `APPROVE` whose header has any `Review scope` other than exactly one
+   `Review scope: full` line (or none), or states conflicting values, are
+   refused (`MalformedVerdictError`, nothing written). Report the message
+   and ask the user to have the reviewer reissue the verdict -- as `APPROVE`
+   with the findings under `## Optional findings`, or as `REVISE` with the
+   finding that requires a change moved to Blocking or Important. Never
+   edit the verdict or change its `Status:` yourself. The manual reviewer works from `review-bundle.tar.gz`, which carries `CHANGES_SINCE_REVIEW.md` when the generator wrote one (the manual reviewer's changes are its own section, compared against the content that stage last reviewed and quoting that stage's own last verdict; workflow-2.13.0, `D-Keyed`); a `REVISE` or `BLOCK` declaring `Review scope: changes` is accepted as written (workflow-2.12.0, `D-Changes`).
    **Foreign-`Work item:` refusal, before any write**:
    `workflow_fingerprint.assert_manual_feedback_names_work_item` -- a pasted
    file whose `Work item:` field is present and names a different work
@@ -199,9 +209,23 @@ and refuses before writing anything.
      actually saw) and its phase transition to the terminal
      `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` phase — the existing phase
      name, reused rather than a new one (`D-Implementation-Review-Version-Activation`'s
-     "terminal-phase naming" decision).
+     "terminal-phase naming" decision). **Leave this write uncommitted -- do
+     not commit it** (workflow-2.9.1, `REVIEW_PROTOCOL.md`'s commit rule for
+     review-stage writes): the approval commit (`/approve-review
+     implementation` or `/satisfy-gate implementation`) picks it up, and a
+     commit of its own would put HEAD past the bundle's `generation_head`
+     and raise `bundle_generation_mismatch` at that gate.
    - `REVISE`: only the phase transition directly to
-     `APPLYING_REVIEW_FEEDBACK` (no ledger write).
+     `APPLYING_REVIEW_FEEDBACK` (no ledger write). **Then commit the write
+     alone** (workflow-2.9.1): after the persist, call
+     `workflow_state.commit_pending_applying_review_feedback_entry(repo_root,
+     work_item_id, attribution=<the Co-Authored-By/Claude-Session lines this
+     session is told to add, or ()>)`; any uncommitted local `APPROVE`
+     ledger rides in with it. It stages only this work item's state and
+     commits it with a `Workflow-Work-Item` trailer as the final paragraph,
+     before any fix commit; it returns `None` when already committed. Report a
+     `ReviewStageWriteNotCommittableError` or a `DirtyIndexBeforeStagingError`
+     (unstage the unrelated content) and stop. Never a broader `git add`.
    - `BLOCK`: nothing (a true no-op; the work item stays at
      `AWAITING_MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW`).
    Never the plan, registry, mapping, command, product, or bundle-content

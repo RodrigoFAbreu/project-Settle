@@ -95,6 +95,16 @@ writing anything.
    `Work item:`, `Reviewed bundle ID:`, `Reviewed base commit:` and
    `Round:` are optional; a `Round:` that is present must be a positive
    integer.
+   **Verdict shape** (workflow-2.12.0, `D-Severity`): a `REVISE` that names
+   no Blocking or Important finding, an `APPROVE` that lists a Blocking
+   finding, an `APPROVE` that declares `Review scope: changes`, and an
+   `APPROVE` whose header has any `Review scope` other than exactly one
+   `Review scope: full` line (or none), or states conflicting values, are
+   refused (`MalformedVerdictError`, nothing written). Report the message
+   and ask the user to have the reviewer reissue the verdict -- as `APPROVE`
+   with the findings under `## Optional findings`, or as `REVISE` with the
+   finding that requires a change moved to Blocking or Important. Never
+   edit the verdict or change its `Status:` yourself. The manual reviewer works from `review-bundle.tar.gz`, which carries `CHANGES_SINCE_REVIEW.md` when the generator wrote one (the manual reviewer's changes are its own section, compared against the content that stage last reviewed and quoting that stage's own last verdict; workflow-2.13.0, `D-Keyed`); a `REVISE` or `BLOCK` declaring `Review scope: changes` is accepted as written (workflow-2.12.0, `D-Changes`).
    **Foreign-`Work item:` refusal, before any write**:
    `workflow_fingerprint.assert_manual_feedback_names_work_item` -- a pasted
    file whose `Work item:` field is present and names a different work
@@ -201,6 +211,11 @@ writing anything.
    - `BLOCK`: nothing (`record_manual_plan_review(..., verdict="BLOCK",
      ...)` is a true no-op; the work item stays at
      `AWAITING_MANUAL_EXTERNAL_PLAN_REVIEW`).
+   Plan-stage writes are not committed here (workflow-2.9.1,
+   `REVIEW_PROTOCOL.md`'s commit rule for review-stage writes): there is no
+   generation-record commit at the plan stage, the plan-approval commit
+   takes the whole working-tree state, and a commit of its own would raise
+   `bundle_generation_mismatch` at the plan-approval gate.
    Never the plan, registry, mapping, command, product, or bundle-content
    files.
 8. **Report and stop.** Report the ingest's returned `round`, `bundle_id`

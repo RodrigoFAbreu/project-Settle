@@ -15,6 +15,8 @@ action behind the protocol's `pr.apply_review`, run by a worker like any
 the `post-fix` generation, and the remediation child. It adds nothing a human
 could not do by hand.
 
+The argument string is `$ARGUMENTS`: the id of the work item to remediate.
+
 **The work item id is required** (`LPR-R4-007`). A reopen does not set
 `active_work_item_id`, and a completed item's pointer was reset when it
 completed, so a bare call would resolve to another item or to none. Refuse a
@@ -99,14 +101,30 @@ and the bounded fix, in this order:
    that one path, again with `stage_scoped_state`, and create one commit
    carrying `Workflow-Bundle-Generation-Record: <work_item_id>/<implementation_revision>`
    and `Workflow-Work-Item: <work_item_id>` as the message's own final
-   paragraph (`OPUS-R129-001`, after any `Co-Authored-By:` lines). The
+   paragraph, with nothing else in it (the record's trailer set is checked exactly, so a `Co-Authored-By:` line in that paragraph is refused): any
+   `Co-Authored-By:`/`Claude-Session:` lines go in their own paragraph before
+   it, separated by a blank line (`OPUS-R129-001`). The
    `post-fix` target phase is `bundle_generation_target_phase("post-fix",
    <governing_workflow_version>)`. Then run
    `workflow_state.validate_bundle_generation_record_commit`, refresh
    `IMPLEMENTATION_SUMMARY.md`'s `implementation_revision:` line and
    `REVIEW_REQUEST.md`'s `review_content_id:` line, and publish the bundle with
    the `post-fix` generator run, exactly as `/apply-functional-review`'s bounded
-   branch step 4 does. Assert
+   branch step 4 does. Before that generator run, write the record in the
+   form `docs/ai-workflow/REVIEW_PROTOCOL.md` states once: append a section
+   headed `## Implementation revision <N>` to `TEST_RESULTS.md` (`- commit:`,
+   `- commands:`, `- result:`, written fresh at this round's commit with the
+   full suite re-run) and an entry headed `## Round <N>` to
+   `IMPLEMENTATION_SUMMARY.md`, carry every earlier section and entry forward
+   unchanged, and read "for this round" as section and entry `N` only. This
+   command records every round with the ordinary outcome
+   (`record_bundle_generation` is called without an outcome), so `N` advances
+   and section and entry `N` are new: no round here adds to an earlier entry
+   or rewrites an earlier section. When the generator stubbed both files empty
+   after a withdrawal, restore sections 1 to `N-1` and entries 1 to `N-1` byte
+   for byte from the newest `current.rejected-*` sibling (by modification time)
+   whose files hold them, checking they run from 1 to `N-1`; never rewrite
+   them from memory, and with no quarantine say so in the entry. Assert
    `workflow_fingerprint.assert_bundle_not_rejected(repo_root, work_item_id)`
    immediately before `record_bundle_generation`.
 
@@ -138,7 +156,15 @@ branches:
   invocations, the first reopens and ends, the second runs this branch
   (`LPR-R25-001`).
 - **Broad fix**: work spanning several checkpoints or genuinely uncertain in
-  scope. Do not edit the parent's tree. In one mutator call
+  scope. Do not edit the parent's tree. The child is new work, so under a
+  `"2.1"` default `create_remediation_child_work_item` raises
+  `workflow_state.DefaultWorkflowVersionRetiredError` inside that one mutator
+  and neither the child nor `mark_pr_key_applied` is written: step 1's write
+  stands (the stored fact, or the reopen) and the item stays at
+  `AWAITING_FUNCTIONAL_REVIEW`, with the key in `reopened_for` and not in
+  `applied`. Report the error with `workflow_state.RETIRED_DEFAULT_NEXT_STEP`
+  and stop; after the configuration edit, the re-run gets `already_reopened`
+  and continues into this branch. In one mutator call
   `workflow_state.create_remediation_child_work_item(...)` exactly as
   `/apply-functional-review`'s broad branch does and `mark_pr_key_applied` on
   the parent. The parent waits for the child as today. Name the child id on
@@ -151,7 +177,7 @@ functional validation, then the pull request facts again (`OD-W2-7`). After a
 reopen, full functional validation is required once any code changed
 (`OD-W2-8`). The item completes again through the same gate, automatic
 (`/satisfy-gate acceptance`) or human (`/accept-milestone`); `complete_work_item`
-is unchanged, and a re-acceptance updates, never duplicates, the archive copy and
+takes no separate path for it, and a re-acceptance updates, never duplicates, the archive copy and
 the roadmap row. A reopen does not undo the completion side effects: the roadmap
 row stays complete and `docs/ACTIVE_MILESTONE.md` stays cleared until the item is
 accepted again.

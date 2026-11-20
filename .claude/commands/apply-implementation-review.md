@@ -125,6 +125,16 @@ rule for an item without the field.
    `workflow_fingerprint.assert_bundle_not_rejected(repo_root,
    work_item_id)` here; a `BundleRejectedError` stops the command, naming
    the marker path and its recorded detail.
+   **Commit a pending REVISE write** (workflow-2.9.1, `REVIEW_PROTOCOL.md`'s
+   commit rule for review-stage writes): after step 0 and the binding
+   check, and before the `BLOCK` pin and any fix commit, call
+   `workflow_state.commit_pending_applying_review_feedback_entry(repo_root,
+   work_item_id, attribution=<the Co-Authored-By/Claude-Session lines this
+   session is told to add, or ()>)`. It commits step 0's own entry, or a
+   REVISE write that was persisted and never committed, alone; it resumes an
+   interrupted staging of that commit; and it returns `None` when the write
+   is already committed. Report a `ReviewStageWriteNotCommittableError` or a
+   `DirtyIndexBeforeStagingError` (unstage the unrelated content) and stop.
    **Durable `BLOCK`-verdict pin** (`D2a`, `WF8c` item (a)): once the
    feedback is confirmed current, bundle-matching, and parse-valid, and
    before taking any other action, check its `status` field. If it is
@@ -154,7 +164,8 @@ rule for an item without the field.
    findings and Missing Tests findings; apply them if cheap and low-risk,
    otherwise note why not.
 4. For any rejected finding, record the rejection with concrete evidence
-   (file/line/test/doc reference) in `<bundle_dir>/IMPLEMENTATION_SUMMARY.md`.
+   (file/line/test/doc reference) in `<bundle_dir>/IMPLEMENTATION_SUMMARY.md`'s
+   `## Round <N>` entry for this round (step 7 writes it).
 5. Rerun the relevant narrow tests for each fix, then the full suite used in
    `/milestone-implement` step 3 before closing this pass.
 6. Commit coherent fixes (one commit per coherent fix, not one giant
@@ -196,8 +207,7 @@ rule for an item without the field.
    (unchanged, never bumped) + `Workflow-Work-Item: <work_item_id>` +
    `Workflow-Supersedes: <t>` (`t` the commit `resolve_bundle_generation_outcome`
    returned), no other trailer. **These trailer lines must be the commit
-   message's own final paragraph** — after any `Co-Authored-By:`/
-   `Claude-Session:` lines, never before them (`OPUS-R129-001`, the same
+   message's own final paragraph** and nothing else is in it (the record's trailer set is checked exactly, so a `Co-Authored-By:` line in that paragraph is refused): any `Co-Authored-By:`/`Claude-Session:` lines go in their own paragraph before it, separated by a blank line (`OPUS-R129-001`, the same
    rule `milestone-implement.md` step 1f, `bootstrap-workflow-v2.md` step
    6, `approve-review.md` step 6.4, and `accept-milestone.md` step 6
    already state): Git's `git interpret-trailers --parse`, the exact
@@ -223,18 +233,42 @@ rule for an item without the field.
    (`assert_review_request_states_review_content_id`), obtained from the
    single canonical entry point `docs/ai-workflow/REVIEW_PROTOCOL.md`'s
    "Computing `review_content_id`" names for this stage -- never a second,
-   ad hoc computation. If the implementation stage's gate is `automatic` and the effective `require` lists
+   ad hoc computation. Word the request conditionally on the changes file, because it is written before the generator decides whether `CHANGES_SINCE_REVIEW.md` exists: if it is present next to `current/` and its preamble names this bundle's `review_content_id`, the reviewer may review only the changes in the section named for its role and check each previous finding is resolved, declaring `Review scope: changes`; a role whose section is not available reviews the whole bundle, and any `APPROVE` is a full review of the whole bundle (workflow-2.12.0, `D-Changes`; one section per review stage, workflow-2.13.0, `D-Keyed`). If the implementation stage's gate is `automatic` and the effective `require` lists
    `distinct_reviewer_models` (`workflow_state.review_stage_gate_context(repo_root,
    state, work_item_id, "implementation")["requires_distinct"]`), also ask the reviewer, in
    that file, to state `Reviewer model: <vendor>/<model>` in the verdict's header
    block, because an `APPROVE` without it is refused at ingest (workflow-2.8.0,
-   `LPR-R16-003`); under a human gate ask for nothing new. Then
+   `LPR-R16-003`); under a human gate ask for nothing new. Write the record in the form
+   `docs/ai-workflow/REVIEW_PROTOCOL.md` states once: append a section headed
+   `## Implementation revision <N>` to `<bundle_dir>/TEST_RESULTS.md`
+   (`- commit:`, `- commands:`, `- result:`, written fresh at this round's
+   commit, the full suite re-run for it; a `"same_content"` round keeps `N`
+   and rewrites section `N` with its new commit and results, appending none) and an entry headed `## Round <N>` to
+   `<bundle_dir>/IMPLEMENTATION_SUMMARY.md` (every finding applied with file,
+   line and test, every finding rejected with its evidence, and the commit
+   that holds the fix; a `"same_content"` round adds to the entry of round
+   `N` and opens none), and carry every earlier section and entry forward
+   unchanged, never edited or relabelled as this round's run. An instruction
+   to write or refresh either file "for this round" means section `N` and entry
+   `N` only. When the generator stubbed both files empty after a withdrawal,
+   restore sections 1 to `N-1` and entries 1 to `N-1` byte for byte from the
+   newest `current.rejected-*` sibling (by modification time) whose files hold
+   them, checking they run from 1 to `N-1`; never rewrite them from memory, and
+   with no quarantine say so in the entry. Then
    run `./scripts/prepare-ai-review.sh <base-sha> post-fix [work_item_id]`
    — required before `AWAITING_TECHNICAL_APPROVAL` can be reachable again.
 8. If any Blocking finding remains unresolved, or the fix was structurally
-   significant, stay in `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` and stop
-   for another review round. Otherwise report readiness and that
-   `AWAITING_TECHNICAL_APPROVAL` is the next state, and stop — do not
+   significant, stay at the post-fix phase step 7 wrote --
+   `AWAITING_LOCAL_IMPLEMENTATION_REVIEW` for a `"2.2"` item,
+   `AWAITING_EXTERNAL_IMPLEMENTATION_REVIEW` for a `"1"`/`"2.1"` item -- and
+   stop for another review round. Otherwise report readiness and that
+   `AWAITING_TECHNICAL_APPROVAL` is the next state. For a `"2.2"` item the
+   item is never at the terminal phase after step 7: `/review-implementation`
+   (local review) and then `/record-manual-implementation-review` (manual
+   external review) must both run again before `/approve-review
+   implementation` is reachable -- name `/review-implementation` as the next
+   command, never a manual-verdict ingest (it refuses at
+   `AWAITING_LOCAL_IMPLEMENTATION_REVIEW`). Then stop — do not
    auto-run `/approve-review` or `/prepare-functional-review`. Only the user
    invokes `/approve-review implementation`; let the user decide when to
    proceed.

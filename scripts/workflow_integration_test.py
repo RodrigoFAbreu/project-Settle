@@ -58,8 +58,10 @@ import json
 import os
 import re
 import subprocess
+import sys
 import tempfile
 import unittest
+from unittest import mock
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -460,7 +462,7 @@ class TestReviewImplementationCommandStaticConformance(unittest.TestCase):
         self.assertIn(
             "Implements a model-independent\n**review role**, not a specific model: "
             "nothing in this contract, in the\nreport it produces, or in any check it "
-            "performs names a model — running it\nfrom any capable Claude model produces "
+            "performs names a model — running it\nfrom any capable model produces "
             "the same behavior.",
             self.text,
         )
@@ -656,7 +658,7 @@ class TestReviewFunctionalCommandStaticConformance(unittest.TestCase):
         self.assertIn(
             "Implements a model-independent\n**review role**, not a specific model: "
             "nothing in this contract, in the\nreport it produces, or in any check it "
-            "performs names a model — running it\nfrom any capable Claude model produces "
+            "performs names a model — running it\nfrom any capable model produces "
             "the same behavior.",
             self.text,
         )
@@ -767,6 +769,45 @@ class TestVersion21OnlyCommandsRefuseCleanlyForV1(unittest.TestCase):
 # below, for the two files where a real pre-v2.1 copy is actually
 # available to diff against.
 _GOLDEN_COMMAND_FILE_SHA256 = {
+    # workflow-2.18.2 (review-followups-2, CP1): `milestone-plan.md` gains the declared-backlog collision
+    # check (60e); `accept-milestone.md`, `approve-review.md`, `adopt-gate-policy.md`,
+    # `request-plan-amendment.md`, `resume-implementation.md` and `retire-legacy-work-item.md` have
+    # their long guard lines re-wrapped (64c) -- intentional content changes, not regressions.
+    # workflow-2.18.0 (harness-neutral-commands, CP2): six rows re-recorded and five added (see the end
+    # of the table) -- intentional content changes, not regressions.
+    # workflow-2.17.0 (backlog-file, CP3): `milestone-plan.md` and `accept-milestone.md` gain the
+    # declared-backlog branch (D-Select, D-Accept) and `milestone-plan.md` passes `repo_root` to
+    # `generate_artifacts_declarations` (D-Classify) -- intentional content changes.
+    # workflow-2.14.0 (finding-dispositions, CP4): `milestone-plan.md` and `apply-plan-review.md`
+    # gain the declaration-coverage call and the Files advisory; `review-plan.md` states the
+    # Files-paragraph notation (D-Coverage).
+    # workflow-2.14.0 (finding-dispositions, CP2): `accept-milestone.md` gains the disposition
+    # pre-flight and step 5a (D-Gate, D-Record).
+    # workflow-2.14.0 (finding-dispositions, CP1): `review-plan.md` and `review-implementation.md`
+    # pass `verdict_text` so the Optional findings are recorded (D-Ledger).
+    # workflow-2.13.0 (review-loop-fixes, CP3): `review-plan.md`, `review-implementation.md`,
+    # `record-manual-plan-review.md`, `milestone-plan.md`, `apply-plan-review.md` and
+    # `apply-implementation-review.md` name the changes-file section for the reviewer's role
+    # (D-Keyed); `record-manual-implementation-review.md` changes too but carries no golden hash.
+    # workflow-2.13.0 (review-loop-fixes, CP1): `milestone-plan.md` and `apply-plan-review.md`
+    # gain the early governing-version sweep call after the anchor call (D-Sweep).
+    # workflow-2.12.0 (review-convergence, CP4): `milestone-plan.md` gains the plan-size
+    # guidance, the advisory at the publication point and a rewrapped line;
+    # `apply-plan-review.md` gains the advisory at its publication point (D-Size).
+    # workflow-2.12.0 (review-convergence, CP1): `review-plan.md`, `review-implementation.md`
+    # and `record-manual-plan-review.md` gain the verdict-shape rule (D-Severity) --
+    # intentional content changes, not regressions. CP2 further updates the same three:
+    # the changes-since-review reading and review rule (D-Changes).
+    # workflow-2.11.0 (checkpoint-anchors-early, CP3): `milestone-plan.md` and
+    # `apply-plan-review.md` gain the anchor instruction and the early anchor
+    # check (before the publish and before the bind); `request-plan-amendment.md`
+    # names the early refusals -- intentional content changes, not regressions.
+    # workflow-2.9.1 (review-stage-write-durability, CP2): `review-implementation.md`,
+    # `record-manual-implementation-review.md` and `apply-implementation-review.md`
+    # gain the commit rule for review-stage writes (REVISE commits through
+    # `commit_pending_applying_review_feedback_entry`, APPROVE stays uncommitted);
+    # `review-plan.md`, `record-manual-plan-review.md` and `apply-plan-review.md`
+    # gain the plan-stage sentence.
     # workflow-2.8.0 (gate-policy-and-reopening, CP2): `approve-review.md`
     # gains the pointer to `/satisfy-gate`; `milestone-plan.md`,
     # `apply-plan-review.md`, `milestone-implement.md` and
@@ -870,7 +911,10 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # milestone-plan.md further updated, D-Consumed-History (workflow-2.7.0,
     # CP2, v2.6.0-001): the withdrawal report names the durable
     # consumed_plan_review_content_ids history -- intentional content change.
-    "milestone-plan.md": "e3f1c979871fe65b1f6d20aedabb2e6afe797b40af19944a314a96ee247e6ed3",
+    # workflow-2.10.0 (retire-21-for-new-work, CP3): step 0 stops a fresh milestone
+    # under a "2.1" default with DefaultWorkflowVersionRetiredError -- intentional
+    # content change.
+    "milestone-plan.md": "874d6615fa1b8e5b5a4f6a3d9b3aebf6074b1a57a5860e1234fedcb0c0e5c934",
     # milestone-implement.md further updated, OPUS-R129-001: step 1f's
     # checkpoint-completion commit instruction now states explicitly that
     # the Workflow-Checkpoint/Workflow-Work-Item trailer must be the
@@ -902,7 +946,8 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # checkpoint (1f) and self-review (2) commits call
     # assert_gate_policy_fields_unchanged_or_tightened after landing --
     # intentional content change.
-    "milestone-implement.md": "09d20a57b37590fe632b60149f0ce13aa04d6b796a8671909db5dc3dd13bd128",
+    # W54 (bundle-revision-sections): step 4 writes the summary as a `## Round 1` entry and the test record as a `## Implementation revision 1` section -- intentional content change.
+    "milestone-implement.md": "2e5f544af529737685d23466dbc58ba811059e00e96c4f43e59cc705bf77f816",
     # approve-review.md (WF8c item (c), same-content bundle-generation
     # republication idempotency; further updated WF8c item (b): the
     # trailing caveat naming the dedicated /recover-implementation-provenance
@@ -1032,7 +1077,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # approval commit keeps its whole-file pin and
     # verify_plan_approval_commit applies the gate-policy content check --
     # intentional content change.
-    "approve-review.md": "e760ecb36c98e271ad483af4d3b3a0bcb6469749f333742bbb993c9e93a7fb21",
+    "approve-review.md": "0dbb264f2a946e7dc4b7c0e8844a2e09f379513247cee8b2b1e4a71ce9f3edc9",
     # accept-milestone.md updated, baseline-freeze correctness fix
     # (OPUS-R129-001): step 6's completion-commit instruction now states
     # the same "trailers must be the commit message's own final paragraph"
@@ -1072,7 +1117,11 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # user-only /resume-implementation for a 2.1/2.2 item and drops the wrong
     # "legacy promotion" origin -- intentional content change, outside every
     # "1"-inert span.
-    "accept-milestone.md": "ace07f7d4ccbe3660ef477651b11562502513bd8e55aefab5deff3ec0994d1c8",
+    # accept-milestone.md further updated, workflow-2.28.0 (acceptance-findings-floor, CP1):
+    # step 5a names `python3 scripts/workflow_state.py --write-findings-record <id>` first and
+    # keeps the Python call as the specification -- intentional content change.
+    # workflow-2.29.3 (wording-pass-plain-commands, CP1): wording only -- intentional content change.
+    "accept-milestone.md": "3a1112a618b7659bb13250f2963becdce0fe52614f053a8b3295d90cf6cbfe88",
     # prepare-functional-review.md further updated, baseline-portability
     # correctness fix (OPUS-R129-001): step 3a's checklist-evidence
     # provenance commit instruction now states the same "trailers must be
@@ -1091,7 +1140,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # (workflow-2.6.0, CP3): the preamble states feedback_layout-keyed
     # resolution, and step 4 calls ensure_feedback_dir and prints the exact
     # resolved FUNCTIONAL_REVIEW.md path -- intentional content change.
-    "prepare-functional-review.md": "cddd822a7fe1b1c6a47596ab510baefd418f2dea4ed755f1445a3aa33adab65f",
+    "prepare-functional-review.md": "34fb21d3c55384d63bfde61edf8d179289dc2eeeb8dcff36419426cdc8f92bc6",
     # apply-plan-review.md/bootstrap-workflow-v2.md (D-Plan-Revision-Publication,
     # WFR-65): intentional content change, publish_plan_revision wiring.
     # apply-plan-review.md further updated, convergence pass 12 (ledger row
@@ -1115,7 +1164,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # assert_apply_review_feedback_binding (D-Apply-Binding): a two-stage
     # REVISE stating a review_content_id is bound by content --
     # intentional content change.
-    "apply-plan-review.md": "17c7ea54b5d98cd5267dccbe42df5b4e37ed8a1fc8be3762d34aa9b2db5a4658",
+    "apply-plan-review.md": "ef6b165155d5958ef1f1808e5635400ff6b003a0900364cb057f16bb379fa6f9",
     # apply-implementation-review.md (WF8c item (c)): step 7's
     # record_bundle_generation call site widened to first resolve the
     # outcome (resolve_bundle_generation_outcome) and write the matching
@@ -1150,7 +1199,12 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # workflow-2.8.0 (gate-policy-and-reopening, CP1): the generation-record
     # commit stages item-scoped (stage_scoped_state) -- intentional content
     # change.
-    "apply-implementation-review.md": "deaf93154185971241690ee4b5e0c8ec9b21a765a957e5cae78f1a66627a76ba",
+    # functional-fix-commit-order implementation review: step 8 is
+    # version-aware (a "2.2" post-fix round re-enters local review) --
+    # intentional content change.
+    # W54 (bundle-revision-sections): a later round appends its test-record section and round entry and carries the earlier ones forward -- intentional content change.
+    # W57 (command-wording-pins): the test-record parenthesis states the `same_content` rewrite of section `N` -- intentional content change.
+    "apply-implementation-review.md": "c1201166cb96c6295f0bac0bad1d5b0789afc10a8ef2b26a7ddbb5577952c008",
     # review-plan.md/record-manual-plan-review.md further updated,
     # workflow-v2-3-followups CP3 (REQ-8/-9): the `Reviewer role:` template
     # literal, the round-computation prose, the exact-match-expectation
@@ -1188,7 +1242,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # review-plan.md further updated, D-Consumed-History (workflow-2.7.0,
     # CP2, v2.6.0-001): REVISE also adds the id to the durable
     # consumed_plan_review_content_ids history -- intentional content change.
-    "review-plan.md": "61cb286719b6f310c61f9304324d6994f74dc9c443661178b81c051e05d27e0d",
+    "review-plan.md": "0625c33a415c70453832d4c8bda4cd83c9b7c28b95f7a4888c948a218ba27f39",
     # record-manual-plan-review.md further updated, D-Feedback-Layout
     # (workflow-2.6.0, CP3): preamble states feedback_layout-keyed
     # resolution; step 4 prints the exact resolved paste path and adds the
@@ -1207,7 +1261,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # ingest_manual_review_verdict (two_stage_only=True), which holds
     # state_lock through the publication; the required header fields,
     # Round: and the absent-bundle-id advisory -- intentional content change.
-    "record-manual-plan-review.md": "f5647bdb1af514a4c89d0fdf9e6bfe098009d48ee6f124c0bf26684f2870b58f",
+    "record-manual-plan-review.md": "56a8bd58e3445865b9f95d9c38c6fe61e738178bd75fa98b089b42ad3e74c1c9",
     # bootstrap-workflow-v2.md (WF8c scope clauses (l)/(p)/(q), GPT-R108-002/
     # OPUS-R109-004): the driver-range text made checkpoint-agnostic
     # (OPUS-R102-009), a NO_CHECKPOINT terminal-wrap-up branch added to step
@@ -1235,7 +1289,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # requirement step 6 already states, closing the gap a fresh Opus
     # review found at this second trailer-write site in an already-
     # corrected file -- intentional content change.
-    "bootstrap-workflow-v2.md": "01d5873ba807e78f0d0618eb944246783cb3827fe3e31ad253e0158f879e5cae",
+    "bootstrap-workflow-v2.md": "ec00adbbb2057cbf8c9a590b16ffa32be0448c3394c8785cf3784b0603195324",
     # review-implementation.md: new, workflow-v2-3 CP1 -- the first
     # recorded hash, not a change.
     #
@@ -1301,7 +1355,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # review-implementation.md further updated, workflow-2.7.0
     # (ORCHESTRATION_PROTOCOL_V1_PLAN.md, CP4): step 4's bundle check is
     # verify_implementation_review_bundle -- intentional content change.
-    "review-implementation.md": "656538d4033c9a086adf1c0b387f15d18ee5a5b95af782a6267a712018d04060",
+    "review-implementation.md": "ea453e94d90cbff500d8312cb01d600fd8ae0fe404a59933680c45a1d4df2ab9",
     # review-functional.md: new, workflow-v2-3 CP2 -- the first recorded
     # hash, not a change.
     #
@@ -1314,7 +1368,7 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # (workflow-2.6.0, CP3): the preamble now states resolve_feedback_dir's
     # feedback_layout-keyed resolution (scoped by construction, legacy rule
     # otherwise) -- intentional content change.
-    "review-functional.md": "e65e4218d1a7c7870b37ca36e5a2e3c0b7264a685a4a1f8bd7a4904b5e4a24f9",
+    "review-functional.md": "29f3693b774979f0aa83331ec3e6622313eab04f27b49d4ba3c6250b53f16edd",
     # apply-functional-review.md (O2, workflow-v2-3-followups REVISE round
     # 2, external cross-model review): this roster's own scope was fixed
     # to "every command file workflow-v2-1-core's own dual-mode
@@ -1388,7 +1442,36 @@ _GOLDEN_COMMAND_FILE_SHA256 = {
     # exists" bullet names the user-only /resume-implementation for an outstanding
     # checkpoint at this phase -- intentional content change, outside every
     # "1"-inert span.
-    "apply-functional-review.md": "2e1518c67823d41b3ae2a1776c5f0e95931a45d2728cf68dcd0983d94d45ead2",
+    # workflow-2.9.2 (functional-fix-commit-order, CP1): the bounded branch commits
+    # the stale technical-approval write before the first edit, runs steps 5 and 6
+    # before the regeneration, and says no commit follows the record (#19) --
+    # intentional content change.
+    # Implementation review / functional review round 1 (functional-fix-commit-order):
+    # the bounded branch names the version's post-fix target phase, says a mixed
+    # round's new child entry stays uncommitted, and words the stale-write rerun
+    # by state_revision -- intentional content change.
+    # workflow-2.10.0 (retire-21-for-new-work, CP3): the retired-default check at the
+    # branch decision, before the first bounded sub-step -- intentional content change.
+    # W54 (bundle-revision-sections): the bounded branch appends its test-record section and round entry, earlier ones unchanged -- intentional content change.
+    # W57 (command-wording-pins): the test-record parenthesis states the `same_content` rewrite of section `N` -- intentional content change.
+    "apply-functional-review.md": "5da01306de40dc2502da6c3a3f5ab2a5381c0e245aa02ed6462fb5b1dd466d1b",
+    # workflow-2.10.0 (retire-21-for-new-work, CP3): first recorded hash; the broad
+    # fix's refusal under a "2.1" default and the re-run from `already_reopened`.
+    # workflow-2.29.3 (wording-pass-plain-commands, CP1): wording only -- intentional content change.
+    # W54 (bundle-revision-sections): the post-fix refresh appends its test-record section and round entry, earlier ones unchanged -- intentional content change.
+    # W57 (command-wording-pins): the later-round record sentence states the ordinary outcome, the 1 to `N-1` check and the no-quarantine say-so -- intentional content change.
+    "apply-pr-review.md": "afe7ddbfb0d6e9414de29224529bd3150bd3d45840f5b6d4644e02fb2ec1abe6",
+    # workflow-2.18.0 (harness-neutral-commands, CP2): the command bodies name the model "the agent"
+    # and restate the six user-only guards (D-Guard); `apply-pr-review.md` and `prepare-review.md` gain
+    # `$ARGUMENTS` (D-Args); the five rows below are first recorded hashes -- intentional content changes.
+    "adopt-gate-policy.md": "c3787bfc199956d4ffb57500448da6ef2aaf613f51d696d4785a6764a48ab247",
+    "request-plan-amendment.md": "c7e7d800a66ad762639e675234822425f4c588d029649f78f97fb12edf9d6223",
+    # workflow-2.18.4 (review-followups-4, CP2): step 3 of the next two rows says the unknown-id
+    # refusal is the same `...WrongPhaseError` with the message "<id> names no work item" --
+    # intentional content change.
+    "resume-implementation.md": "cc9f6264706f96c4e769410e7346e15de8e759690a1ba908f93fc5b6ad0e55f0",
+    "retire-legacy-work-item.md": "d6c6586626714156193455d01609e50dd3a0ac8b63a669a5afa0e907f7736a8f",
+    "prepare-review.md": "de05a427f90087dd56703162e56fb388d86e74f090c95d6953590884d18bda1a",
 }
 
 
@@ -2659,6 +2742,24 @@ class TestMatrixHelpersDoNotOutrunTheirCommands(unittest.TestCase):
         self.assertEqual(used, set(_MATRIX_HELPER_DISCHARGED_BY_REFERENCE))
 
 
+class TestFindingDispositionsCommandConformance(unittest.TestCase):
+    """workflow-2.14.0 (finding-dispositions, CP2): the acceptance commands name the
+    disposition pre-flight and the findings record (D-Gate, D-Record)."""
+
+    def test_accept_milestone_names_the_pre_flight_and_step_5a(self):
+        text = _command_text("accept-milestone.md")
+        for needle in ("assert_finding_dispositions_recorded", "UndispositionedFindingsError",
+                       "InvalidFindingDispositionsError", "--finding-dispositions",
+                       "write_finding_dispositions_record", "5a. **Write the findings record**",
+                       "skip steps 3, 5 and 7, but run step 5a"):
+            self.assertIn(needle, text)
+
+    def test_satisfy_gate_cites_the_pre_flight_and_step_5a(self):
+        text = _command_text("satisfy-gate.md")
+        for needle in ("assert_finding_dispositions_recorded", "5a"):
+            self.assertIn(needle, text)
+
+
 class TestGoldenCommandFileHashes(unittest.TestCase):
     """WFR-26's broad half: one golden sha256 per modified command file.
     A change here is not itself a failure of correctness -- it is a
@@ -2676,6 +2777,316 @@ class TestGoldenCommandFileHashes(unittest.TestCase):
                     f"{filename} content changed since this golden hash was recorded -- "
                     f"if intentional, update _GOLDEN_COMMAND_FILE_SHA256",
                 )
+
+
+class TestUserOnlyCommandLineWidth(unittest.TestCase):
+    """workflow-2.18.2 (review-followups-2, 64c): the guard lines of the nine user-only command
+    bodies stay at the files' usual width. Exempt: the front matter, code-fence lines, table rows,
+    headings, and a line whose only content past its indentation is one span with no space inside
+    it (it cannot be broken at a space)."""
+
+    FILES = ("accept-milestone.md", "approve-review.md", "adopt-gate-policy.md",
+             "release-checkpoint-start.md", "request-plan-amendment.md", "resume-implementation.md", "retire-legacy-work-item.md",
+             "archive-finished-item.md", "prune-archives.md")
+    LIMIT = 90
+
+    def test_no_prose_line_exceeds_the_limit(self):
+        for filename in self.FILES:
+            lines = _command_text(filename).split("\n")
+            front_matter = True
+            fence = False
+            for number, line in enumerate(lines, start=1):
+                if number == 1 and line.startswith("---"):
+                    continue
+                if front_matter and number > 1 and lines[0].startswith("---"):
+                    front_matter = not line.startswith("---")
+                    continue
+                if line.lstrip().startswith(("```", "~~~")):
+                    fence = not fence
+                    continue
+                if fence or len(line) <= self.LIMIT or line.lstrip().startswith(("|", "#")):
+                    continue
+                if " " not in re.sub(r"^\s*(?:[-*+]|\d+[.)])?\s*", "", line).strip():
+                    continue
+                with self.subTest(filename=filename, line=number):
+                    self.fail(f"{filename}:{number} is {len(line)} columns (limit {self.LIMIT})")
+
+
+class TestCheckpointAnchorsEarlyCommandConformance(unittest.TestCase):
+    """workflow-2.11.0 (checkpoint-anchors-early, CP3): the plan-stage commands
+    write anchors from revision 1 and call `assert_plan_checkpoint_anchors`
+    before the publish and before the bind, in that order."""
+
+    CHECK = "assert_plan_checkpoint_anchors"
+
+    def test_milestone_plan_checks_before_publish_and_after_staging(self):
+        steps = _extract_numbered_steps(_command_text("milestone-plan.md"))
+        step5 = steps["5"]
+        first = step5.index(self.CHECK)
+        self.assertLess(step5.index("write_registry_and_mapping"), first)
+        self.assertLess(step5.index("render_registry_markdown"), first)
+        self.assertLess(step5.index("add -N"), first)
+        self.assertLess(first, step5.index("publish_plan_revision"))
+        self.assertIn("PLAN_ANCHOR_NEXT_STEP", step5)
+
+    def test_milestone_plan_checks_before_the_bind(self):
+        step6 = _extract_numbered_steps(_command_text("milestone-plan.md"))["6"]
+        self.assertLess(step6.index(self.CHECK), step6.index("verify_plan_review_bundle"))
+        self.assertIn("PLAN_ANCHOR_NEXT_STEP", step6)
+        self.assertIn("AmendmentAnchorCoverageError", step6)
+
+    def test_milestone_plan_step3_states_the_anchor_instruction(self):
+        step3 = _extract_numbered_steps(_command_text("milestone-plan.md"))["3"]
+        self.assertIn("<!-- CPn -->", step3)
+        self.assertIn("<!-- /CPn -->", step3)
+        self.assertIn("CP<digits>[A-Z]?", step3)
+
+    def test_milestone_plan_step4_self_review_confirms_the_anchors(self):
+        step4 = _extract_numbered_steps(_command_text("milestone-plan.md"))["4"]
+        self.assertIn("anchor pair", step4)
+
+    def test_apply_plan_review_checks_before_publish_and_after_staging(self):
+        step5 = _extract_numbered_steps(_command_text("apply-plan-review.md"))["5"]
+        first = step5.index(self.CHECK)
+        self.assertLess(step5.index("write_registry_and_mapping"), first)
+        self.assertLess(step5.index("render_registry_markdown"), first)
+        self.assertLess(step5.index("add -N"), first)
+        self.assertLess(first, step5.index("publish_plan_revision"))
+        self.assertIn("PLAN_ANCHOR_NEXT_STEP", step5)
+
+    def test_apply_plan_review_checks_before_the_bind(self):
+        # `7'` is not a plain digit step, so read the text from its heading.
+        text = _command_text("apply-plan-review.md")
+        step7 = text[text.index("7'. **`governing_workflow_version"):]
+        self.assertLess(step7.index(self.CHECK), step7.index("verify_plan_review_bundle"))
+        self.assertIn("PLAN_ANCHOR_NEXT_STEP", step7)
+
+    def test_request_plan_amendment_names_the_early_refusals(self):
+        text = _command_text("request-plan-amendment.md")
+        self.assertIn("workflow-2.11.0", text)
+        self.assertIn("plan-stage bundle generation", text)
+        self.assertIn("PLAN_ANCHOR_NEXT_STEP", text)
+
+    def test_all_three_commands_name_the_next_step_and_every_refusal_class(self):
+        for name in ("milestone-plan.md", "apply-plan-review.md", "request-plan-amendment.md"):
+            self.assertIn("PLAN_ANCHOR_NEXT_STEP", _command_text(name), name)
+        for name in ("milestone-plan.md", "apply-plan-review.md"):
+            text = _command_text(name)
+            for cls in ("AmendmentAnchorCoverageError", "AmendmentAnchorMalformedError",
+                        "AmendmentCheckpointIdShapeError", "AmendmentPostRegistryMalformedError"):
+                self.assertIn(cls, text, (name, cls))
+
+
+class TestGoverningVersionSweepEarlyCommandConformance(unittest.TestCase):
+    """workflow-2.13.0 (review-loop-fixes, CP1): the plan-stage commands call
+    `assert_plan_governing_version_sweep` right after the anchor call, before
+    the publish and before the bind."""
+
+    ANCHORS = "assert_plan_checkpoint_anchors"
+    SWEEP = "assert_plan_governing_version_sweep"
+
+    def _assert_after_anchors_before(self, text, later):
+        anchors = text.index(self.ANCHORS)
+        sweep = text.index(self.SWEEP)
+        self.assertLess(anchors, sweep)
+        self.assertLess(sweep, text.index(later))
+        for needle in ("PlanGoverningVersionSweepError", "PLAN_SWEEP_NEXT_STEP"):
+            self.assertIn(needle, text)
+
+    def test_milestone_plan_sweeps_after_the_anchors_and_before_the_publish(self):
+        steps = _extract_numbered_steps(_command_text("milestone-plan.md"))
+        self._assert_after_anchors_before(steps["5"], "publish_plan_revision")
+
+    def test_milestone_plan_sweeps_before_the_bind(self):
+        steps = _extract_numbered_steps(_command_text("milestone-plan.md"))
+        self._assert_after_anchors_before(steps["6"], "verify_plan_review_bundle")
+
+    def test_milestone_plan_tells_the_author_not_to_list_governing_versions(self):
+        text = _command_text("milestone-plan.md")
+        self.assertIn("Do not write a list of governing versions in the plan", text)
+        self.assertIn("feedback-only item or a two-stage item", text)
+
+    def test_apply_plan_review_sweeps_after_the_anchors_and_before_the_publish(self):
+        step5 = _extract_numbered_steps(_command_text("apply-plan-review.md"))["5"]
+        self._assert_after_anchors_before(step5, "publish_plan_revision")
+
+    def test_apply_plan_review_sweeps_before_the_bind(self):
+        text = _command_text("apply-plan-review.md")
+        step7 = text[text.index("7'. **`governing_workflow_version"):]
+        self._assert_after_anchors_before(step7, "verify_plan_review_bundle")
+
+    def test_the_generator_runs_both_checks_in_one_block(self):
+        script = (_repo_root() / "scripts" / "prepare-ai-review.sh").read_text()
+        block = script[script.index("BEGIN early checkpoint-anchor"):script.index("END early checkpoint-anchor")]
+        self.assertLess(block.index(self.ANCHORS), block.index(self.SWEEP))
+        self.assertIn("_PLAN_EARLY_CHECK_ERRORS", block)
+        self.assertNotIn("_PLAN_ANCHOR_ERRORS", block)
+
+    def test_the_plan_review_workflow_document_describes_it(self):
+        text = _doc_text("PLAN_REVIEW_WORKFLOW.md")
+        self.assertIn("assert_plan_governing_version_sweep", text)
+
+
+class TestDeclarationCoverageEarlyCommandConformance(unittest.TestCase):
+    """workflow-2.14.0 (finding-dispositions, CP4): the plan-stage commands call
+    `assert_plan_artifact_declaration_coverage` right after the sweep call,
+    before the publish and before the bind, and print the Files advisory."""
+
+    SWEEP = "assert_plan_governing_version_sweep"
+    COVERAGE = "assert_plan_artifact_declaration_coverage"
+
+    def _assert_after_sweep_before(self, text, later):
+        sweep = text.index(self.SWEEP)
+        coverage = text.index(self.COVERAGE)
+        self.assertLess(sweep, coverage)
+        self.assertLess(coverage, text.index(later))
+        for needle in ("PlanArtifactDeclarationCoverageError", "PLAN_DECLARATION_NEXT_STEP"):
+            self.assertIn(needle, text)
+
+    def test_milestone_plan_checks_after_the_sweep_and_before_the_publish(self):
+        steps = _extract_numbered_steps(_command_text("milestone-plan.md"))
+        self._assert_after_sweep_before(steps["5"], "publish_plan_revision")
+
+    def test_milestone_plan_checks_before_the_bind(self):
+        steps = _extract_numbered_steps(_command_text("milestone-plan.md"))
+        self._assert_after_sweep_before(steps["6"], "verify_plan_review_bundle")
+
+    def test_apply_plan_review_checks_after_the_sweep_and_before_the_publish(self):
+        step5 = _extract_numbered_steps(_command_text("apply-plan-review.md"))["5"]
+        self._assert_after_sweep_before(step5, "publish_plan_revision")
+
+    def test_apply_plan_review_checks_before_the_bind(self):
+        text = _command_text("apply-plan-review.md")
+        step7 = text[text.index("7'. **`governing_workflow_version"):]
+        self._assert_after_sweep_before(step7, "verify_plan_review_bundle")
+
+    def test_the_commands_print_the_files_advisory(self):
+        for name in ("milestone-plan.md", "apply-plan-review.md"):
+            with self.subTest(command=name):
+                self.assertIn("plan_files_advisory", _command_text(name))
+
+    def test_the_notation_is_stated_to_author_and_reviewer(self):
+        for name in ("milestone-plan.md", "review-plan.md"):
+            with self.subTest(command=name):
+                text = _command_text(name)
+                self.assertIn("every backtick span", text)
+                self.assertIn("version string", text)
+
+    def test_the_generator_runs_the_check_after_the_sweep_in_the_same_block(self):
+        script = (_repo_root() / "scripts" / "prepare-ai-review.sh").read_text()
+        block = script[script.index("BEGIN early checkpoint-anchor"):script.index("END early checkpoint-anchor")]
+        self.assertLess(block.index(self.SWEEP), block.index(self.COVERAGE))
+        self.assertIn("_PLAN_EARLY_CHECK_ERRORS", block)
+
+    def test_the_plan_review_workflow_document_describes_it(self):
+        self.assertIn("assert_plan_artifact_declaration_coverage", _doc_text("PLAN_REVIEW_WORKFLOW.md"))
+
+
+class TestRetiredDefaultCommandConformance(unittest.TestCase):
+    """workflow-2.10.0 (retire-21-for-new-work, CP3): the three commands that
+    can create a new work item stop under a "2.1" default before any write."""
+
+    def test_milestone_plan_step_0_stops_before_step_1(self):
+        text = _command_text("milestone-plan.md")
+        step0 = text[text.index("0. **Dual-mode branch**"):text.index("   - **`governing_workflow_version: \"1\"`**")]
+        self.assertIn("DefaultWorkflowVersionRetiredError", step0)
+        self.assertIn("RETIRED_DEFAULT_NEXT_STEP", step0)
+        self.assertIn("before\n   step 1 writes anything", step0)
+
+    def test_apply_functional_review_check_precedes_the_bounded_branch(self):
+        text = _command_text("apply-functional-review.md")
+        check = text.index("**Retired-default check, before the first bounded sub-step**")
+        self.assertEqual(text.count("assert_default_admits_new_work_item"), 1)
+        self.assertLess(check, text.index("- **Bounded code change**"))
+        self.assertLess(check, text.index("  1. **Stale-before-edit"))
+        self.assertLess(check, text.index("mark_technical_approval_stale(state, work_item_id,"))
+        self.assertIn("nothing written", text[check:text.index("- **No code change**")])
+
+    def test_apply_pr_review_broad_fix_names_the_refusal_and_the_rerun(self):
+        text = _command_text("apply-pr-review.md")
+        broad = text[text.index("- **Broad fix**"):text.index("## Step 3")]
+        self.assertIn("DefaultWorkflowVersionRetiredError", broad)
+        self.assertIn("neither the child nor `mark_pr_key_applied` is written", broad)
+        self.assertIn("step 1's write\n  stands", broad)
+        self.assertIn("AWAITING_FUNCTIONAL_REVIEW", broad)
+        self.assertIn("already_reopened", broad)
+
+
+class TestFunctionalFixCommitOrderConformance(unittest.TestCase):
+    """workflow-2.9.2 (functional-fix-commit-order, CP1): in
+    `/apply-functional-review`'s bounded branch the stale write and the
+    checklist are committed before the regeneration, and the generation
+    record is the round's last commit."""
+
+    def _bounded(self) -> str:
+        text = _command_text("apply-functional-review.md")
+        start = text.index("- **Bounded code change**")
+        return text[start:text.index("- **Broad/multi-finding remediation**", start)]
+
+    def test_sub_step_1_commits_the_stale_write_state_only(self):
+        branch = self._bounded()
+        sub1 = branch[branch.index("  1. **Stale-before-edit"):branch.index("  2. Make the fix")]
+        self.assertIn("state-only commit", sub1)
+        self.assertIn("stage_scoped_state", sub1)
+        self.assertIn("git diff --cached --quiet", sub1)
+        self.assertIn("nothing to commit", sub1)
+
+    def test_steps_5_and_6_precede_the_regeneration(self):
+        branch = self._bounded()
+        marker = "run top-level steps 5 and 6 for the\n     whole round"
+        self.assertIn(marker, branch)
+        self.assertLess(branch.index(marker), branch.index("record_bundle_generation("))
+        self.assertLess(branch.index(marker), branch.index("  4. Regenerate the bundle"))
+
+    def test_no_commit_may_follow_the_record(self):
+        branch = self._bounded()
+        sentence = "**No commit may follow this record in this invocation;"
+        self.assertEqual(branch.count(sentence), 1)
+        self.assertLess(branch.index("prepare-ai-review.sh <base-sha> post-fix"), branch.index(sentence))
+        self.assertLess(branch.index(sentence), branch.index("  5. **Mark this round's"))
+
+    def test_top_level_steps_5_and_6_carry_the_bounded_round_sentence(self):
+        text = _command_text("apply-functional-review.md")
+        tail = text[text.index("\n5. Commit coherent fixes"):text.index("\n7. **Mark this round's")]
+        self.assertEqual(tail.count("already ran inside it, before"), 2)
+
+
+class TestReviewStageWriteCommitRuleConformance(unittest.TestCase):
+    """workflow-2.9.1 (review-stage-write-durability, CP2): the command texts
+    carry the commit rule for review-stage writes -- a REVISE branch commits
+    through the helper, an APPROVE branch says to leave the write
+    uncommitted, the apply safety net precedes the `BLOCK` pin, and the plan
+    texts carry the plan-stage sentence."""
+
+    HELPER = "commit_pending_applying_review_feedback_entry"
+
+    def test_revise_branches_name_the_helper_and_approve_branches_say_uncommitted(self):
+        for filename, revise_marker, block_marker, approve_marker in (
+            ("review-implementation.md", "    - `REVISE`", "    - `BLOCK`", "    - `APPROVE`"),
+            ("record-manual-implementation-review.md", "   - `REVISE`", "   - `BLOCK`", "   - `APPROVE`"),
+        ):
+            with self.subTest(filename=filename):
+                text = _command_text(filename)
+                approve = text[text.index(approve_marker, text.index("Write set, exact")):]
+                approve = approve[:approve.index(revise_marker)]
+                revise = text[text.index(revise_marker, text.index("Write set, exact")):]
+                revise = revise[:revise.index(block_marker)]
+                self.assertIn("uncommitted", approve)
+                self.assertNotIn(self.HELPER, approve)
+                self.assertIn(self.HELPER, revise)
+
+    def test_apply_safety_net_precedes_the_block_pin(self):
+        text = _command_text("apply-implementation-review.md")
+        self.assertEqual(text.count(self.HELPER), 1)
+        self.assertLess(text.index(self.HELPER), text.index("**Durable `BLOCK`-verdict pin**"))
+        self.assertLess(text.index("assert_apply_review_feedback_binding"), text.index(self.HELPER))
+
+    def test_plan_texts_carry_the_plan_stage_sentence(self):
+        for filename in ("review-plan.md", "record-manual-plan-review.md", "apply-plan-review.md"):
+            with self.subTest(filename=filename):
+                text = _command_text(filename)
+                self.assertIn("Plan-stage writes are not committed here", text)
+                self.assertNotIn(self.HELPER, text)
 
 
 class TestReconciliationOutcomeReportingConformance(unittest.TestCase):
@@ -2712,30 +3123,39 @@ class TestPlanApprovalCommitTrailerFinalParagraphConformance(unittest.TestCase):
     before this checkpoint; this is new coverage for all three, not just
     `approve-review.md`."""
 
+    def _assert_trailer_paragraph_wording(self, text: str, *, record: bool):
+        """CP2 (`functional-fix-commit-order`, D-Trailers): the one wording
+        every statement of `OPUS-R129-001` carries -- the `Workflow-*`
+        trailers are the final paragraph and nothing else is in it, with any
+        `Co-Authored-By:`/`Claude-Session:` lines in their own paragraph
+        before it -- and, for a generation-record writer, the clause saying
+        why (the record's trailer set is checked exactly)."""
+        collapsed = " ".join(text.split())
+        self.assertIn("and nothing else is in it", collapsed)
+        self.assertIn(
+            "`Co-Authored-By:`/`Claude-Session:` lines go in their own paragraph before it, "
+            "separated by a blank line",
+            collapsed,
+        )
+        if record:
+            self.assertIn(
+                "the record's trailer set is checked exactly, so a `Co-Authored-By:` line "
+                "in that paragraph is refused",
+                collapsed,
+            )
+
     def test_approve_review_states_the_final_paragraph_requirement(self):
         text = _command_text("approve-review.md")
-        self.assertIn(
-            "**These\n     two lines must be the commit message's own final paragraph** — after\n"
-            "     any `Co-Authored-By:`/`Claude-Session:` lines, never before them",
-            text,
-        )
+        self._assert_trailer_paragraph_wording(text, record=False)
         self.assertIn("discover_plan_approval_commit", text)
 
     def test_milestone_implement_states_the_final_paragraph_requirement(self):
         text = _command_text("milestone-implement.md")
-        self.assertIn(
-            "**These\n      two lines must be the commit message's final paragraph** -- after\n"
-            "      any `Co-Authored-By:`/`Claude-Session:` lines, never before them",
-            text,
-        )
+        self._assert_trailer_paragraph_wording(text, record=False)
 
     def test_bootstrap_workflow_v2_states_the_final_paragraph_requirement(self):
         text = _command_text("bootstrap-workflow-v2.md")
-        self.assertIn(
-            "**These two lines must be the commit message's final\n   paragraph** — after any `Co-Authored-By:`/`Claude-Session:` lines, never\n"
-            "   before them",
-            text,
-        )
+        self._assert_trailer_paragraph_wording(text, record=False)
 
     def test_accept_milestone_states_the_final_paragraph_requirement(self):
         """Baseline-freeze correctness fix: `accept-milestone.md` step 6
@@ -2746,12 +3166,7 @@ class TestPlanApprovalCommitTrailerFinalParagraphConformance(unittest.TestCase):
         the same defect class as a result. This closes the gap those three
         grandfathered entries' own comments name explicitly as still open."""
         text = _command_text("accept-milestone.md")
-        self.assertIn(
-            "**This line must be part of the commit\n   message's own final paragraph** -- after any `Co-Authored-By:`/\n"
-            "   `Claude-Session:` lines, never in an earlier paragraph separated from\n"
-            "   them by a blank line",
-            text,
-        )
+        self._assert_trailer_paragraph_wording(text, record=False)
         self.assertIn("OPUS-R129-001", text)
 
     def test_prepare_functional_review_states_the_final_paragraph_requirement(self):
@@ -2761,12 +3176,7 @@ class TestPlanApprovalCommitTrailerFinalParagraphConformance(unittest.TestCase):
         evidence provenance commit -- the identity step 4 reports to the
         operator and `/review-functional` reads back."""
         text = _command_text("prepare-functional-review.md")
-        self.assertIn(
-            "**These two lines must be the commit message's own final\n"
-            "         paragraph** — after any `Co-Authored-By:`/`Claude-Session:` lines,\n"
-            "         never before them",
-            text,
-        )
+        self._assert_trailer_paragraph_wording(text, record=False)
         self.assertIn("OPUS-R129-001", text)
         self.assertIn("discover_current_functional_checklist_evidence", text)
 
@@ -2775,12 +3185,7 @@ class TestPlanApprovalCommitTrailerFinalParagraphConformance(unittest.TestCase):
         bounded-branch post-fix bundle-generation-record commit never stated
         this rule at all."""
         text = _command_text("apply-functional-review.md")
-        self.assertIn(
-            "**These trailer lines\n"
-            "     must be the commit message's own final paragraph** — after any\n"
-            "     `Co-Authored-By:`/`Claude-Session:` lines, never before them",
-            text,
-        )
+        self._assert_trailer_paragraph_wording(text, record=True)
         self.assertIn("OPUS-R129-001", text)
         self.assertIn("discover_current_bundle_generation_record_commit", text)
 
@@ -2789,12 +3194,7 @@ class TestPlanApprovalCommitTrailerFinalParagraphConformance(unittest.TestCase):
         step 7's post-fix bundle-generation-record commit never stated this
         rule at all."""
         text = _command_text("apply-implementation-review.md")
-        self.assertIn(
-            "**These trailer lines must be the commit\n"
-            "   message's own final paragraph** — after any `Co-Authored-By:`/\n"
-            "   `Claude-Session:` lines, never before them",
-            text,
-        )
+        self._assert_trailer_paragraph_wording(text, record=True)
         self.assertIn("OPUS-R129-001", text)
         self.assertIn("discover_current_bundle_generation_record_commit", text)
 
@@ -2805,12 +3205,7 @@ class TestPlanApprovalCommitTrailerFinalParagraphConformance(unittest.TestCase):
         `Workflow-Work-Item`/`Workflow-Supersedes` set) never stated this
         rule at all."""
         text = _command_text("recover-implementation-provenance.md")
-        self.assertIn(
-            "**These three trailer\n"
-            "   lines must be the commit message's own final paragraph** — after any\n"
-            "   `Co-Authored-By:`/`Claude-Session:` lines, never before them",
-            text,
-        )
+        self._assert_trailer_paragraph_wording(text, record=True)
         self.assertIn("OPUS-R129-001", text)
         self.assertIn("discover_current_bundle_generation_record_commit", text)
 
@@ -2823,12 +3218,7 @@ class TestPlanApprovalCommitTrailerFinalParagraphConformance(unittest.TestCase):
         `apply-implementation-review.md`/`apply-functional-review.md`
         already state it for."""
         text = _command_text("milestone-implement.md")
-        self.assertIn(
-            "**These two trailer lines must be the commit message's own final\n"
-            "     paragraph** -- after any `Co-Authored-By:`/`Claude-Session:` lines,\n"
-            "     never before them",
-            text,
-        )
+        self._assert_trailer_paragraph_wording(text, record=True)
         self.assertIn("OPUS-R129-001", text)
         self.assertIn("discover_current_bundle_generation_record_commit", text)
 
@@ -2840,12 +3230,7 @@ class TestPlanApprovalCommitTrailerFinalParagraphConformance(unittest.TestCase):
         checkpoint-completion commit in the same file, which
         OPUS-R129-001 already covered."""
         text = _command_text("bootstrap-workflow-v2.md")
-        self.assertIn(
-            "**These two trailer lines must be the commit message's own final\n"
-            "     paragraph** — after any `Co-Authored-By:`/`Claude-Session:` lines,\n"
-            "     never before them",
-            text,
-        )
+        self._assert_trailer_paragraph_wording(text, record=True)
         self.assertIn("OPUS-R129-001", text)
         self.assertIn("discover_current_bundle_generation_record_commit", text)
 
@@ -2875,14 +3260,134 @@ class TestPlanApprovalCommitTrailerFinalParagraphConformance(unittest.TestCase):
         6.4's own plan-stage approval commit in the same file, which the
         earlier `workflow-v2-3-followups` round already covered."""
         text = _command_text("approve-review.md")
-        self.assertIn(
-            "**These two trailer lines must also be\n"
-            "   the commit message's own final paragraph** — after any\n"
-            "   `Co-Authored-By:`/`Claude-Session:` lines, never before them",
-            text,
-        )
+        self._assert_trailer_paragraph_wording(text, record=False)
         self.assertIn("OPUS-R129-001", text)
         self.assertIn("discover_technical_approval_commit", text)
+
+
+class TestReleaseCheckpointStartCommandFile(unittest.TestCase):
+    """checkpoint-start-command (workflow-2.19.0, C6): the command file carries the user-only
+    guard, the pre-release wording before it asks for the sentence, and the `released` outcome."""
+
+    FILE = "release-checkpoint-start.md"
+
+    def _text(self):
+        return " ".join(_command_text(self.FILE).split())
+
+    def test_it_is_user_only_and_takes_both_ids_from_its_arguments(self):
+        frontmatter = _command_text(self.FILE).split("---\n", 2)[1]
+        self.assertIn("disable-model-invocation: true", frontmatter)
+        self.assertIn("state_writer: true", frontmatter)
+        self.assertIn("$ARGUMENTS", _command_text(self.FILE))
+
+    def test_the_pre_release_wording_comes_before_the_sentence_is_printed(self):
+        text = self._text()
+        sentence = text.index("Release checkpoint start <checkpoint_id> of <work_item_id>")
+        for needle in ("must be finished by running this command again",
+                       "until the command has reported success",
+                       "The owner session is any session other than the one running this command",
+                       "counts as stopped only while it runs nothing else for the work item"):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, text)
+                self.assertLess(text.index(needle), sentence)
+
+    def test_the_released_outcome_is_a_read_only_success(self):
+        text = self._text()
+        self.assertIn("already released", text)
+        self.assertIn("the pre-release obligation of step 3 is lifted", text)
+        self.assertIn("No sentence is asked and nothing is written", text)
+
+    def test_the_released_bullet_states_the_work_items_one_claim_in_any_worktree(self):
+        """command-wording (W2): `released` is returned only when `resolve_claim` finds no
+        claim for the work item at all; a claim held by another worktree is refused."""
+        text = self._text()
+        self.assertIn("the work item has no claim in any worktree and the checkpoint's entry is `HEAD`'s", text)
+        self.assertNotIn("this worktree holds no claim", text)
+
+    def test_it_is_listed_in_the_contract_and_the_operator_reference(self):
+        root = _repo_root() / "docs" / "ai-workflow"
+        self.assertIn("- `/release-checkpoint-start`\n", (root / "COMMAND_FILES.md").read_text())
+        self.assertIn("### `/release-checkpoint-start <work-item-id> <checkpoint-id>` \u2014 user-only",
+                      _operator_reference_text())
+
+
+class TestUserOnlyCommandListings(unittest.TestCase):
+    """command-wording (W1, W5): the shipped documents state the user-only commands the command
+    files actually carry. The set and its count are derived from the files, never typed."""
+
+    _WORDS = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven",
+              8: "eight", 9: "nine", 10: "ten", 11: "eleven", 12: "twelve"}
+
+    def _flagged(self) -> list[str]:
+        commands = _repo_root() / ".claude" / "commands"
+        return sorted(
+            path.stem for path in commands.glob("*.md")
+            if "disable-model-invocation: true" in path.read_text().split("---\n", 2)[1]
+        )
+
+    def test_the_command_files_row_states_the_number_of_flagged_commands(self):
+        flagged = self._flagged()
+        self.assertIn(len(flagged), self._WORDS)
+        row = next(line for line in (_repo_root() / "docs" / "ai-workflow" / "COMMAND_FILES.md")
+                   .read_text().splitlines() if line.startswith("| `disable-model-invocation`"))
+        self.assertIn(f"`true` ({self._WORDS[len(flagged)]} commands)", row)
+
+    def test_the_operator_reference_names_every_user_only_command(self):
+        text = _operator_reference_text()
+        start = text.index("- **User-only commands**")
+        end = text.index("\n- **", start + 1)
+        bullet = " ".join(text[start:end].split())
+        for name in self._flagged():
+            with self.subTest(command=name):
+                self.assertIn(f"`/{name}`", bullet)
+        self.assertNotIn("naming the exact work item and stage.", bullet)
+        self.assertNotIn("(the exact work item, and", bullet)
+        self.assertIn("for `/adopt-gate-policy` the policy digest", bullet)
+
+
+class TestTrailerParagraphWordingConformance(unittest.TestCase):
+    """CP2 (`functional-fix-commit-order`, D-Trailers): every payload command
+    that states `OPUS-R129-001` states it in the one new wording, none keeps
+    the old phrase, and the six generation-record writers say why the
+    paragraph must hold nothing else."""
+
+    _STATING = frozenset({
+        "accept-milestone.md", "adopt-gate-policy.md", "apply-functional-review.md",
+        "apply-implementation-review.md", "apply-pr-review.md", "approve-review.md",
+        "bootstrap-workflow-v2.md", "milestone-implement.md", "prepare-functional-review.md",
+        "recover-implementation-provenance.md", "request-plan-amendment.md",
+        "resume-implementation.md", "retire-legacy-work-item.md", "satisfy-gate.md",
+    })
+    _RECORD_WRITERS = frozenset({
+        "apply-functional-review.md", "apply-implementation-review.md", "apply-pr-review.md",
+        "bootstrap-workflow-v2.md", "milestone-implement.md", "recover-implementation-provenance.md",
+    })
+    _OWN_PARAGRAPH = "go in their own paragraph before it, separated by a blank line"
+    _RECORD_CLAUSE = "trailer set is checked exactly, so a `Co-Authored-By:` line in that paragraph is refused"
+
+    def _stating(self):
+        commands = _repo_root() / ".claude" / "commands"
+        return {
+            path.name: " ".join(path.read_text().split())
+            for path in sorted(commands.glob("*.md"))
+            if "OPUS-R129-001" in path.read_text()
+        }
+
+    def test_exactly_the_expected_commands_state_the_rule(self):
+        self.assertEqual(set(self._stating()), set(self._STATING))
+
+    def test_every_statement_carries_the_new_wording_and_none_the_old_phrase(self):
+        for name, text in self._stating().items():
+            with self.subTest(name):
+                self.assertGreaterEqual(text.count(self._OWN_PARAGRAPH), text.count("OPUS-R129-001"))
+                self.assertNotIn("never before them", text)
+                self.assertNotIn("never in an earlier paragraph", text)
+
+    def test_generation_record_writers_say_why_the_paragraph_holds_nothing_else(self):
+        stating = self._stating()
+        for name in sorted(self._RECORD_WRITERS):
+            with self.subTest(name):
+                self.assertIn(self._RECORD_CLAUSE, stating[name])
 
 
 class TestAcceptMilestoneCompletionCommitTrailerShape(unittest.TestCase):
@@ -2933,12 +3438,12 @@ class TestAcceptMilestoneCompletionCommitTrailerShape(unittest.TestCase):
 
     def test_final_paragraph_layout_is_recognized_as_a_trailer(self):
         """The layout accept-milestone.md step 6 now requires: the
-        Workflow-Work-Item line inside the same final trailer paragraph as
-        Co-Authored-By/Claude-Session, positioned after them."""
+        Workflow-Work-Item line is the final paragraph, after the
+        Co-Authored-By/Claude-Session paragraph."""
         with h.ScratchRepo() as repo:
             body = (
                 f"{self._SUBJECT}\n\n{self._NARRATIVE}\n\n"
-                f"{self._COAUTHOR_LINES}\n"
+                f"{self._COAUTHOR_LINES}\n\n"
                 "Workflow-Work-Item: demo-item\n"
             )
             commit = self._commit_with_body(repo, body)
@@ -2957,8 +3462,8 @@ class TestBaselinePortabilityCommandsCommitTrailerShape(unittest.TestCase):
     it, taking its `Workflow-Scoped-Remediation-Acceptance` family with it):
     constructs both the pre-fix layout (the trailer paragraph separated from
     `Co-Authored-By:`/`Claude-Session:` by a blank line) and the corrected
-    layout (the trailer paragraph positioned after them, as the message's
-    own final paragraph) against a real `ScratchRepo` commit for each
+    layout (the trailer paragraph positioned after them in a paragraph of its
+    own, as the message's final paragraph) against a real `ScratchRepo` commit for each
     family, and confirms via the real `git interpret-trailers --parse`
     mechanism (`workflow_state._commit_trailers`, the exact primitive
     `discover_current_functional_checklist_evidence`/
@@ -3009,7 +3514,7 @@ class TestBaselinePortabilityCommandsCommitTrailerShape(unittest.TestCase):
         with h.ScratchRepo() as repo:
             body = (
                 f"{self._SUBJECT}\n\n{self._NARRATIVE}\n\n"
-                f"{self._COAUTHOR_LINES}\n"
+                f"{self._COAUTHOR_LINES}\n\n"
                 f"{trailer_lines}\n"
             )
             commit = self._commit_with_body(repo, body)
@@ -3071,6 +3576,53 @@ class TestBaselinePortabilityCommandsCommitTrailerShape(unittest.TestCase):
                 "Workflow-Supersedes": "0123456789abcdef0123456789abcdef01234567",
             },
         )
+
+    def _role_of(self, trailer_lines: str, *, same_paragraph: bool) -> str | None:
+        separator = "\n" if same_paragraph else "\n\n"
+        with h.ScratchRepo() as repo:
+            body = (
+                f"{self._SUBJECT}\n\n{self._NARRATIVE}\n\n"
+                f"{self._COAUTHOR_LINES}{separator}{trailer_lines}\n"
+            )
+            commit = self._commit_with_body(repo, body)
+            return ws._bundle_generation_record_role(ws._commit_trailers(repo.root, commit))
+
+    def test_generation_record_new_layout_has_the_ordinary_role(self):
+        """The check that let #20 through: the layout the commands now
+        require classifies as a generation record, not merely parses."""
+        self.assertEqual(
+            self._role_of(
+                "Workflow-Bundle-Generation-Record: demo-item/4\nWorkflow-Work-Item: demo-item",
+                same_paragraph=False,
+            ),
+            "ordinary",
+        )
+
+    def test_generation_record_new_layout_has_the_recovered_role(self):
+        self.assertEqual(
+            self._role_of(
+                "Workflow-Bundle-Generation-Record: demo-item/4\n"
+                "Workflow-Work-Item: demo-item\n"
+                "Workflow-Supersedes: 0123456789abcdef0123456789abcdef01234567",
+                same_paragraph=False,
+            ),
+            "recovered",
+        )
+
+    def test_generation_record_same_paragraph_layout_has_no_role(self):
+        """`Co-Authored-By:`/`Claude-Session:` in the trailer paragraph make
+        the trailer set inexact, so the read side classifies the commit as
+        neither role (it stays strict)."""
+        self.assertIsNone(self._role_of(
+            "Workflow-Bundle-Generation-Record: demo-item/4\nWorkflow-Work-Item: demo-item",
+            same_paragraph=True,
+        ))
+        self.assertIsNone(self._role_of(
+            "Workflow-Bundle-Generation-Record: demo-item/4\n"
+            "Workflow-Work-Item: demo-item\n"
+            "Workflow-Supersedes: 0123456789abcdef0123456789abcdef01234567",
+            same_paragraph=True,
+        ))
 
     def test_technical_approval_pre_fix_layout_silently_drops_the_trailer(self):
         """`approve-review.md`'s implementation-stage technical-approval
@@ -3182,6 +3734,13 @@ class TestGenerationDiagnosticMetadataCallerWordingConformance(unittest.TestCase
         self.assertIn("/approve-review", section)
         self.assertIn("/review-plan", section)
         self.assertIn("/review-implementation", section)
+
+    def test_review_protocol_states_the_leading_trailing_and_wrapping_placeholder_rule(self):
+        """workflow-2.18.1, 31b: the document states the rule `_is_placeholder` enforces."""
+        text = (_repo_root() / "docs" / "ai-workflow" / "REVIEW_PROTOCOL.md").read_text()
+        self.assertIn(
+            "leading, trailing and wrapping punctuation or symbols on `None` are ignored",
+            " ".join(text.split()))
 
     def test_worktree_or_head_mismatch_docstring_is_non_exclusive(self):
         repo_root = _repo_root()
@@ -3480,7 +4039,13 @@ class TestGoldenV1BehaviorAgainstPreV21BaseCommit(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(normalized.encode()).hexdigest(),
-            "e70115cd0afe40d04d92c1895623f2500d7d210ca5912966a740a04ef3728fb3",
+            # workflow-2.17.0 (backlog-file, CP3): recomputed for the one version-independent
+            # "Backlog declared" bullet of step 1 (the undeclared branch is the rest of the
+            # text, byte-identical: removing that bullet restores the previous constant,
+            # e70115cd0afe40d04d92c1895623f2500d7d210ca5912966a740a04ef3728fb3).
+            # Functional review round 1: the bullet's refusal sentence now says to report
+            # stderr verbatim (every diagnostic and the next step) instead of "the two lines".
+            "814f7c636fa8023b1a34c5b04dfb5e8ffd2155f5946b6e4c7fafb191ed7dad50",
         )
 
     def test_milestone_plan_step7_wfr67_addition_is_present_and_version_unconditional(self):
@@ -5119,6 +5684,94 @@ class TestPlanApprovalMutationGuardAndTakeover(unittest.TestCase):
                 )
             self.assertEqual(ws.read_plan_approval_guard(repo.root), live)
 
+    # -- takeover-fence (#82, `D-Handoff`) -----------------------------------
+
+    def _takeover_journal(self, repo, now="t9"):
+        evidence = ws.plan_approval_takeover_evidence(repo.root)
+        guard = evidence["guard"]
+        release = (ws.plan_approval_guard_release_authorization_literal(guard)
+                   if guard is not None else None)
+        return ws.take_over_plan_approval_transaction(
+            repo.root, work_item_id="wi", now=now, evidence=evidence,
+            user_authorization=ws.plan_approval_takeover_authorization_literal(evidence),
+            guard_release_authorization=release,
+        )
+
+    def test_owner_cannot_enter_during_a_takeover_and_is_fenced_after_the_rotation(self):
+        for step in ("step-5-declaration-pin", "step-6.2-stage-ordinary"):
+            with self.subTest(step=step), h.ScratchRepo() as repo:
+                journal = self._open(repo)
+                token = journal["owner_token"]
+                real = ws._replace_plan_approval_journal
+                seen = {}
+
+                def attempt(key):
+                    ran = []
+                    try:
+                        with ws.plan_approval_guarded_mutation(
+                            repo.root, owner_token=token, step=step, now="t5",
+                        ):
+                            ran.append(step)
+                    except Exception as exc:  # noqa: BLE001 -- the class is asserted below
+                        seen[key] = exc
+                    seen[key + "_ran"] = ran
+
+                def wrapped(*args, **kwargs):
+                    attempt("before")
+                    seen["guard_before"] = ws.read_plan_approval_guard(repo.root)
+                    result = real(*args, **kwargs)
+                    attempt("after")
+                    return result
+
+                with mock.patch.object(ws, "_replace_plan_approval_journal", wrapped):
+                    new_token = self._takeover_journal(repo)
+                self.assertIsInstance(seen.get("before"), ws.PlanApprovalGuardHeldError)
+                self.assertIn("takeover", str(seen["before"]))
+                self.assertEqual(seen["before_ran"], [])
+                self.assertEqual(seen["guard_before"]["step"], "takeover")
+                self.assertIsInstance(seen.get("after"), ws.PlanApprovalOwnershipError)
+                self.assertEqual(seen["after_ran"], [])
+                self.assertNotEqual(new_token, token)
+                self.assertIsNone(ws.read_plan_approval_guard(repo.root))
+
+    def test_leftover_takeover_guard_names_the_route_and_the_route_clears_it(self):
+        with h.ScratchRepo() as repo:
+            journal = self._open(repo)
+            token = journal["owner_token"]
+            # A takeover that died between publishing its guard and rotating.
+            dead = ws.acquire_plan_approval_guard(
+                repo.root, holder_owner_token=token, step="takeover", now="t2", role="takeover",
+            )
+            with self.assertRaises(ws.PlanApprovalGuardHeldError) as ctx:
+                with ws.plan_approval_guarded_mutation(
+                    repo.root, owner_token=token, step="step-5-declaration-pin", now="t3",
+                ):
+                    self.fail("must not enter its own window against a takeover's guard")
+            message = str(ctx.exception)
+            self.assertIn("take_over_plan_approval_transaction", message)
+            self.assertIn(ws.plan_approval_guard_release_authorization_literal(dead), message)
+            self.assertEqual(ws.read_plan_approval_guard(repo.root)["lease_id"], dead["lease_id"])
+            new_token = self._takeover_journal(repo, now="t4")
+            self.assertIsNone(ws.read_plan_approval_guard(repo.root))
+            self.assertNotEqual(new_token, token)
+            with ws.plan_approval_guarded_mutation(
+                repo.root, owner_token=new_token, step="step-5-declaration-pin", now="t5",
+            ):
+                pass
+
+    def test_non_takeover_guard_of_the_same_token_is_still_reclaimed(self):
+        with h.ScratchRepo() as repo:
+            journal = self._open(repo)
+            ws.acquire_plan_approval_guard(
+                repo.root, holder_owner_token=journal["owner_token"],
+                step="step-5-declaration-pin", now="t2",
+            )
+            again = ws.acquire_plan_approval_guard(
+                repo.root, holder_owner_token=journal["owner_token"],
+                step="step-6.2-stage-ordinary", now="t3",
+            )
+            ws.release_plan_approval_guard(repo.root, again)
+
     # -- guarded_mutation fixed window -------------------------------------
 
     def test_guarded_mutation_happy_path_mutates_advances_progress_and_releases(self):
@@ -5501,6 +6154,166 @@ class TestPlanApprovalMutationGuardAndTakeover(unittest.TestCase):
 
 
 _STATE_PATH = Path("docs/ai-workflow/WORKFLOW_STATE.json")
+
+
+# live-guard-visibility: a worker that holds the plan-approval guard in a real
+# process, driven over pipes (it writes one JSON line when its window is open and
+# blocks on its stdin).
+_LIVE_JOURNAL_GUARD_WORKER_SOURCE = """
+import json
+import sys
+from pathlib import Path
+
+import workflow_state as ws
+
+repo_root, token, step = Path(sys.argv[1]), sys.argv[2], sys.argv[3]
+lease = ws.acquire_plan_approval_guard(repo_root, holder_owner_token=token, step=step, now="t-hold")
+sys.stdout.write(json.dumps({"event": "ready", "lease": lease}) + "\\n")
+sys.stdout.flush()
+sys.stdin.readline()
+ws.release_plan_approval_guard(repo_root, lease)
+sys.stdout.write(json.dumps({"event": "released"}) + "\\n")
+sys.stdout.flush()
+"""
+
+
+class TestLiveGuardVisibilityJournal(unittest.TestCase):
+    """live-guard-visibility (#91): the plan-approval guard's own-leftover
+    reclaim refuses a guard whose lock another process holds, and still
+    reclaims a crashed holder's leftover."""
+
+    _STEPS = ("step-5-declaration-pin", "step-6.5-commit")
+
+    @classmethod
+    def setUpClass(cls):
+        cls._scripts_dir = Path(__file__).resolve().parent
+        cls._worker_dir = Path(tempfile.mkdtemp(prefix="wf-live-journal-worker-"))
+        cls._worker = cls._worker_dir / "_live_journal_worker.py"
+        cls._worker.write_text(_LIVE_JOURNAL_GUARD_WORKER_SOURCE)
+
+    @classmethod
+    def tearDownClass(cls):
+        import shutil
+        shutil.rmtree(cls._worker_dir, ignore_errors=True)
+
+    def _open(self, repo):
+        return TestPlanApprovalMutationGuardAndTakeover._open(self, repo)
+
+    def _setup(self, repo, wi="wi"):
+        return TestPlanApprovalFailureAtomicityTransaction._setup(self, repo, wi)
+
+    def _open_journal(self, repo, wi, *args):
+        return TestPlanApprovalFailureAtomicityTransaction._open_journal(self, repo, wi, *args)
+
+    def _hold(self, repo, token, step):
+        env = dict(os.environ)
+        env["PYTHONPATH"] = str(self._scripts_dir) + (
+            os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
+        proc = subprocess.Popen([sys.executable, str(self._worker), str(repo.root), token, step],
+                                env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+        self.addCleanup(self._reap, proc)
+        line = proc.stdout.readline()
+        self.assertTrue(line, f"the worker produced no event (exit status {proc.poll()})")
+        event = json.loads(line)
+        self.assertEqual(event["event"], "ready")
+        return proc, event["lease"]
+
+    @staticmethod
+    def _reap(proc):
+        if proc.poll() is None:
+            proc.kill()
+        proc.wait(timeout=15)
+        for stream in (proc.stdin, proc.stdout):
+            try:
+                stream.close()
+            except (OSError, ValueError):
+                pass
+
+    def _end_window(self, proc):
+        proc.stdin.write("go\n")
+        proc.stdin.flush()
+        self.assertEqual(json.loads(proc.stdout.readline())["event"], "released")
+        proc.wait(timeout=15)
+
+    def test_live_owner_a_refuses_same_token_b(self):
+        for step in self._STEPS:
+            with self.subTest(step=step), h.ScratchRepo() as repo:
+                token = self._open(repo)["owner_token"]
+                proc, lease = self._hold(repo, token, step)
+                with self.assertRaises(ws.PlanApprovalGuardHeldError) as ctx:
+                    ws.acquire_plan_approval_guard(repo.root, holder_owner_token=token,
+                                                   step="step-6.2-stage-ordinary", now="t2")
+                message = str(ctx.exception)
+                self.assertIn(lease["lease_id"], message)
+                self.assertIn(step, message)
+                self.assertIn("still running", message)
+                self.assertIn("fuser", message)
+                self.assertEqual(ws.read_plan_approval_guard(repo.root)["lease_id"],
+                                 lease["lease_id"])
+                self._end_window(proc)
+
+    def test_killed_owner_a_leftover_is_reclaimed_by_b(self):
+        for step in self._STEPS:
+            with self.subTest(step=step), h.ScratchRepo() as repo:
+                token = self._open(repo)["owner_token"]
+                proc, lease = self._hold(repo, token, step)
+                proc.kill()
+                proc.wait(timeout=15)
+                self.assertEqual(ws.read_plan_approval_guard(repo.root)["lease_id"],
+                                 lease["lease_id"])
+                fresh = ws.acquire_plan_approval_guard(repo.root, holder_owner_token=token,
+                                                       step="step-6.2-stage-ordinary", now="t2")
+                self.assertNotEqual(fresh["lease_id"], lease["lease_id"])
+                self.assertEqual(ws.read_plan_approval_guard(repo.root), fresh)
+                ws.release_plan_approval_guard(repo.root, fresh)
+                self.assertNotIn(fresh["lease_id"], ws._guard_holder_locks)
+
+    def test_the_authorized_break_and_the_destructive_refusal_are_unchanged(self):
+        with h.ScratchRepo() as repo:
+            token = self._open(repo)["owner_token"]
+            proc, lease = self._hold(repo, token, "step-5-declaration-pin")
+            new_owner = ws.acquire_plan_approval_guard(
+                repo.root, holder_owner_token=token, step="takeover", now="t2", role="takeover",
+                authorized_lease_id=lease["lease_id"])
+            self.assertNotEqual(new_owner["lease_id"], lease["lease_id"])
+            self._end_window(proc)
+            self.assertEqual(ws.read_plan_approval_guard(repo.root), new_owner)
+            ws.release_plan_approval_guard(repo.root, new_owner)
+        with h.ScratchRepo() as repo:
+            token = self._open(repo)["owner_token"]
+            proc, lease = self._hold(repo, token, "step-6.5-commit")
+            with self.assertRaises(ws.PlanApprovalTakeoverRefusedError):
+                ws.acquire_plan_approval_guard(
+                    repo.root, holder_owner_token=token, step="takeover", now="t2",
+                    role="takeover", authorized_lease_id=lease["lease_id"])
+            self._end_window(proc)
+
+    def test_a_live_guard_of_a_superseded_epoch_is_reclaimed(self):
+        with h.ScratchRepo() as repo:
+            token = self._open(repo)["owner_token"]
+            proc, lease = self._hold(repo, "0" * 32, "step-6.5-commit")
+            fresh = ws.acquire_plan_approval_guard(repo.root, holder_owner_token=token,
+                                                   step="step-6.2-stage-ordinary", now="t2")
+            self.assertNotEqual(fresh["lease_id"], lease["lease_id"])
+            ws.release_plan_approval_guard(repo.root, fresh)
+
+    def test_a_release_and_a_lost_race_leave_no_descriptor(self):
+        with h.ScratchRepo() as repo:
+            token = self._open(repo)["owner_token"]
+            lease = ws.acquire_plan_approval_guard(repo.root, holder_owner_token=token,
+                                                   step="step-5-declaration-pin", now="t2")
+            self.assertEqual(list(ws._guard_holder_locks), [lease["lease_id"]])
+            ws.release_plan_approval_guard(repo.root, lease)
+            self.assertNotIn(lease["lease_id"], ws._guard_holder_locks)
+            ws._publish_plan_approval_guard(repo.root, {"lease_id": "taken"},
+                                            ws.PLAN_APPROVAL_GUARD_PATH)
+            with self.assertRaises(FileExistsError):
+                ws._publish_plan_approval_guard(repo.root, {"lease_id": "lost"},
+                                                ws.PLAN_APPROVAL_GUARD_PATH)
+            self.assertNotIn("lost", ws._guard_holder_locks)
+            ws.release_plan_approval_guard(repo.root, {"lease_id": "taken"})
+            self.assertEqual(ws._guard_holder_locks, {})
+            self.assertNotIn("1", [kind for kind, _ in ws.held_primitives()])
 
 
 class TestPlanApprovalStateBlobPinAndMaterialize(unittest.TestCase):
@@ -6607,7 +7420,7 @@ class TestRetiredScopedRemediationLeavesNoLiveSurface(unittest.TestCase):
         text = (_repo_root() / "docs/ai-workflow/WORKFLOW_V2_1_OPERATOR_REFERENCE.md").read_text()
         sections = re.findall(r"(?m)^### `/([a-z0-9-]+)", text)
         on_disk = sorted(p.stem for p in (_repo_root() / ".claude" / "commands").glob("*.md"))
-        self.assertEqual(len(on_disk), 22)
+        self.assertEqual(len(on_disk), 25)
         self.assertNotIn("accept-scoped-remediation", sections)
         self.assertNotIn("accept-scoped-remediation", on_disk)
         # Every live command has exactly one section, and vice versa.
@@ -6955,14 +7768,17 @@ class TestOperatorReferenceMatchesReality(unittest.TestCase):
         reclassified `/review-implementation`'s own frontmatter from
         `false` to `true` (it is the authoritative
         `LOCAL_MODEL_IMPLEMENTATION_REVIEW` stage writer for a `"2.2"` item
-        at `AWAITING_LOCAL_IMPLEMENTATION_REVIEW`), so exactly two
-        remain."""
+        at `AWAITING_LOCAL_IMPLEMENTATION_REVIEW`), so two remained;
+        `/archive-finished-item` (workflow-2.23.0) makes the third and
+        `/prune-archives` (workflow-2.25.0) the fourth."""
         stems = _declared_state_writer_false()
-        self.assertEqual(stems, {"prepare-review", "review-functional"})
+        self.assertEqual(stems, {"prepare-review", "review-functional", "archive-finished-item",
+                                 "prune-archives"})
         text = _operator_reference_text()
         self.assertNotIn("The only command with\n  `state_writer: false`", text)
+        self.assertNotIn("One of the three commands", text)
         self.assertIn(
-            "One of the two commands\n  unconditionally declaring `state_writer: false`",
+            "One of the four commands\n  unconditionally declaring `state_writer: false`",
             text,
         )
         for stem in sorted(stems - {"prepare-review"}):
@@ -7026,7 +7842,14 @@ class TestOperatorReferenceMatchesReality(unittest.TestCase):
         equality is derived; the count is a hardcoded tripwire."""
         text = _operator_reference_text()
         self.assertNotIn("not\nhand-maintained", text)
-        self.assertIn("assertEqual(len(on_disk), 16)", text)
+        self.assertIn("assertEqual(len(on_disk), 25)", text)
+        for stale in ("holds 16", "all 16", "number 16", "roster of 16", "len(on_disk), 16",
+                      "holds 23", "all 23", "number 23", "roster of 23", "len(on_disk), 23",
+                      "holds 24", "all 24", "number 24", "roster of 24", "len(on_disk), 24"):
+            self.assertNotIn(stale, text, stale)
+        for current in ("holds 25 files today, and all 25", "number 25 itself",
+                        "len(on_disk), 25", "roster of 25"):
+            self.assertIn(current, text, current)
         self.assertIn("hardcoded tripwire", text)
         # And the claim it makes about the derivation is itself true.
         sections = re.findall(r"(?m)^### `/([a-z0-9-]+)", text)
@@ -7096,6 +7919,9 @@ class TestOperatorReferenceMatchesReality(unittest.TestCase):
         # workflow-2.9.0, `/resume-implementation`: the technical approval's status and a stable
         # refusal-class prefix, not code symbols.
         "technical_approval.status",
+        # checkpoint-start-command (workflow-2.19.0), `/release-checkpoint-start`: a claim
+        # field and the observation's reference key, not code symbols.
+        "claim_ref", "owner_token",
         "work_item_kind", "work_item_type", "work_items", "worktree_root",
         "test_the_operator_reference_command_count_matches_reality",
         # workflow-2.4.0, D-Plan-Amendment-3: amendment_history entry/
@@ -7833,6 +8659,803 @@ class TestApproveReviewLifecycleEntryTable(unittest.TestCase):
         entries = [row for row in rows if row not in ("Entry", "---")]
         self.assertEqual(entries, ["4b", "4c", "4d", "5, 6.x", "6a", "6a1", "6b",
                                    "6c → 6c1 → 6d", "6a `AMBIGUOUS`"])
+
+
+class TestBacklogCommandConformance(unittest.TestCase):
+    """workflow-2.17.0 (backlog-file, CP3): `/milestone-plan`, `/accept-milestone` and
+    `/satisfy-gate` carry the declared-backlog branch (D-Select, D-Accept), and every
+    sentence they carried before it is still present, so a repository that declares no
+    backlog reads exactly today's text (the undeclared branch is byte-for-byte)."""
+
+    # Sentences of the 2.16.0 texts, whitespace-normalised, that the backlog branch must
+    # leave in place. `repo_root=<repo_root>` in milestone-plan step 3 is the one
+    # deliberate edit of an existing sentence (D-Classify) and is pinned separately.
+    PRE_EXISTING = {
+        "milestone-plan.md": (
+            "Inspect Git state (`git status --short`, `git log --oneline -10`) and read "
+            "`docs/ACTIVE_MILESTONE.md` and `docs/ROADMAP.md` to identify the next "
+            "incomplete milestone/checkpoint.",
+            "**no argument** -- identify the milestone from "
+            "`docs/ACTIVE_MILESTONE.md`/`docs/ROADMAP.md` (step 1) and use the "
+            "milestone's starting commit",
+            "Derive a `work_item_id` slug from the milestone",
+        ),
+        "accept-milestone.md": (
+            "3. Update `docs/ROADMAP.md` to mark the milestone complete.",
+            "7. Set `docs/ACTIVE_MILESTONE.md`'s \"Next action\" to point at the next "
+            "incomplete milestone in `docs/ROADMAP.md`, ready for `PLANNING`.",
+            "The commit stages the paths step 5a returned",
+            "`complete_work_item` re-checks the same condition below.",
+        ),
+        "satisfy-gate.md": (
+            "1. **Open with the Workflow's own query.**",
+            "4. **The remaining steps.** Run `/accept-milestone` steps 2b and 3 to 8 as "
+            "written",
+            "5. **Record the floor, after the satisfying commit**",
+        ),
+    }
+
+    def _text(self, filename):
+        return _squash(_command_text(filename))
+
+    def test_every_pre_existing_sentence_is_still_present(self):
+        for filename, sentences in self.PRE_EXISTING.items():
+            text = self._text(filename)
+            for sentence in sentences:
+                with self.subTest(filename=filename, sentence=sentence[:48]):
+                    self.assertIn(_squash(sentence), text)
+
+    def test_plan_takes_the_next_item_from_the_declared_backlog(self):
+        text = self._text("milestone-plan.md")
+        for needle in ("python3 scripts/workflow_backlog.py next",
+                       "`{\"declared\": false}`", "use `item.id` as the work item id",
+                       "`item.detail`", "do not read `docs/ROADMAP.md`",
+                       "`no_ready_item`", "**stop**, having written nothing",
+                       "This command never writes the backlog file",
+                       "print one advisory line naming both ids",
+                       "`/milestone-plan <active id>`", "never a stop"):
+            with self.subTest(needle=needle):
+                self.assertIn(_squash(needle), text)
+        self.assertLess(text.index("Backlog declared"), text.index("Derive a `work_item_id` slug"))
+
+    def test_plan_passes_repo_root_to_the_artifact_declaration(self):
+        text = self._text("milestone-plan.md")
+        self.assertIn("work_item_type=<this item's own work_item_type>, "
+                      "repo_root=<repo_root>)", text)
+
+    def test_plan_refuses_a_declared_backlog_collision_before_routing(self):
+        # workflow-2.18.2 (review-followups-2, 60e): the dry call precedes `route_work_item`.
+        text = self._text("milestone-plan.md")
+        check = text.index("**Declared-backlog collision check**")
+        for needle in ("workflow_state.generate_artifacts_declarations(<work_item_id>, <plan_path>, "
+                       "<registry_path>, <mapping_path>, work_item_type=<this item's own work_item_type>, "
+                       "repo_root=<repo_root>)",
+                       "`declaration_conflict`", "`declaration_invalid`",
+                       "**stops with nothing written**: no work item, no registry, no mapping"):
+            with self.subTest(needle=needle):
+                self.assertIn(_squash(needle), text[check:check + 1500])
+        self.assertLess(check, text.index("Call `workflow_state.route_work_item(...)`, passing all four"))
+
+    def test_explicit_id_forms_do_not_read_the_backlog(self):
+        self.assertIn("an explicit work-item-id form never reads the backlog",
+                      self._text("milestone-plan.md"))
+
+    def test_accept_preflight_precedes_every_write(self):
+        text = self._text("accept-milestone.md")
+        preflight = text.index("**Backlog pre-flight** (workflow-2.17.0")
+        self.assertLess(text.index("**Optional-finding dispositions pre-flight**"), preflight)
+        self.assertLess(preflight, text.index("**`requires_pr_approved` pre-flight**"))
+        self.assertLess(preflight, text.index("Otherwise, call `workflow_state.complete_work_item("))
+        self.assertIn("python3 scripts/workflow_backlog.py preflight-accept <work_item_id>", text)
+        self.assertIn("`WORKFLOW_STATE.json` stays byte-identical", text)
+
+    def test_accept_makes_no_promise_for_an_item_with_no_state_entry(self):
+        text = self._text("accept-milestone.md")
+        self.assertNotIn("Backlog pre-flight for an item with no state entry", text)
+        self.assertIn("non-terminal `work_items` entry", text)
+
+    def test_refusals_are_reported_verbatim_not_as_two_lines(self):
+        for name in ("milestone-plan.md", "accept-milestone.md", "satisfy-gate.md"):
+            with self.subTest(command=name):
+                text = _squash(self._text(name))
+                self.assertNotIn("the two stderr lines", text)
+                self.assertIn("report stderr verbatim", text)
+
+    def test_accept_step_3_runs_accept_and_names_the_recovery(self):
+        text = self._text("accept-milestone.md")
+        for needle in ("python3 scripts/workflow_backlog.py accept <work_item_id>",
+                       "`--release <version>` only when the milestone itself names a release",
+                       "do not edit `docs/ROADMAP.md` or the declared page by hand",
+                       "the completion commit stages exactly those paths together with "
+                       "step 5a's", "`MILESTONE_COMPLETE` and this command cannot be re-run",
+                       "**write nothing else**", "continue this command at step 4, then 5, 5a, 6",
+                       "`generator_failed`", "idempotent"):
+            with self.subTest(needle=needle):
+                self.assertIn(_squash(needle), text)
+
+    def test_accept_step_7_runs_next_read_only(self):
+        text = self._text("accept-milestone.md")
+        self.assertIn("run `python3 scripts/workflow_backlog.py next` (read-only)", text)
+        self.assertIn("no item is ready: <reason>", text)
+
+    def test_policy_acceptance_runs_the_preflight_before_it_stores_anything(self):
+        text = self._text("satisfy-gate.md")
+        self.assertLess(text.index("0. **Backlog pre-flight, before the first step**"),
+                        text.index("1. **Open with the Workflow's own query.**"))
+        for needle in ("python3 scripts/workflow_backlog.py preflight-accept <work-item-id>",
+                       "not even the pull-request fact", "byte-identical"):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, text)
+
+    def test_policy_acceptance_states_the_policy_path_recovery(self):
+        text = self._text("satisfy-gate.md")
+        for needle in ("`/accept-milestone` steps 3 to 7 carry the backlog branch",
+                       "continue **this stage** at step 4",
+                       "`Workflow-Gate-Satisfied-By: policy:<first 12 characters of the policy "
+                       "digest>` as well as `Workflow-Work-Item: <id>`",
+                       "then step 5 (the floor", "step 6 (report the milestone as accepted "
+                       "**by policy**)", "is not a substitute"):
+            with self.subTest(needle=needle):
+                self.assertIn(_squash(needle), text)
+
+    def test_lifecycle_documents_name_the_backlog(self):
+        root = _repo_root() / "docs" / "ai-workflow"
+        workflow = _squash((root / "MILESTONE_WORKFLOW.md").read_text())
+        reference = _squash((root / "WORKFLOW_V2_1_OPERATOR_REFERENCE.md").read_text())
+        self.assertIn("takes the next ready item from that file", workflow)
+        self.assertIn("sets the item `done` and regenerates the page", workflow)
+        self.assertIn("the next ready item of that file", reference)
+
+
+class TestCommandFilesContractDocument(unittest.TestCase):
+    """harness-neutral-commands (workflow-2.18.0, CP1): `COMMAND_FILES.md`
+    is the one shipped place that states the command-file contract, and
+    this suite keeps it and the files it describes from drifting apart."""
+
+    CLASSES = {"Honour", "Carry", "Hint"}
+    # D-Term's neutrality pattern: the model's name (not the
+    # `Claude-Session:` trailer key), the harness tool name and the
+    # harness product name.
+    NEUTRALITY = re.compile(r"Claude(?!-Session)|SlashCommand")
+
+    def _doc(self) -> str:
+        return (_repo_root() / "docs" / "ai-workflow" / "COMMAND_FILES.md").read_text()
+
+    def test_the_confirmation_and_empty_case_clauses_are_pinned(self):
+        """64b and 64f: a later edit cannot silently undo them."""
+        doc = " ".join(self._doc().split())
+        for needle in ("under every harness, is the literal-confirmation check",
+                       "An adapter that cannot tell refuses the command",
+                       "(except at the plan stage, where the id is required)"):
+            self.assertIn(needle, doc, needle)
+
+    def _frontmatter(self, filename: str) -> dict[str, str]:
+        lines = _command_text(filename).split("\n")
+        self.assertEqual(lines[0], "---", filename)
+        end = lines.index("---", 1)
+        pairs = {}
+        for line in lines[1:end]:
+            key, _, value = line.partition(":")
+            pairs[key.strip()] = value.strip()
+        return pairs
+
+    def _key_rows(self) -> dict[str, str]:
+        section = self._doc().split("## The keys", 1)[1].split("\n## ", 1)[0]
+        rows = {}
+        for line in section.splitlines():
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if line.startswith("| `") and len(cells) >= 3:
+                rows[cells[0].strip("`")] = cells[1].strip("*")
+        return rows
+
+    def test_every_key_in_use_has_a_row_and_every_row_is_in_use(self):
+        used = set()
+        for filename in _command_filenames():
+            used |= set(self._frontmatter(filename))
+        rows = self._key_rows()
+        self.assertEqual(used, set(rows))
+        for key, cls in rows.items():
+            with self.subTest(key=key):
+                self.assertIn(cls, self.CLASSES)
+
+    def test_the_document_defines_the_term_and_the_placeholder(self):
+        doc = _squash(self._doc())
+        for needle in ("**The agent**: whatever carries out the steps of a command body",
+                       "`$ARGUMENTS` is the Workflow's argument placeholder",
+                       "exactly as the user typed it after the command name, verbatim and "
+                       "unparsed, at every occurrence of the token",
+                       "no argument given is substituted as the empty string",
+                       "The body's own argument grammar decides what that means",
+                       "There is no universal default"):
+            with self.subTest(needle=needle):
+                self.assertIn(needle, doc)
+
+    def test_the_documents_user_only_list_equals_the_flagged_commands(self):
+        section = self._doc().split("## The user-only commands", 1)[1].split("\n## ", 1)[0]
+        listed = set(re.findall(r"^- `/([a-z-]+)`$", section, re.MULTILINE))
+        flagged = {
+            filename[: -len(".md")]
+            for filename in _command_filenames()
+            if self._frontmatter(filename).get("disable-model-invocation") == "true"
+        }
+        self.assertEqual(len(listed), 9)
+        self.assertEqual(listed, flagged)
+
+    def test_the_neutral_documents_pass_the_neutrality_pattern(self):
+        root = _repo_root() / "docs" / "ai-workflow"
+        for name in ("MILESTONE_WORKFLOW.md", "REVIEW_PROTOCOL.md",
+                     "WORKFLOW_V2_1_OPERATOR_REFERENCE.md"):
+            with self.subTest(document=name):
+                self.assertIsNone(self.NEUTRALITY.search((root / name).read_text()))
+                self.assertNotIn("Claude Code", (root / name).read_text())
+
+    def test_the_neutral_documents_never_claim_the_agent_cannot_run_a_command(self):
+        # D-Guard: the flag blocks a user-only command only where the harness
+        # enforces it; the documents state the duty, never an impossibility.
+        root = _repo_root() / "docs" / "ai-workflow"
+        for name in ("MILESTONE_WORKFLOW.md", "REVIEW_PROTOCOL.md",
+                     "WORKFLOW_V2_1_OPERATOR_REFERENCE.md"):
+            with self.subTest(document=name):
+                self.assertIsNone(re.search(
+                    r"agent cannot (run|invoke)", _squash((root / name).read_text())))
+
+    def test_the_operator_reference_points_to_the_contract(self):
+        text = (_repo_root() / "docs" / "ai-workflow"
+                / "WORKFLOW_V2_1_OPERATOR_REFERENCE.md").read_text()
+        self.assertIn("docs/ai-workflow/COMMAND_FILES.md", text)
+        self.assertIn("under every harness", _squash(text))
+
+
+class TestHarnessNeutralCommandBodies(unittest.TestCase):
+    """harness-neutral-commands (workflow-2.18.0, CP2): the command bodies
+    name the model "the agent", carry `$ARGUMENTS` where they take
+    arguments, and each user-only body still carries its own
+    literal-confirmation check."""
+
+    NEUTRALITY = re.compile(r"Claude(?!-Session)|SlashCommand|Claude Code")
+    PINNED = "the control this command carries itself, under every harness"
+    NEVER_INVOKE = "The agent must never invoke"
+    # The needles of each user-only command's own check, from the 2.17.0 text.
+    USER_ONLY = {
+        "approve-review.md": (
+            "validate_user_confirmation", "the exact `work_item_id` and the exact stage",
+            "refuse to write anything unless", "Never fabricate, infer, or carry over this text"),
+        "accept-milestone.md": (
+            "validate_user_confirmation", 'stage="acceptance"', "refuse to write anything unless",
+            "Never fabricate, infer, or carry over this text", "ask for it and stop"),
+        "adopt-gate-policy.md": (
+            "validate_gate_policy_confirmation", "the literal `gate_policy`",
+            "refuse to write anything unless", "Never fabricate, infer or carry over"),
+        "request-plan-amendment.md": (
+            "the exact literal word `amendment`", "refuse to write anything unless",
+            "Never fabricate, infer, or carry over either", "ask for it naming the exact `work_item_id`"),
+        "release-checkpoint-start.md": (
+            "validate_checkpoint_start_release_confirmation", "stays stopped until this release",
+            "refuse to write anything unless", "Never fabricate, infer or carry over this text",
+            "ask for it, naming the exact sentence, and stop"),
+        "resume-implementation.md": (
+            "validate_user_only_confirmation", 'stage="resumption"', "the word `resumption`",
+            "refuse to write anything unless", "Never fabricate, infer or carry over this text",
+            "ask for it, naming the exact `work_item_id`, and stop"),
+        "retire-legacy-work-item.md": (
+            "validate_user_only_confirmation", 'stage="retirement"', "the word `retirement`",
+            "refuse to write anything unless", "Never fabricate, infer or carry over this text",
+            "ask for it and stop"),
+        "archive-finished-item.md": (
+            "Archive and remove the review folder of", "refuse to write anything unless",
+            "Never fabricate, infer or carry over this text", "print the sentence and stop"),
+        "prune-archives.md": (
+            "Prune the archives", "refuse to write anything unless",
+            "Never fabricate, infer or carry over this text", "print the sentence again and stop"),
+    }
+
+    @staticmethod
+    def _split(filename: str) -> tuple[str, str]:
+        _, frontmatter, body = _command_text(filename).split("---\n", 2)
+        return frontmatter, body
+
+    def test_no_command_file_names_the_model_or_a_harness(self):
+        for filename in _command_filenames():
+            with self.subTest(filename=filename):
+                self.assertIsNone(self.NEUTRALITY.search(_command_text(filename)))
+
+    def test_the_session_trailer_key_is_still_named(self):
+        named = [f for f in _command_filenames() if "Claude-Session:" in _command_text(f)]
+        # Fourteen at 2.17.0 and unchanged by the rename (the plan's "sixteen" miscounted).
+        self.assertEqual(len(named), 14)
+
+    def test_every_command_with_an_argument_hint_names_the_placeholder_in_its_body(self):
+        for filename in _command_filenames():
+            frontmatter, body = self._split(filename)
+            self.assertNotIn("$ARGUMENTS", frontmatter, filename)
+            hint = ""
+            for line in frontmatter.splitlines():
+                key, _, value = line.partition(":")
+                if key.strip() == "argument-hint":
+                    hint = value.strip()
+                    if len(hint) >= 2 and hint[0] == hint[-1] and hint[0] in "\"'":
+                        hint = hint[1:-1]
+            with self.subTest(filename=filename):
+                if hint:
+                    self.assertIn("$ARGUMENTS", body)
+
+    def test_each_user_only_body_keeps_its_literal_confirmation_step(self):
+        flagged = {
+            f for f in _command_filenames()
+            if "disable-model-invocation: true" in self._split(f)[0]
+        }
+        self.assertEqual(flagged, set(self.USER_ONLY))
+        for filename, needles in self.USER_ONLY.items():
+            text = " ".join(_command_text(filename).split())
+            for needle in needles + (self.PINNED, self.NEVER_INVOKE):
+                with self.subTest(filename=filename, needle=needle):
+                    self.assertIn(needle, text)
+
+    def test_the_unknown_id_refusal_is_described_in_step_three(self):
+        # workflow-2.18.4 (review-followups-4, CP2): both step 3s say the same `...WrongPhaseError`
+        # also covers an id that is not a key of `work_items`.
+        for filename, error in (("retire-legacy-work-item.md", "LegacyRetirementWrongPhaseError"),
+                                ("resume-implementation.md", "ResumeImplementationWrongPhaseError")):
+            text = " ".join(_command_text(filename).split())
+            with self.subTest(filename=filename):
+                self.assertIn(f"The same `{error}` is also raised, with the message "
+                              '"<id> names no work item", for an id that is not a key of `work_items`',
+                              text)
+                for needle in self.USER_ONLY[filename] + (self.PINNED, self.NEVER_INVOKE):
+                    self.assertIn(needle, text)
+
+    def test_the_history_moved_out_of_approve_review_into_the_contract(self):
+        body = _command_text("approve-review.md")
+        self.assertNotIn("SlashCommand", body)
+        self.assertNotIn("changelog", body)
+        doc = (_repo_root() / "docs" / "ai-workflow" / "COMMAND_FILES.md").read_text()
+        self.assertIn("SlashCommand", doc)
+        self.assertIn("changelog", doc)
+
+
+class TestArchiveFinishedItemCommand(unittest.TestCase):
+    """retention-command (workflow-2.23.0, CP1): `/archive-finished-item` only calls the two
+    retention engines, only after the literal sentence naming the item, one item per run."""
+
+    FILENAME = "archive-finished-item.md"
+    SPAN = re.compile(r"```[^\n]*\n(.*?)```|`([^`\n]+)`", re.S)
+    COMMANDS = ("python3 -I scripts/workflow_retention.py archive <id>",
+                "python3 -I scripts/workflow_retention.py remove <id>",
+                "python3 -I scripts/workflow_retention.py archive <id> --apply",
+                "python3 -I scripts/workflow_retention.py remove <id> --apply")
+
+    def _body(self) -> str:
+        return _command_text(self.FILENAME).split("---\n", 2)[2]
+
+    def _spans(self) -> list[str]:
+        return [(a or b).strip() for a, b in self.SPAN.findall(self._body())]
+
+    def _fenced(self, startswith: str) -> str:
+        found = [span for span in self._spans() if span.startswith(startswith)]
+        self.assertEqual(len(found), 1, startswith)
+        return found[0]
+
+    def _authorizes(self, message: str, work_item_id: str) -> bool:
+        pattern = self._fenced("(?i)archive and remove").replace("ID", re.escape(work_item_id))
+        return re.search(pattern, " ".join(message.split())) is not None
+
+    def _accepts_arguments(self, arguments: str) -> bool:
+        return re.fullmatch(self._fenced("^[a-z0-9]").strip("^$"), arguments) is not None
+
+    def test_frontmatter(self):
+        frontmatter = _command_text(self.FILENAME).split("---\n", 2)[1]
+        for line in ("argument-hint: \"<work-item-id>\"", "disable-model-invocation: true",
+                     "state_writer: false", "review-subject: none"):
+            self.assertIn(line, frontmatter.splitlines())
+        self.assertIn("$ARGUMENTS", self._body())
+
+    def test_the_body_calls_exactly_the_four_engine_forms(self):
+        import workflow_retention as wr
+        commands = [s for s in self._spans() if re.match(r"(python\d*|tar|zstd|rm|mv)\b", s)]
+        self.assertEqual(set(commands), set(self.COMMANDS))
+        for command in self.COMMANDS:
+            argv = command.replace("<id>", "m-1").split()[3:]
+            parsed = wr._parse(argv)
+            self.assertEqual(parsed.work_item_id, "m-1")
+            self.assertEqual(parsed.apply, command.endswith("--apply"))
+            self.assertFalse(parsed.json)
+        body = self._body()
+        for token in ("--archive-root", "--repo-root", "--force", "WORKFLOW_STATE.json",
+                      "state_transaction", "state_lock"):
+            self.assertNotIn(token, body)
+        spans = self._spans()
+        self.assertLess(spans.index(self.COMMANDS[2]), spans.index(self.COMMANDS[3]))
+
+    def test_the_sentence_check_is_exact_and_prefix_safe(self):
+        sentence = "Archive and remove the review folder of m-1."
+        self.assertTrue(self._authorizes(sentence, "m-1"))
+        self.assertTrue(self._authorizes("ok.  ARCHIVE and\nremove the review folder of m-1", "m-1"))
+        for message in ("", "m-1", "archive and remove", "Archive and remove the review folder of m-2.",
+                        "Archive and remove the review folder of m-10.",
+                        "Archive and remove the review folder of m-1-b.",
+                        "Archive and remove the review folder of m_1."):
+            self.assertFalse(self._authorizes(message, "m-1"), message)
+        self.assertFalse(self._authorizes("Archive and remove the review folder of m-1.", "m-10"))
+        self.assertTrue(self._authorizes("Archive and remove the review folder of m-10.", "m-10"))
+
+    def test_the_arguments_are_one_id_token(self):
+        for good in ("m-1", "retention-command", "a"):
+            self.assertTrue(self._accepts_arguments(good), good)
+        for bad in ("", "m-1 m-2", "Archive and remove the review folder of m-1.", "-m", "M-1", "m 1"):
+            self.assertFalse(self._accepts_arguments(bad), bad)
+
+    def test_the_stop_and_no_retry_rules_are_pinned(self):
+        body = " ".join(self._body().split())
+        for needle in ("Never retry", "never run `remove` after an `archive` that did not succeed",
+                       "One item per run", "**Ask and stop.**", "**Preview.**"):
+            self.assertIn(needle, body)
+        self.assertLess(body.index("**Preview.**"), body.index("**Ask and stop.**"))
+        self.assertLess(body.index("**Ask and stop.**"), body.index(self.COMMANDS[2]))
+
+    def test_the_preview_result_pairs_and_the_catch_all_stop_are_pinned(self):
+        body = " ".join(self._body().split())
+        start = body.index("Read each result by its exit status")
+        end = body.index("3. **Ask and stop.**")
+        step = body[start:end]
+        pairs = [
+            "`archive` exits 0 and `remove` refuses `not_archived`",
+            "The run is **archive then remove**.",
+            "`archive` refuses `already_archived` and `remove` exits 0",
+            "The run is **remove only**;",
+            "any other combination, or any other refusal code: report both codes and their "
+            "`next step:` lines and stop. Nothing is applied and no sentence is asked for.",
+        ]
+        at = -1
+        for needle in pairs:
+            found = step.find(needle)
+            self.assertGreater(found, at, needle)
+            at = found
+        codes = re.findall(r"refuses `([a-z_]+)`", step)
+        self.assertEqual(codes, ["not_archived", "already_archived"])
+        engine = (_repo_root() / "scripts" / "workflow_retention.py").read_text()
+        for code in codes:
+            self.assertIn(f'_refuse("{code}"', engine)
+
+    def test_the_documents_list_it(self):
+        users = ["accept-milestone", "adopt-gate-policy", "approve-review", "archive-finished-item",
+                 "prune-archives", "release-checkpoint-start", "request-plan-amendment",
+                 "resume-implementation", "retire-legacy-work-item"]
+        doc = " ".join((_repo_root() / "docs" / "ai-workflow" / "COMMAND_FILES.md").read_text().split())
+        self.assertIn("`true` (nine commands)", doc)
+        self.assertNotIn("eight commands", doc)
+        self.assertIn("Nine commands carry `disable-model-invocation: true`", doc)
+        reference = " ".join(_operator_reference_text().split())
+        for stem in users:
+            self.assertIn(f"- `/{stem}`", doc)
+            self.assertIn(f"`/{stem}`", reference)
+        self.assertIn("### `/archive-finished-item <work-item-id>` \u2014 user-only", reference)
+        self.assertIn("no tracked file and no state. The engines write the archive and its index line "
+                      "in the archive store, and `remove` takes the untracked `.ai-review/<id>/` folder "
+                      "away.", reference)
+        self.assertNotIn("nothing in the repository and no state", reference)
+        self.assertIn("for seven of them the exact work item", reference)
+        self.assertNotIn("for six of them", reference)
+
+
+class TestPruneArchivesCommand(unittest.TestCase):
+    """retention-prune-command (workflow-2.25.0, CP1): `/prune-archives` only calls the prune
+    engine, only after the literal sentence naming exactly the archives it was given."""
+
+    FILENAME = "prune-archives.md"
+    SPAN = re.compile(r"```[^\n]*\n(.*?)```|`([^`\n]+)`", re.S)
+    DRY = "python3 -I scripts/workflow_retention.py prune <names>"
+    APPLY = "python3 -I scripts/workflow_retention.py prune <names> --apply"
+
+    def _body(self) -> str:
+        return _command_text(self.FILENAME).split("---\n", 2)[2]
+
+    def _spans(self) -> list[str]:
+        return [(a or b).strip() for a, b in self.SPAN.findall(self._body())]
+
+    def _fenced(self, startswith: str) -> str:
+        found = [span for span in self._spans() if span.startswith(startswith)]
+        self.assertEqual(len(found), 1, startswith)
+        return found[0]
+
+    def _authorizes(self, message: str, names: list[str]) -> bool:
+        pattern = re.compile(self._fenced("(?i)prune the archives").replace("T", "[a-z0-9][a-z0-9_-]{0,63}"))
+        matches = pattern.findall(" ".join(message.split()))
+        wanted = set(names)
+        return bool(matches) and all(
+            {n.lower() for n in found.split(", ")} == wanted for found in matches)
+
+    def _accepts_arguments(self, arguments: str) -> bool:
+        token = self._fenced("^[a-z0-9]").strip("^$")
+        if re.fullmatch(rf"{token}(?: {token})*", arguments) is None:
+            return False
+        names = arguments.split()
+        return len(names) == len(set(names))
+
+    def test_frontmatter(self):
+        frontmatter = _command_text(self.FILENAME).split("---\n", 2)[1]
+        for line in ("argument-hint: \"<work-item-id>...\"", "disable-model-invocation: true",
+                     "state_writer: false", "review-subject: none"):
+            self.assertIn(line, frontmatter.splitlines())
+        self.assertIn("$ARGUMENTS", self._body())
+
+    def test_the_body_calls_exactly_the_two_engine_forms(self):
+        import workflow_retention as wr
+        commands = [s for s in self._spans() if re.match(r"(python\d*|tar|zstd|rm|mv|unlink)\b", s)]
+        self.assertEqual(set(commands), {self.DRY, self.APPLY})
+        for command in (self.DRY, self.APPLY):
+            argv = command.replace("<names>", "m-1 m-2").split()[3:]
+            parsed = wr._parse(argv)
+            self.assertEqual(parsed.work_item_ids, ["m-1", "m-2"])
+            self.assertEqual(parsed.apply, command.endswith("--apply"))
+            self.assertFalse(parsed.json)
+        body = self._body()
+        for token in ("--archive-root", "--repo-root", "--ttl-days", "--json", "--force",
+                      "WORKFLOW_STATE.json", "state_transaction", "state_lock"):
+            self.assertNotIn(token, body)
+        spans = self._spans()
+        self.assertLess(spans.index(self.DRY), spans.index(self.APPLY))
+
+    def test_the_sentence_check_compares_the_named_set(self):
+        both = ["m-1", "m-2"]
+        self.assertTrue(self._authorizes("Prune the archives m-1, m-2.", both))
+        self.assertTrue(self._authorizes("Prune the archives m-2, m-1.", both))
+        self.assertTrue(self._authorizes("ok.  PRUNE the\narchives M-1, m-2. thanks", both))
+        self.assertTrue(self._authorizes("Prune the archives m-1.", ["m-1"]))
+        for message in ("", "m-1, m-2", "Prune the archives m-1.", "Prune the archives m-1, m-2, m-3.",
+                        "Prune the archives m-1, m-3.", "Prune the archives m-1, m-2",
+                        "Prune the archives m-1 and m-2.", "Prune the archives m-10, m-2.",
+                        "Prune the archives m-1, m-2. Prune the archives m-1.",
+                        "Prune the archives m-1. Prune the archives m-1, m-2."):
+            self.assertFalse(self._authorizes(message, both), message)
+        # The comparison is written in `_authorizes`; the body must state the same rule.
+        body = " ".join(self._body().split())
+        self.assertIn("The confirmation holds when there is at least one match and, in every match, "
+                      "the lower-cased names, as a set, equal the set of names of step 1.", body)
+        for loosened in ("in some match", "each name of step 1 is present", "among the lower-cased names"):
+            self.assertNotIn(loosened, body)
+        self.assertFalse(self._authorizes("Prune the archives m-10.", ["m-1"]))
+        self.assertFalse(self._authorizes("Prune the archives m-1.", ["m-10"]))
+        self.assertTrue(self._authorizes("Prune the archives m-10.", ["m-10"]))
+
+    def test_the_arguments_are_distinct_id_tokens(self):
+        for good in ("m-1", "m-1 m-2", "retention-command a"):
+            self.assertTrue(self._accepts_arguments(good), good)
+        for bad in ("", "m-1 m-1", "Prune the archives m-1.", "-m", "M-1", "m-1.tar.zst", "m-1,m-2"):
+            self.assertFalse(self._accepts_arguments(bad), bad)
+
+    def test_the_stop_and_no_retry_rules_are_pinned(self):
+        body = " ".join(self._body().split())
+        for needle in ("Never retry", "Never an archive the user did not name",
+                       "**Preview.**", "**Ask and stop.**", "**Apply**",
+                       "Nothing is applied and no sentence is asked for",
+                       "apply nothing, print the sentence again and stop",
+                       "its name without `.tar.zst`"):
+            self.assertIn(needle, body)
+        self.assertLess(body.index("**Preview.**"), body.index("**Ask and stop.**"))
+        self.assertLess(body.index("**Ask and stop.**"), body.index("**Apply**"))
+
+    def test_the_documents_list_it(self):
+        doc = " ".join((_repo_root() / "docs" / "ai-workflow" / "COMMAND_FILES.md").read_text().split())
+        self.assertIn("- `/prune-archives`", doc)
+        reference = " ".join(_operator_reference_text().split())
+        self.assertIn("### `/prune-archives <work-item-id>...` \u2014 user-only", reference)
+        self.assertIn("for seven of them the exact work item", reference)
+        self.assertIn("for `/prune-archives` the exact archives; for `/adopt-gate-policy` the policy digest",
+                      reference)
+        protocol = " ".join((_repo_root() / "docs" / "ai-workflow" / "ORCHESTRATION_PROTOCOL.md")
+                            .read_text().split())
+        self.assertIn("`/archive-finished-item` and `/prune-archives`", protocol)
+
+
+class TestReviewProtocolBaselineClauses(unittest.TestCase):
+    """39c to 39f: the baseline sentences of `REVIEW_PROTOCOL.md`."""
+
+    def _doc(self) -> str:
+        text = (_repo_root() / "docs" / "ai-workflow" / "REVIEW_PROTOCOL.md").read_text()
+        return " ".join(text.split())
+
+    def test_equal_ids_read_as_cannot_be_identified(self):
+        self.assertIn("the round is identified and there is no change since it, and the section "
+                      'reads "cannot be identified"', self._doc())
+
+    def test_plan_stage_protected_paths_is_a_sorted_list(self):
+        self.assertIn("at the plan stage `classification.protected_paths` is a sorted list", self._doc())
+        self.assertIn("at the implementation stage it is an object of path to reason", self._doc())
+
+    def test_implementation_stage_known_to_state_rule(self):
+        doc = self._doc()
+        self.assertIn("a `REVISE` record is known to the item's state when its revision is at most "
+                      "`implementation_revision`", doc)
+        self.assertIn("an `APPROVE` record when the manual ledger entry's `bundle_id` equals the record's", doc)
+
+    def test_union_diff_shows_earlier_excluded_edits(self):
+        self.assertIn("for a newly protected path that union diff also shows the edits made while "
+                      "the path was excluded", self._doc())
+
+
+# ---------------------------------------------------------------------------
+# W54 (`bundle-revision-sections`): an implementation bundle shows the test
+# record and the fixes of every revision up to its own. A worker writes both
+# files, so the change is command text and the protocol contract; no script
+# changes, and these tests pin the form and prove the identifiers stay put.
+# ---------------------------------------------------------------------------
+
+_REVISION_SECTION_COMMANDS = (
+    "milestone-implement.md", "apply-implementation-review.md",
+    "apply-functional-review.md", "apply-pr-review.md",
+)
+_SECTION_HEADING_RE = re.compile(r"^## Implementation revision (\d+)$", re.MULTILINE)
+_ROUND_HEADING_RE = re.compile(r"^## Round (\d+)$", re.MULTILINE)
+
+
+def _protocol_text() -> str:
+    return (_repo_root() / "docs" / "ai-workflow" / "REVIEW_PROTOCOL.md").read_text()
+
+
+def _flat(text: str) -> str:
+    return " ".join(text.split())
+
+
+def _documented_summary(revisions: int) -> str:
+    lines = ["implementation_revision: %d" % revisions]
+    for n in range(1, revisions + 1):
+        lines += ["", "## Round %d" % n, "- built or fixed in round %d" % n]
+    return "\n".join(lines) + "\n"
+
+
+def _documented_record(revisions: int) -> str:
+    out = []
+    for n in range(1, revisions + 1):
+        out += [
+            "## Implementation revision %d" % n,
+            "- commit: " + ("%x" % n) * 40,
+            "- commands: python3 -I scripts/workflow_state_test.py",
+            "- result: OK",
+            "",
+        ]
+    return "\n".join(out)
+
+
+def _write_bundle(root: Path, summary: str, record: str) -> Path:
+    bundle = root / "current"
+    bundle.mkdir()
+    files = {
+        "MANIFEST.md": "# Manifest\n",
+        "IMPLEMENTATION_SUMMARY.md": summary,
+        "TEST_RESULTS.md": record,
+        "CONTEXT_FILES.txt": "",
+    }
+    for name, content in files.items():
+        path = bundle / name
+        path.write_text(content)
+        os.chmod(path, 0o644)
+    os.chmod(bundle, 0o755)
+    return bundle
+
+
+class TestBundleRevisionSectionsContract(unittest.TestCase):
+    """T1, T2: the four commands and the protocol state the form."""
+
+    def test_each_command_names_the_form_and_its_two_rules(self):  # T1
+        for filename in _REVISION_SECTION_COMMANDS:
+            with self.subTest(filename=filename):
+                text = _flat(_command_text(filename))
+                self.assertIn("## Implementation revision", text)
+                self.assertIn("## Round", text)
+                self.assertRegex(text, r"carr(y|ied) (every |the )?earlier .{0,60}forward")
+                self.assertIn("current.rejected-*", text)
+                self.assertRegex(text, r"for this round.{0,80}section")
+
+    def test_the_protocol_states_the_form_once_with_both_rules(self):  # T2
+        text = _protocol_text()
+        flat = _flat(text)
+        self.assertEqual(text.count("^## Implementation revision (\\d+)$"), 1)
+        self.assertEqual(text.count("^## Round (\\d+)$"), 1)
+        self.assertIn("Entries below `N` are carried forward unchanged.", flat)
+        self.assertIn("Sections below `N` are carried forward unchanged: never edited, never "
+                      "relabelled as a run of this round.", flat)
+        self.assertIn("means section `N` and round entry `N` only", flat)
+        self.assertIn("`current.rejected-*`", flat)
+        self.assertIn("byte for byte", flat)
+        self.assertIn("Section `N` states only checks that actually ran in this session, at its "
+                      "stated commit", flat)
+        self.assertIn("**At the `plan` stage**, state only checks that actually ran in this session, "
+                      "and open with a `stage: plan (revision N)` line", flat)
+        self.assertNotIn("Never state a check passed unless it actually ran in this session.", flat)
+
+
+class TestBundleRevisionSectionsDocumentedForm(unittest.TestCase):
+    """T3, T4: the documented form passes the unchanged generator check."""
+
+    def test_a_three_round_summary_passes_at_three_and_fails_at_two(self):  # T3
+        with tempfile.TemporaryDirectory() as tmp:
+            bundle = _write_bundle(Path(tmp), _documented_summary(3), _documented_record(3))
+            before = fingerprint.compute_bundle_id(bundle)[0]
+            fingerprint.assert_stage_completeness(bundle, "implementation", implementation_revision=3)
+            fingerprint.assert_stage_completeness(bundle, "post-fix", implementation_revision=3)
+            with self.assertRaises(fingerprint.StageCompletenessError):
+                fingerprint.assert_stage_completeness(bundle, "implementation", implementation_revision=2)
+            self.assertEqual(fingerprint.compute_bundle_id(bundle)[0], before)
+
+    def test_no_heading_matches_the_label_line_and_the_summary_has_one(self):  # T4
+        summary = _documented_summary(3)
+        label = re.compile(r"^implementation_revision: (\d+)$", re.MULTILINE)
+        self.assertEqual(len(label.findall(summary)), 1)
+        for heading in ("## Implementation revision 3", "## Round 3"):
+            self.assertIsNone(label.search(heading))
+        self.assertEqual(len(_ROUND_HEADING_RE.findall(summary)), 3)
+        self.assertEqual(len(_SECTION_HEADING_RE.findall(_documented_record(3))), 3)
+
+
+class TestBundleIdentifiersDoNotMoveWithTheRecord(unittest.TestCase):
+    """T5, T6: the generator, the bundle id and the review content id are untouched."""
+
+    # `compute_bundle_id` of the old-form bundle built by `_write_bundle` below
+    # (every mode set explicitly: the digest hashes modes and must not inherit the umask).
+    _OLD_FORM_BUNDLE_ID = "2cc79f2d03c2e36f775ad0d662f11c1c7d9689c33d1dc86293af311516306307"
+
+    def test_the_old_form_bundle_id_equals_the_recorded_literal(self):  # T5
+        with tempfile.TemporaryDirectory() as tmp:
+            bundle = _write_bundle(Path(tmp), "implementation_revision: 1\n\nbuilt it\n", "ran the tests: ok\n")
+            self.assertEqual(fingerprint.compute_bundle_id(bundle)[0], self._OLD_FORM_BUNDLE_ID)
+        with tempfile.TemporaryDirectory() as tmp:
+            bundle = _write_bundle(Path(tmp), _documented_summary(3), _documented_record(3))
+            self.assertNotEqual(fingerprint.compute_bundle_id(bundle)[0], self._OLD_FORM_BUNDLE_ID)
+
+    def test_the_review_content_id_is_the_same_for_every_record(self):  # T6
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+
+            def git(*args: str) -> str:
+                return subprocess.run(
+                    ["git", "-c", "user.name=t", "-c", "user.email=t@example.invalid", *args],
+                    cwd=repo, check=True, capture_output=True, text=True,
+                ).stdout.strip()
+
+            git("init", "-q")
+            (repo / ".gitignore").write_text(".ai-review/\n")
+            (repo / "src").mkdir()
+            (repo / "src" / "a.txt").write_text("one\n")
+            git("add", "-A")
+            git("commit", "-q", "-m", "base")
+            base = git("rev-parse", "HEAD")
+            (repo / "src" / "a.txt").write_text("two\n")
+            git("add", "-A")
+            git("commit", "-q", "-m", "change")
+            record = repo / ".ai-review" / "x" / "current" / "TEST_RESULTS.md"
+            record.parent.mkdir(parents=True)
+            digests = set()
+            for content in ("", "ran it: ok\n", _documented_record(3)):
+                record.write_text(content)
+                digest, _ = fingerprint.compute_review_content_id_implementation_stage(
+                    repo, base, "process", "x", {}, {"src/": "source"}, {}, {},
+                )
+                digests.add(digest)
+            self.assertEqual(len(digests), 1)
+
+
+class TestCommandWordingPins(unittest.TestCase):
+    """W57 (command-wording-pins): the bundle-record wording of the apply commands says what the code does."""
+
+    def test_apply_pr_review_states_the_restore_checks_and_the_ordinary_outcome(self):  # c1
+        text = _flat(_command_text("apply-pr-review.md"))
+        for fragment in (
+            "checking they run from 1 to `N-1`",
+            "with no quarantine say so in the entry",
+            "records every round with the ordinary outcome",
+            "no round here adds to an earlier entry or rewrites an earlier section",
+        ):
+            with self.subTest(fragment=fragment):
+                self.assertIn(fragment, text)
+
+    def test_the_two_apply_commands_say_a_same_content_round_rewrites_section_n(self):  # c2
+        clause = ("the full suite re-run for it; a `\"same_content\"` round keeps `N` and rewrites section `N` "
+                  "with its new commit and results, appending none) and an entry headed")
+        for filename in ("apply-implementation-review.md", "apply-functional-review.md"):
+            with self.subTest(filename=filename):
+                text = _flat(_command_text(filename))
+                self.assertIn(clause, text)
+                self.assertNotIn("the full suite re-run for it) and an entry headed", text)
 
 
 if __name__ == "__main__":
