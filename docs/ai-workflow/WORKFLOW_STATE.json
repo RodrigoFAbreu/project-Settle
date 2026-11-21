@@ -5313,7 +5313,7 @@
       "registry_path": "docs/ai-workflow/registry/lidl-layout-fixture-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/lidl-layout-fixture-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 1,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -5359,7 +5359,37 @@
         "waived_guarantees": [],
         "recorded_at": "2026-11-20T15:30:01Z"
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "EXTERNAL_APPROVE",
+        "reviewed_bundle_id": "7161f16d50f853bb1f1822d09700fd859d069dd2d536afe350ec70e76618f189",
+        "approved_review_content_id": "8c73a632f32b87dcd796e0d89aa812fb41ccbaefe66f12b337412addd9e90496",
+        "review_content_manifest": [
+          {
+            "path": "app/src/features/receipt/fixtures/text/26-pt-lidl-desconto-sublinhado.expected.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d1d220e2c1305693196f45baa4f7f62fd0480be1"
+          },
+          {
+            "path": "app/src/features/receipt/fixtures/text/26-pt-lidl-desconto-sublinhado.txt",
+            "exists": true,
+            "mode": "100644",
+            "blob": "066e7bb08fb13a5b8adff796b052a01266fe223f"
+          },
+          {
+            "path": "docs/ai-workflow/registry/lidl-layout-fixture-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1c941bf1899f4ff40b4d223a302ebf9c41af4d56"
+          }
+        ],
+        "reviewed_content_commit": "6a05e81b041de1fab90885af9f25d23e489d2e60",
+        "legacy_evidence": null,
+        "user_confirmation": "implementation lidl-layout-fixture",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-21T20:23:24Z"
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "42c97fc3969f4440e309453c0942df2b0c31e93b08e83365a877f415b2a4f1e0",
@@ -5384,12 +5414,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 9,
-      "last_transition": "2026-11-20T18:52:55Z",
+      "state_revision": 12,
+      "last_transition": "2026-11-21T20:23:24Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -5447,6 +5477,35 @@
               "at": "2026-11-20T14:25:35Z"
             }
           ]
+        },
+        "F-53fa513d5b69": {
+          "digest": "53fa513d5b692f06edf5edfe57f0406e33d68f4e5d7571ef674e09f3388d791a",
+          "text": "The invented tax table’s A row does not reconcile with the A-coded items, which total 4.50. This acknowledged inconsistency does not affect parsing or the expected output.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "8c73a632f32b87dcd796e0d89aa812fb41ccbaefe66f12b337412addd9e90496",
+              "verdict": "APPROVE",
+              "at": "2026-11-20T19:02:14Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "8c73a632f32b87dcd796e0d89aa812fb41ccbaefe66f12b337412addd9e90496",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "7161f16d50f853bb1f1822d09700fd859d069dd2d536afe350ec70e76618f189",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-20T19:05:00Z"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "7161f16d50f853bb1f1822d09700fd859d069dd2d536afe350ec70e76618f189",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-20T19:02:14Z"
         }
       }
     }
