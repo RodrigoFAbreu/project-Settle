@@ -112,7 +112,46 @@ None. M5's plan is archived at
 
 ## Functional review checklist
 
-None. M5's round-1 checklist is in commit `e63f550`.
+Work item `lidl-layout-fixture`. Nothing changes in the app, so the review is
+a test-suite check. All commands run in `app/`.
+
+**Setup:** `cd app && npm ci` (if `node_modules` is missing). No build, no
+browser, no flags.
+
+**Test data:** the fixture itself:
+`app/src/features/receipt/fixtures/text/26-pt-lidl-desconto-sublinhado.txt`
+and its `.expected.json`. Invented merchant (`Mercado Exemplo Lda`), no real
+receipt.
+
+**Flows:**
+
+1. **The fixture is picked up and passes.**
+   Run `npx vitest run fixtures`.
+   Expected: both fixture test files pass (56 tests at the last run), none
+   skipped, and the Lidl case appears under the fixture test's list.
+2. **The expected file matches the receipt by hand.** Read the `.txt` beside
+   the `.expected.json`. Expected:
+   - merchant `Mercado Exemplo Lda`, tax id `500123454`, date `2026-10-14`,
+     total `34.66`, `warnings` empty;
+   - seven items; the loyalty discount (-0,80) nets onto Iogurte (1.29 →
+     0.49) and the second discount (-0,50) onto Azeite (5.49 → 4.99);
+   - `Deposito` is quantity 2 × 0.10 = 0.20; `Bananas` is 0.39 kg × 7.99 =
+     3.12 (the `kg` line has no amount of its own); `Detergente Roupa` is
+     2 × 11.69 = 23.38;
+   - the items sum to 34.66.
+3. **The guard bites.** In a scratch copy only (do not commit): change a
+   price in the `.txt` (for example `Pão de Forma 1,59 B` to `1,69 B`), rerun
+   flow 1. Expected: the Lidl case fails. Then `git checkout --` the file.
+4. **No real data and no app changes.**
+   `git diff --stat main...HEAD -- app` lists only the two fixture files, and
+   the `.txt` contains no real merchant, address or card data.
+5. **Full suite (optional).** `npm run typecheck && npm run lint &&
+   npm run format:check && npm test`. Expected: all pass.
+
+**Known limitations / out of scope:** no parser change and no new test code.
+If flow 2 shows the parser reading something wrongly, record a follow-up page
+under `docs/items/`; do not edit the fixture to hide it. Flows that need a
+browser build are not part of this item.
 
 <!--
 This file is `workflow_state.FUNCTIONAL_CHECKLIST_PATH`. It is
