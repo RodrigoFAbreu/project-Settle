@@ -1,0 +1,74 @@
+{
+  "merchant": "Continente Braga",
+  "merchantTaxId": "501591109",
+  "date": "2026-11-21",
+  "currencyHint": "EUR",
+  "total": "26.98",
+  "items": [
+    {
+      "name": "NACHOS QJ. CNT P. POUP. 300G",
+      "quantity": "1",
+      "unitPrice": "1.99",
+      "lineTotal": "1.99",
+      "needsCheck": false
+    },
+    {
+      "name": "MAION.CEBOLA ALHO TD HEINZ 439G",
+      "quantity": "1",
+      "unitPrice": "3.29",
+      "lineTotal": "3.29",
+      "needsCheck": false
+    },
+    {
+      "name": "MOLHO BARBECUE HEINZ CLASS 480G",
+      "quantity": "1",
+      "unitPrice": "2.99",
+      "lineTotal": "2.99",
+      "needsCheck": false
+    },
+    {
+      "name": "REF C/GAS COCA-COLA 2X1,75LT",
+      "quantity": "1",
+      "unitPrice": "3.34",
+      "lineTotal": "3.34",
+      "needsCheck": false
+    },
+    {
+      "name": "VALOR DE DEPOSITO 2UN",
+      "quantity": "1",
+      "unitPrice": "0.20",
+      "lineTotal": "0.20",
+      "needsCheck": false
+    },
+    {
+      "name": "ROLO COZ PACK FAM CNT 4=8",
+      "quantity": "1",
+      "unitPrice": "2.19",
+      "lineTotal": "2.19",
+      "needsCheck": false
+    },
+    {
+      "name": "FRANGO S/O BBQ",
+      "quantity": "2",
+      "unitPrice": "4.49",
+      "lineTotal": "8.98",
+      "needsCheck": false
+    },
+    {
+      "name": "NOODLES RAMEN",
+      "quantity": "1",
+      "unitPrice": "2.50",
+      "lineTotal": "2.50",
+      "needsCheck": false
+    },
+    {
+      "name": "SACO SOLIDARIO ORIGENS",
+      "quantity": "1",
+      "unitPrice": "1.50",
+      "lineTotal": "1.50",
+      "needsCheck": false
+    }
+  ],
+  "warnings": [],
+  "check": "match"
+}
