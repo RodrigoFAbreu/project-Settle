@@ -2,17 +2,38 @@
 
 ## Milestone
 
-None active. M5 (Balances and settling up) was accepted on 2026-10-11;
-the next roadmap milestone is **M6 — Export, import, backup and
-sharing**.
+None active. `lidl-layout-fixture` (Lidl receipt layout as a text fixture)
+was accepted on 2026-11-22; the next backlog item is `milestone-5-5`,
+**M5.5 Self-hosted central storage**.
+
+## Last completed: lidl-layout-fixture — Lidl receipt layout as a text fixture
+
+One invented whole-receipt text fixture of the Lidl layout
+(`26-pt-lidl-desconto-sublinhado`), so the existing fixture test guards it.
+No app code changes. Accepted on 2026-11-22.
+
+- **CP1:** `.txt` and `.expected.json` added under
+  `app/src/features/receipt/fixtures/text/`. The expected file is the parser's
+  output, checked by hand: seven items summing to the total 34,66, no warnings.
+  `typecheck`, `lint`, `format:check` and `npm test` pass (1681 tests); a
+  changed price in the `.txt` makes the case fail, and reverting the v0.7.3
+  parser fix makes only this case fail.
+- **Optional findings:** four, all dropped with reasons. Two note that a text
+  fixture cannot guard the v0.7.4 PDF text-layer fix or the v0.7.5 lost-name
+  weighed-line fix (both have their own unit tests); two note that the
+  invented tax table does not reconcile with the items (the parser ignores
+  it). See `docs/milestones/completed/lidl-layout-fixture-findings.md`.
+- **Plan:** archived at `docs/milestones/completed/lidl-layout-fixture-PLAN.md`.
 
 ## Next action
 
-`/milestone-plan` for M6, after PR #13 (M5) is merged into `master`:
-then `git switch master && git pull` and
-`git switch -c feature/milestone-6`.
+`/milestone-plan` takes the next backlog item: `milestone-5-5`, **M5.5
+Self-hosted central storage** (`docs/items/milestone-5-5.md`). Split it into
+slices before the first plan; each slice is one milestone. From an up-to-date
+`main` (`git switch main && git pull`), the Controller binds
+`feature/milestone-5-5` itself.
 
-## Last completed: M5 — Balances and settling up
+## Before that: M5 — Balances and settling up
 
 Settle tells a household who owes whom, exactly, and makes settling up
 one press away. Balances are derived from the ledger each time and are
@@ -97,12 +118,13 @@ None.
 
 ## Active plan
 
-None. M5's plan is archived at
-`docs/milestones/completed/milestone-5-PLAN.md`.
+None. The last plan, `lidl-layout-fixture`'s, is archived at
+`docs/milestones/completed/lidl-layout-fixture-PLAN.md`.
 
 ## Functional review checklist
 
-None. M5's round-1 checklist is in commit `e63f550`.
+None active. The last checklist (`lidl-layout-fixture`) is in this file's
+history, in commit `82623d9`.
 
 <!--
 This file is `workflow_state.FUNCTIONAL_CHECKLIST_PATH`. It is
