@@ -11,7 +11,7 @@
 | 5 | Design foundations `milestone-3` | Done | - | - |
 | 6 | Households, members and the expense ledger `milestone-4` | Done | - | - |
 | 7 | Balances and settling up `milestone-5` | Done | - | - |
-| 8 | [Lidl receipt layout as a text fixture](items/lidl-layout-fixture.md) `lidl-layout-fixture` | Next | 1 | - |
+| 8 | [Lidl receipt layout as a text fixture](items/lidl-layout-fixture.md) `lidl-layout-fixture` | Done | 1 | - |
 | 9 | [M5.5 Self-hosted central storage](items/milestone-5-5.md) `milestone-5-5` | Next | - | - |
 | 10 | M6 Export, import, backup and sharing `milestone-6` | Idea | - | - |
 | 11 | M7 Installable PWA and public deployment `milestone-7` | Idea | - | - |

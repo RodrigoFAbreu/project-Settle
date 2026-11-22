@@ -71,8 +71,14 @@ owner with `/adopt-gate-policy`. These rules apply to every job:
 - **Findings.** Check each Optional finding against the code and give it a
   disposition before acceptance: `fixed` (only if code or tests changed),
   `dropped` with a reason, or `follow-up` with a link to a `docs/items/` page.
-- **Real receipts never enter Git.** Fixtures are invented; real receipts stay
-  in the git-ignored `app/src/features/receipt/fixtures/local/`.
+- **Real receipts stay out of Git unless the owner approves a redacted copy.**
+  Fixtures are invented, and real receipts stay in the git-ignored
+  `app/src/features/receipt/fixtures/local/`. A real receipt goes into the
+  committed corpus only with the owner's explicit say-so, after the payment
+  block and any customer data are removed (card digits and tokens,
+  authorisation, terminal and establishment ids, customer tax and
+  loyalty-card numbers), and the redacted file has been checked in its text
+  layer and its internals, not only by eye.
 - **Schema changes.** A fresh install skips upgrades, so any change to stored
   data needs a migration step and an upgrade check against a copy of real data.
 - **Testing.** The app's checks run in `app/` (`npm run typecheck`, `lint`,
