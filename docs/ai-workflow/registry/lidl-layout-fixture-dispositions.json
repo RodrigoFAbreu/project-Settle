@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "work_item_id": "lidl-layout-fixture",
+  "dispositions": {
+    "F-05b29b7bf5b7": {
+      "disposition": "dropped",
+      "reason": "Wording only: the plan's Goal could name the coverage boundary. A text fixture does reach the assembled receipt text, not the PDF fragment ordering in pdfTextLines.ts, and that ordering is already guarded by its own unit test (pdfTextLines.test.ts, 'reads a name overprinted by an amount at the same position before the amount'). The item's deliverable is unchanged."
+    },
+    "F-28ee1c2b0b8e": {
+      "disposition": "dropped",
+      "reason": "The Goal overstates what a text fixture covers: it guards the v0.7.3 underline fix and the parser's handling of the whole layout, not v0.7.4 (the PDF text-layer fix in pdfTextLines.ts) or v0.7.5 (a weighed line whose name was not read). Both are already guarded by unit tests on main (pdfTextLines.test.ts and parseReceiptText.test.ts, 'keeps the price of an item above a weighed line whose name was not read'). No change to the delivered fixture."
+    },
+    "F-53fa513d5b69": {
+      "disposition": "dropped",
+      "reason": "The invented tax table's A row does not reconcile with the A-coded items. The parser ignores the table and the expected output does not depend on it. Editing the fixture now would stale the approved bundle for no behavioural benefit."
+    },
+    "F-eb2ab94ee72c": {
+      "disposition": "dropped",
+      "reason": "The invented tax table (A 6%) does not match the receipt and lacks the B, C and F rows. The parser ignores the table, so the expected output is unaffected. Same reason as F-53fa513d5b69: changing the fixture would stale the approved bundle for no behavioural benefit."
+    }
+  }
+}

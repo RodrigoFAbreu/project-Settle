@@ -34,7 +34,7 @@ items:
     order: 7
   - id: lidl-layout-fixture
     title: "Lidl receipt layout as a text fixture"
-    status: next
+    status: done
     order: 8
     size: 1
     detail: docs/items/lidl-layout-fixture.md

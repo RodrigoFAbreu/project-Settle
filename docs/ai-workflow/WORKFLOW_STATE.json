@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": "lidl-layout-fixture",
+  "active_work_item_id": null,
   "work_items": {
     "milestone-0": {
       "work_item_type": "product",
@@ -5313,7 +5313,7 @@
       "registry_path": "docs/ai-workflow/registry/lidl-layout-fixture-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/lidl-layout-fixture-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_FUNCTIONAL_REVIEW",
+      "phase": "MILESTONE_COMPLETE",
       "plan_revision": 1,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -5418,8 +5418,8 @@
           "external": 1
         }
       },
-      "state_revision": 12,
-      "last_transition": "2026-11-21T20:23:24Z",
+      "state_revision": 13,
+      "last_transition": "2026-11-22T19:01:07Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
