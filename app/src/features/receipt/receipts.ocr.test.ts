@@ -45,10 +45,12 @@ async function loadSamples(): Promise<Sample[]> {
     names.map(async (name) => {
       const file = files.find(
         (candidate) =>
-          candidate === `${name}.png` || candidate === `${name}.pdf`,
+          candidate === `${name}.png` ||
+          candidate === `${name}.jpg` ||
+          candidate === `${name}.pdf`,
       )
       if (file === undefined) {
-        throw new Error(`Sample ${name} has no .png or .pdf`)
+        throw new Error(`Sample ${name} has no .png, .jpg or .pdf`)
       }
       const expected = JSON.parse(
         await readFile(path.join(CORPUS, `${name}.expected.json`), 'utf8'),
@@ -130,7 +132,11 @@ describe('the sample receipt corpus (real OCR, offline)', () => {
     '$name',
     async ({ file, expected }) => {
       const bytes = await readFile(path.join(CORPUS, file))
-      const type = file.endsWith('.pdf') ? 'application/pdf' : 'image/png'
+      const type = file.endsWith('.pdf')
+        ? 'application/pdf'
+        : file.endsWith('.jpg')
+          ? 'image/jpeg'
+          : 'image/png'
       let n = 0
       const currentBill = createBill(['p1', 'p2', 'old-item'])
       const result = await importReceipt(
