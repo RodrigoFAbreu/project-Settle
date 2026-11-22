@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "work_item_id": "lidl-layout-fixture",
+  "requirements": {
+    "REQ-1": {
+      "description": "One invented whole-receipt text fixture of the Lidl layout, with its expected file, parsed by the existing fixture test; no app code, no other fixture; items sum to the total",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    }
+  }
+}

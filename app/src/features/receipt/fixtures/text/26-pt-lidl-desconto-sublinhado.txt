@@ -1,0 +1,24 @@
+Mercado Exemplo Lda
+Rua das Amostras 12
+1000-001 Lisboa
+NIF 500123454
+Fatura Simplificada FS 2026/12345
+2026-10-14 18:42
+Descrição EUR
+Leite Meio Gordo 1L 0,89 A
+Iogurte Natural 1,29 A
+Promoção Lidl Plus -0,80
+------------
+Pão de Forma 1,59 B
+Azeite Virgem Extra 5,49 C
+Desconto Cartão -0,50
+Deposito 0.10 0,10 x 2 0,20 F
+Bananas 3,12 A
+0,390 kg x 7,99 EUR/kg
+Detergente Roupa 11,69 x 2 23,38 B
+------------
+Total 34,66
+MULTIBANCO 34,66
+Taxa Base Imp. Val.Total Val.IVA
+A 6% 2,06 0,12 2,18
+Total Poupança 1,30
