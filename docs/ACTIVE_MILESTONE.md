@@ -3,8 +3,8 @@
 ## Milestone
 
 None active. `lidl-layout-fixture` (Lidl receipt layout as a text fixture)
-was accepted on 2026-11-22; the next backlog item is `milestone-5-5`,
-**M5.5 Self-hosted central storage**.
+was accepted on 2026-11-22; the next backlog item is `ss-01-adr`, the first
+slice of **M5.5 Self-hosted central storage** (14 slices, `docs/items/milestone-5-5.md`).
 
 ## Last completed: lidl-layout-fixture — Lidl receipt layout as a text fixture
 
@@ -27,11 +27,12 @@ No app code changes. Accepted on 2026-11-22.
 
 ## Next action
 
-`/milestone-plan` takes the next backlog item: `milestone-5-5`, **M5.5
-Self-hosted central storage** (`docs/items/milestone-5-5.md`). Split it into
-slices before the first plan; each slice is one milestone. From an up-to-date
-`main` (`git switch main && git pull`), the Controller binds
-`feature/milestone-5-5` itself.
+`/milestone-plan` takes the next backlog item: `ss-01-adr`, the ADR that records
+the self-hosted storage decisions. M5.5 is cut into slices (`ss-01` to `ss-14`,
+`docs/items/milestone-5-5.md`); the Controller takes them in order, each is one
+milestone and one squash PR. Run it from an up-to-date `main`
+(`git switch main && git pull`); the Controller binds the milestone branch
+itself. `ss-14-deploy-homelab` is homelab-gitops work, not a Controller item.
 
 ## Before that: M5 — Balances and settling up
 

@@ -38,16 +38,107 @@ items:
     order: 8
     size: 1
     detail: docs/items/lidl-layout-fixture.md
-  - id: milestone-5-5
-    title: "M5.5 Self-hosted central storage"
+  - id: ss-01-adr
+    title: "Record the self-hosted storage decisions (ADR 0007)"
     status: next
     order: 9
-    detail: docs/items/milestone-5-5.md
+    size: 1
+    detail: docs/items/ss-01-adr.md
+  - id: ss-02-store-interface
+    title: "Put the ledger behind a store interface"
+    status: next
+    order: 10
+    depends_on: [ss-01-adr]
+    size: 3
+    detail: docs/items/ss-02-store-interface.md
+  - id: ss-03-shared-domain
+    title: "Share the domain types and validators in one package"
+    status: next
+    order: 11
+    depends_on: [ss-02-store-interface]
+    size: 3
+    detail: docs/items/ss-03-shared-domain.md
+  - id: ss-04-server-skeleton
+    title: "Add the server skeleton with a health endpoint"
+    status: next
+    order: 12
+    depends_on: [ss-03-shared-domain]
+    size: 2
+    detail: docs/items/ss-04-server-skeleton.md
+  - id: ss-05-server-image
+    title: "Publish the server image"
+    status: next
+    order: 13
+    depends_on: [ss-04-server-skeleton]
+    size: 2
+    detail: docs/items/ss-05-server-image.md
+  - id: ss-06-db-schema
+    title: "Add the PostgreSQL schema and migration runner"
+    status: next
+    order: 14
+    depends_on: [ss-04-server-skeleton]
+    size: 3
+    detail: docs/items/ss-06-db-schema.md
+  - id: ss-07-api-read
+    title: "Serve the ledger's read endpoints"
+    status: next
+    order: 15
+    depends_on: [ss-06-db-schema, ss-03-shared-domain]
+    size: 2
+    detail: docs/items/ss-07-api-read.md
+  - id: ss-08-api-write-households
+    title: "Add write endpoints for households and members"
+    status: next
+    order: 16
+    depends_on: [ss-07-api-read]
+    size: 2
+    detail: docs/items/ss-08-api-write-households.md
+  - id: ss-09-api-write-ledger
+    title: "Add write endpoints for expenses and settlements"
+    status: next
+    order: 17
+    depends_on: [ss-08-api-write-households]
+    size: 3
+    detail: docs/items/ss-09-api-write-ledger.md
+  - id: ss-10-http-store
+    title: "Add an HTTP ledger store to the app"
+    status: next
+    order: 18
+    depends_on: [ss-02-store-interface, ss-09-api-write-ledger]
+    size: 3
+    detail: docs/items/ss-10-http-store.md
+  - id: ss-11-store-selection
+    title: "Let a self-hosted deployment choose the server store"
+    status: next
+    order: 19
+    depends_on: [ss-10-http-store, ss-05-server-image]
+    size: 2
+    detail: docs/items/ss-11-store-selection.md
+  - id: ss-12-import-local
+    title: "Import this device's data into the server"
+    status: next
+    order: 20
+    depends_on: [ss-11-store-selection, ss-09-api-write-ledger]
+    size: 3
+    detail: docs/items/ss-12-import-local.md
+  - id: ss-13-two-browsers-e2e
+    title: "Drive two browsers against one server end to end"
+    status: next
+    order: 21
+    depends_on: [ss-12-import-local]
+    size: 2
+    detail: docs/items/ss-13-two-browsers-e2e.md
+  - id: ss-14-deploy-homelab
+    title: "Deploy the server and PostgreSQL on the homelab"
+    status: idea
+    order: 22
+    depends_on: [ss-05-server-image, ss-13-two-browsers-e2e]
+    detail: docs/items/ss-14-deploy-homelab.md
   - id: milestone-6
     title: "M6 Export, import, backup and sharing"
     status: idea
-    order: 10
+    order: 23
   - id: milestone-7
     title: "M7 Installable PWA and public deployment"
     status: idea
-    order: 11
+    order: 24
