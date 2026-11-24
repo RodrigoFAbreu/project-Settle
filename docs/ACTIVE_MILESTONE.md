@@ -128,8 +128,41 @@ None. The last plan, `lidl-layout-fixture`'s, is archived at
 
 ## Functional review checklist
 
-None active. The last checklist (`lidl-layout-fixture`) is in this file's
-history, in commit `82623d9`.
+Item `ss-01-adr` (docs only; no app code, no build, no network, no `gh`).
+Every flow below runs offline from the repository checkout and writes nothing.
+
+**Setup:** branch `feature/ss-01-adr`, clean tree. Nothing to install for the
+reading flows; flow 4 needs `app/` dependencies (`npm ci` already done).
+
+**Test data:** none.
+
+**Flows**
+
+1. **The ADR is complete.** Open `docs/adr/0007-self-hosted-ledger-store.md`.
+   Expected: Context, 11 numbered Decisions, Slices, Consequences and
+   "What this ADR does not decide". Decisions 1-4 are labelled `(owner)`
+   (PostgreSQL, TypeScript server on Node, one image/one origin, online-only
+   with 409 on a stale write); decisions 5-11 are labelled `(proposal)`
+   (API under `/api/v1`, client ids and server versions, ADR 0005's write
+   contract kept, shared vs per-device data, store selection, room for
+   sign-in, data protection).
+2. **Online-only error path.** In decision 9, an invalid JSON store config
+   leads to the online-only error, not a silent fallback to local storage.
+3. **Roadmap points at the ADR.** In `docs/ROADMAP.md`, the M5.5 section's
+   "Decided (owner, 2026-11-23)" line links to `adr/0007-self-hosted-ledger-store.md`
+   and the link resolves; "Recorded in ADR 0007" lists the API shape, shared
+   vs per device, store selection, sign-in room, data protection, M6/M14.
+4. **Automated checks (optional re-run).** In `app/`: `npm run typecheck`,
+   `npm run lint`, `npm run format:check`, `npm test`. Expected: all pass
+   (1685 tests, 1 skipped); the diff touches no `app/` files.
+5. **Scope.** `git diff 286ba9c..HEAD --stat` outside `docs/ai-workflow` and
+   `.ai-review` shows only `ACTIVE_MILESTONE.md`, `ROADMAP.md`, the ADR and
+   `docs/milestones/ss-01-adr-PLAN.md`.
+
+**Known limitations / out of scope:** the ADR records decisions only. No
+server, API, schema, deployment or app change exists yet; those are slices
+`ss-02` to `ss-14`. Decisions marked `(proposal)` are open to the owner's
+change in review.
 
 <!--
 This file is `workflow_state.FUNCTIONAL_CHECKLIST_PATH`. It is
