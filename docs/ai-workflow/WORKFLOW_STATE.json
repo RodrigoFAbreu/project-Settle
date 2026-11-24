@@ -5518,12 +5518,12 @@
       "registry_path": "docs/ai-workflow/registry/ss-01-adr-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/ss-01-adr-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "APPLYING_REVIEW_FEEDBACK",
+      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
       "plan_revision": 2,
-      "implementation_revision": 1,
+      "implementation_revision": 2,
       "functional_review_round": null,
       "base_commit": "286ba9c8419280ddf7e0b8b06304a8e40b85a93d",
-      "reviewed_implementation_head": "ca5951f756002b41d1e852d1e11ad199df7ab7cb",
+      "reviewed_implementation_head": "ca57098bfaa00c5408d515107cf9a75467d8849e",
       "current_checkpoint_id": null,
       "last_completed_checkpoint_id": "CP1",
       "checkpoints": {
@@ -5658,8 +5658,8 @@
           "external": 0
         }
       },
-      "state_revision": 13,
-      "last_transition": "2026-11-24T11:17:23Z",
+      "state_revision": 14,
+      "last_transition": "2026-11-24T11:34:23Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
