@@ -23,7 +23,7 @@ must keep working unchanged. This ADR is the one place that says how the
 server, the API and the app fit together; each slice below builds to it.
 
 Decisions 1 to 4 were made by the owner on 2026-11-23 and are recorded as
-given. Decisions 5 to 10 are **proposals** with reasons; the owner reviews
+given. Decisions 5 to 11 are **proposals** with reasons; the owner reviews
 them in this pull request, and merging it accepts them.
 
 ## Decisions
@@ -113,18 +113,23 @@ server's (`ss-02`, `ss-10`).
 
 ### 9. How the app learns which store to use (proposal)
 
-The server serves a small `settle-config.json` naming the store (for
-example `{"store":"server"}` plus a format version). The rule is stated by
-the response, not by a status: **server mode applies only on a 200
-`application/json` body that validates.** Every other answer means
-local-first: a 404, the `index.html` the static image returns with 200
-`text/html` (`container/nginx.conf`'s `location /` has
-`try_files $uri /index.html`, and ADR 0001 D11 requires the same SPA
-fallback on every static host), or any body that is not that JSON.
+The server serves a small `settle-config.json` at the site root
+(`/settle-config.json`) naming the store (for example
+`{"store":"server"}` plus a format version). The rule is stated by the
+response, not by a status: **server mode applies only on a 200
+`application/json` body that validates.** Local-first applies only to an
+answer that proves there is no server: a 404, or a non-JSON body such as
+the `index.html` the static image returns with 200 `text/html`
+(`container/nginx.conf`'s `location /` has `try_files $uri /index.html`,
+and ADR 0001 D11 requires the same SPA fallback on every static host).
 
-If the request itself fails (network error, 5xx) the app can't tell which
-deployment it is on, so it shows the online-only error and never falls back
-to an empty local ledger that would diverge from the server.
+Anything else means the app can't tell which deployment it is on, or knows
+it is on a server one it can't use, so it shows the online-only or
+configuration error and never falls back to an empty local ledger that
+would diverge from the server. That covers a network error, a 5xx, and a
+200 `application/json` body that fails validation, such as a config naming
+a format version this copy of the app doesn't know (only the server image
+answers with JSON).
 
 One release ZIP therefore runs both ways, with the CSP unchanged. Built by
 `ss-11`.
@@ -141,14 +146,16 @@ function is introduced with the server skeleton (`ss-04`).
 
 A server holds other people's financial data.
 
-- **What is stored:** everything the ledger records hold today (ADR 0005):
-  household and member names, each expense's description, category, date,
-  payer and shares, and each payment's amount, date and note. An itemised expense also
-  keeps its bill's line items, the receipt's shop name, shop tax number,
-  date and total, and a duplicate-receipt key built from the shop's tax
-  number and the fiscal document's id. No receipt images and no payment or
-  customer data from the receipt: receipt reading stays in the browser and
-  only that structured result is saved.
+- **What is stored:** what the ledger records hold today (ADR 0005):
+  household and member names, each member's joined and left dates, a
+  household's archive date, the records' created and updated timestamps,
+  each expense's description, category, date, payer and shares, and each
+  payment's amount, date and note. An itemised expense also keeps its
+  bill's line items, person names, tax, tip and discount, the receipt's
+  shop name, shop tax number, date and total, and a duplicate-receipt key
+  built from the shop's tax number and the fiscal document's id. No
+  receipt images and no payment or customer data from the receipt: receipt
+  reading stays in the browser and only that structured result is saved.
 - **Access control** is the network, until accounts exist. Anyone who can
   reach the deployment can read and change all of it.
 - **Backups** carry the same data and need the same care as the database.
