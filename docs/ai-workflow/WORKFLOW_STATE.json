@@ -5518,7 +5518,7 @@
       "registry_path": "docs/ai-workflow/registry/ss-01-adr-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/ss-01-adr-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "APPLYING_REVIEW_FEEDBACK",
       "plan_revision": 2,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -5654,12 +5654,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
+          "local": 1,
           "external": 0
         }
       },
-      "state_revision": 12,
-      "last_transition": "2026-11-24T10:51:18Z",
+      "state_revision": 13,
+      "last_transition": "2026-11-24T11:17:23Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -5792,6 +5792,76 @@
               "review_content_id": "32d55a0b1709b8b481857a70ebaf1d0effa552b0fd18d6a43b8e9166477792b0",
               "verdict": "APPROVE",
               "at": "2026-11-24T02:54:02Z"
+            }
+          ]
+        },
+        "F-f73293d9c285": {
+          "digest": "f73293d9c285edb3cdc58ccb8e7c02a9c6caff1e05d129ac804e0f83bbe23152",
+          "text": "`docs/adr/0007-self-hosted-ledger-store.md:26` says \"Decisions 5 to 10 are **proposals**\", but decision 11 is a proposal too (its heading says so). It should read \"5 to 11\".",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "a9dbb3b0555d7b4d298e2f5948812b54fccf786365f61db741dfa9c00293a21d",
+              "verdict": "REVISE",
+              "at": "2026-11-24T11:17:23Z"
+            }
+          ]
+        },
+        "F-b77109736df6": {
+          "digest": "b77109736df634b4d7cbf5e2966633a0eeef60e390ea9d982c63bc961168dbae",
+          "text": "Decision 11's \"What is stored\" says \"everything the ledger records hold today\" but leaves out a few fields that are about people: each member's joined and left dates (`model.ts` `Member.joinedOn`/`leftOn`), a household's archive date, the records' created and updated timestamps, and the bill's own person names, tax, tip and discount (`split/model.ts` `Bill`). Either list them or drop the word \"everything\".",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "a9dbb3b0555d7b4d298e2f5948812b54fccf786365f61db741dfa9c00293a21d",
+              "verdict": "REVISE",
+              "at": "2026-11-24T11:17:23Z"
+            }
+          ]
+        },
+        "F-fcfd485815f5": {
+          "digest": "fcfd485815f5af110e1ebe39f94f8e7f7b550dd3880833e6f2d5d2dc901d5cbc",
+          "text": "Decision 9 names `settle-config.json` but not its URL path. ss-11's page suggests `GET /api/config`. The path decides what the static image answers (`/` falls back to `index.html`, while other `location` blocks in `nginx.conf` answer 404), so naming it, e.g. `/settle-config.json` at the site root, would help ss-11 pick the right one. Both answers lead to local-first under the rule, so nothing breaks either way.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "a9dbb3b0555d7b4d298e2f5948812b54fccf786365f61db741dfa9c00293a21d",
+              "verdict": "REVISE",
+              "at": "2026-11-24T11:17:23Z"
+            }
+          ]
+        },
+        "F-9e15e16e6537": {
+          "digest": "9e15e16e65378556d6da34e7576fd4e5cccf94258991ecd24e6b6f1c77aca16e",
+          "text": "`docs/items/ss-11-store-selection.md` still tells ss-11 to \"Update ... ADR 0007's status\", but the approved plan and the ADR say no later slice has to change that line. The page is outside this item's write set. A follow-up could reword it so ss-11 doesn't change an Accepted status.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "a9dbb3b0555d7b4d298e2f5948812b54fccf786365f61db741dfa9c00293a21d",
+              "verdict": "REVISE",
+              "at": "2026-11-24T11:17:23Z"
+            }
+          ]
+        },
+        "F-06272cd07555": {
+          "digest": "06272cd075551633ff20b96444214a23cd3dcb70cb4353fd02ec2c0e2c4f1163",
+          "text": "Decision 6 leaves two cases open: what a `DELETE` of an already-deleted record answers (404 or 204), and whether the ss-12 import's \"a 409 whose current record equals the record sent\" compares the record without its `rev`. ss-12 uses a bulk `POST /api/v1/import` (its item page), so the per-record rule there is applied inside that endpoint. Stating these now would save ss-09/ss-12 a guess. Neither is wrong as written.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "a9dbb3b0555d7b4d298e2f5948812b54fccf786365f61db741dfa9c00293a21d",
+              "verdict": "REVISE",
+              "at": "2026-11-24T11:17:23Z"
             }
           ]
         }
