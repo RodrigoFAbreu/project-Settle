@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "work_item_id": "ss-01-adr",
+  "plan_revision": 2,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "ADR 0007: the self-hosted ledger store, and the roadmap pointer",
+      "depends_on": [],
+      "complexity": 1,
+      "session_target": 1
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "work_item_id": "ss-01-adr",
+  "requirements": {
+    "REQ-1": {
+      "description": "docs/adr/0007-self-hosted-ledger-store.md exists, in ADR 0005's style, recording the four owner decisions (PostgreSQL, TypeScript server sharing app code, one image on one origin, online-only with per-record version and 409)",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "REQ-2": {
+      "description": "The ADR settles the API shape, shared versus per-device data, how the app learns its store, room for authentication, and the data-protection note with its relation to M6 and M14",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "REQ-3": {
+      "description": "docs/ROADMAP.md's M5.5 section points at the ADR instead of listing the settled decisions; docs only, no code, schema or test",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    }
+  }
+}

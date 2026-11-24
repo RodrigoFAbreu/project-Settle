@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "ss-01-adr",
   "work_items": {
     "milestone-0": {
       "work_item_type": "product",
@@ -5506,6 +5506,289 @@
           "verdict": "APPROVE",
           "round": 1,
           "completed_at": "2026-11-20T19:02:14Z"
+        }
+      }
+    },
+    "ss-01-adr": {
+      "work_item_type": "product",
+      "work_item_kind": "product",
+      "work_item_id": "ss-01-adr",
+      "parent_work_item_id": null,
+      "plan_path": "docs/milestones/ss-01-adr-PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/ss-01-adr-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/ss-01-adr-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 2,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "286ba9c8419280ddf7e0b8b06304a8e40b85a93d",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "82acf63ae1e0f3433ae484da0aedd38a916a31a720f5ff503fa38ef9bb8d742a",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "82acf63ae1e0f3433ae484da0aedd38a916a31a720f5ff503fa38ef9bb8d742a",
+        "approved_review_content_id": "32d55a0b1709b8b481857a70ebaf1d0effa552b0fd18d6a43b8e9166477792b0",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/ss-01-adr-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b3da8fcc66f678ae7285f856cbf481850d0d0289"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/ss-01-adr-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "cb8a2ddccc31e9108cab308f3b6e5d96041fa151"
+          },
+          {
+            "path": "docs/milestones/ss-01-adr-PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d0a121d66ff755e1fdfa6425c420f792afa8393c"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-24T09:20:50Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "adopted",
+          "file_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+          "adopted_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+          "adopted_at": "2026-11-23T01:46:17Z",
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "32d55a0b1709b8b481857a70ebaf1d0effa552b0fd18d6a43b8e9166477792b0",
+            "ledger": {
+              "local": {
+                "bundle_id": "82acf63ae1e0f3433ae484da0aedd38a916a31a720f5ff503fa38ef9bb8d742a",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "2aeda9cfb4d347e59399f62b6dcbf9227868e0a8b394b661590dfc22e0973830",
+                "ledger_entry_sha256": "de9ef3a3eb4cae715372fb9f0537117a9f47411c6bb68a6f5860c4f5d3fadaa2",
+                "run_ref": "session:local .ai-review/ss-01-adr/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "82acf63ae1e0f3433ae484da0aedd38a916a31a720f5ff503fa38ef9bb8d742a",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "e94f831c1c30ca18ef0a0345fe9efd9cf9c817e6bcf2b20eb70609ba77f2dd3a",
+                "ledger_entry_sha256": "3a93c0ba0a224b189db48a6f37767f36abd5d0205b161dcd8cc9838391239186",
+                "run_ref": "codex:20261124T025222Z-0890b990",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-24T09:20:50Z",
+          "workflow_release": "2.29.10"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "32d55a0b1709b8b481857a70ebaf1d0effa552b0fd18d6a43b8e9166477792b0",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "82acf63ae1e0f3433ae484da0aedd38a916a31a720f5ff503fa38ef9bb8d742a",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-23T21:52:46Z",
+          "verdict_sha256": "2aeda9cfb4d347e59399f62b6dcbf9227868e0a8b394b661590dfc22e0973830",
+          "run_ref": "session:local .ai-review/ss-01-adr/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "82acf63ae1e0f3433ae484da0aedd38a916a31a720f5ff503fa38ef9bb8d742a",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-24T02:54:02Z",
+          "verdict_sha256": "e94f831c1c30ca18ef0a0345fe9efd9cf9c817e6bcf2b20eb70609ba77f2dd3a",
+          "run_ref": "codex:20261124T025222Z-0890b990",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 2,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 9,
+      "last_transition": "2026-11-24T09:20:50Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-23T18:17:32Z",
+        "consumed": {
+          "review_content_id": "ef49c67473791f7a1d9c3351471a49de3a65f2c2ab185a24d577d96c0c6be32a",
+          "plan_revision": 1,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "32d55a0b1709b8b481857a70ebaf1d0effa552b0fd18d6a43b8e9166477792b0",
+          "plan_revision": 2
+        },
+        "bound": {
+          "review_content_id": "32d55a0b1709b8b481857a70ebaf1d0effa552b0fd18d6a43b8e9166477792b0",
+          "bundle_id": "82acf63ae1e0f3433ae484da0aedd38a916a31a720f5ff503fa38ef9bb8d742a",
+          "plan_revision": 2
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "ef49c67473791f7a1d9c3351471a49de3a65f2c2ab185a24d577d96c0c6be32a"
+      ],
+      "optional_findings": {
+        "F-bb79826f8f32": {
+          "digest": "bb79826f8f324ff30690ff782f4c82e4581488fbb4bc13adcf0d2128a81c6c30",
+          "text": "The status line says \"`Proposed` until the owner merges\", but under `GATE_POLICY.json` `human_approval: false` the Controller merges the accepted commit itself. The ADR then sits on `main` as `Proposed` with nobody due to flip it, and ss-02..ss-14 build on a record that still reads as undecided. Say who changes it to `Accepted`, and when (for example, merged means accepted, or the first slice that builds on it flips it).",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "ef49c67473791f7a1d9c3351471a49de3a65f2c2ab185a24d577d96c0c6be32a",
+              "verdict": "REVISE",
+              "at": "2026-11-23T18:13:56Z"
+            }
+          ]
+        },
+        "F-4060d3cfbe36": {
+          "digest": "4060d3cfbe36620bda79cf2a3a0a1201bde2f3e538389945e8cd5a98eccc41c5",
+          "text": "Idempotent `PUT` and required `If-Match`/`If-None-Match: *` interact. Replaying the same `PUT`, or re-running the ss-12 import, answers 409 even though it changes nothing. The ADR could say that a 409 whose current record equals the record sent counts as success for the import, so a re-run import doesn't report every record as a conflict.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "ef49c67473791f7a1d9c3351471a49de3a65f2c2ab185a24d577d96c0c6be32a",
+              "verdict": "REVISE",
+              "at": "2026-11-23T18:13:56Z"
+            }
+          ]
+        },
+        "F-25e049a4e462": {
+          "digest": "25e049a4e462051d04e6bfa4e82ed68c7e4c54c93323e61431ff9af7a15eb17d",
+          "text": "The API section does not say the server keeps ADR 0005's write contract: references re-checked inside the write's transaction, and a member who is named by any expense or payment can't be deleted. It also gives no status code for a body that fails validation (for example 422 with a `code`). One sentence would give ss-08/ss-09 their contract.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "ef49c67473791f7a1d9c3351471a49de3a65f2c2ab185a24d577d96c0c6be32a",
+              "verdict": "REVISE",
+              "at": "2026-11-23T18:13:56Z"
+            }
+          ]
+        },
+        "F-61857ab9f0c4": {
+          "digest": "61857ab9f0c4cd4d9020d41b311583f9e2f89fec59537e6d129a84c98df9cdeb",
+          "text": "The plan's API section allows only `GET`/`PUT`/`DELETE` on nested resources and treats the import as repeated `PUT`s (\"a 409 whose current record equals the record sent counts as success for the ss-12 import\"). But `docs/items/ss-12-import-local.md` specifies a bulk `POST /api/v1/import` that writes in one transaction and reports conflicts. The ADR could name that endpoint and give it the same equal-record-is-success rule. Then the ss-12 planner doesn't find the ADR's verb list and its own backlog page disagreeing.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "32d55a0b1709b8b481857a70ebaf1d0effa552b0fd18d6a43b8e9166477792b0",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T21:52:46Z"
+            }
+          ]
+        },
+        "F-c29a9c7c2bcb": {
+          "digest": "c29a9c7c2bcba21223a9010f5848d5d0460bdcb29423f3ab49cf4222964de15b",
+          "text": "CP1 says the merge makes the ADR `Accepted` and \"no later slice has to flip it\". But `docs/items/ss-11-store-selection.md`'s Rules still say \"Update the README's storage section and ADR 0007's status.\" The ADR could say what ss-11 changes instead (for example, a line saying it is implemented). Otherwise ss-11 is asked to change a status that is already final.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "32d55a0b1709b8b481857a70ebaf1d0effa552b0fd18d6a43b8e9166477792b0",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T21:52:46Z"
+            }
+          ]
+        },
+        "F-f06b9fcae4ed": {
+          "digest": "f06b9fcae4edec333c22427f3f962356051bb5e90f674ec092060bfa632f0452",
+          "text": "On a static deployment, the \"network error, 5xx → online-only error\" rule means a passing host error shows the online-only error instead of the local ledger, until the user reloads. Today this is rare, because there is no service worker (ADR 0001 defers it to M8). Once M8 adds offline support, an offline local-first PWA would hit this on every launch. The ADR could note that M8's service worker must answer `settle-config.json` from its cache (or treat \"no network and no cached server config\" as local-first).",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "32d55a0b1709b8b481857a70ebaf1d0effa552b0fd18d6a43b8e9166477792b0",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T21:52:46Z"
+            }
+          ]
+        },
+        "F-0907fa584356": {
+          "digest": "0907fa584356204a9d743b31a9786dd85f68137d95895050ed0030758abb29d3",
+          "text": "The API decision could explicitly include ss-12’s bulk `POST /api/v1/import`, its single transaction, and its conflict reporting. The plan currently explains import idempotency through individual `PUT` responses; naming the bulk endpoint would give later slices a clearer shared contract.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "32d55a0b1709b8b481857a70ebaf1d0effa552b0fd18d6a43b8e9166477792b0",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T02:54:02Z"
+            }
+          ]
+        },
+        "F-47d158b89ebc": {
+          "digest": "47d158b89ebc05ad9e01a934e6abbac82816aba0faa9714fb58f1183fb3745d7",
+          "text": "Clarify that “Every other answer means local-first” excludes 5xx responses. The following sentence correctly assigns 5xx to the online-only error, but stating the exception directly would avoid two readings.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "32d55a0b1709b8b481857a70ebaf1d0effa552b0fd18d6a43b8e9166477792b0",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T02:54:02Z"
+            }
+          ]
         }
       }
     }
