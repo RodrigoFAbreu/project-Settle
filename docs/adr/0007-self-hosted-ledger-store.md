@@ -141,8 +141,14 @@ function is introduced with the server skeleton (`ss-04`).
 
 A server holds other people's financial data.
 
-- **What is stored:** names, amounts and dates. No receipt images: receipt
-  reading stays in the browser and only the structured result is saved.
+- **What is stored:** everything the ledger records hold today (ADR 0005):
+  household and member names, each expense's description, category, date,
+  payer and shares, and each payment's amount, date and note. An itemised expense also
+  keeps its bill's line items, the receipt's shop name, shop tax number,
+  date and total, and a duplicate-receipt key built from the shop's tax
+  number and the fiscal document's id. No receipt images and no payment or
+  customer data from the receipt: receipt reading stays in the browser and
+  only that structured result is saved.
 - **Access control** is the network, until accounts exist. Anyone who can
   reach the deployment can read and change all of it.
 - **Backups** carry the same data and need the same care as the database.
