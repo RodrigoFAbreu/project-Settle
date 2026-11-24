@@ -5518,7 +5518,7 @@
       "registry_path": "docs/ai-workflow/registry/ss-01-adr-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/ss-01-adr-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 2,
       "implementation_revision": 2,
       "functional_review_round": null,
@@ -5623,7 +5623,90 @@
           "workflow_release": "2.29.10"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "edff35fc688d222b16f09432834a46a69dbbf852d5f67b0ecabffee256464c49",
+        "approved_review_content_id": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+        "review_content_manifest": [
+          {
+            "path": "docs/adr/0007-self-hosted-ledger-store.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "796fee8e98975e4270279dacb3aabb745718dd78"
+          },
+          {
+            "path": "docs/ai-workflow/registry/ss-01-adr-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "60769b636b0cee19620134111c6466c7cdf80457"
+          }
+        ],
+        "reviewed_content_commit": "ca57098bfaa00c5408d515107cf9a75467d8849e",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-24T13:05:39Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "adopted",
+          "file_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+          "adopted_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+          "adopted_at": "2026-11-23T01:46:17Z",
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+            "ledger": {
+              "local": {
+                "bundle_id": "edff35fc688d222b16f09432834a46a69dbbf852d5f67b0ecabffee256464c49",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "672ed8bde020112ab9a805290a6dfd93dca2aa9b1490d675afa644ab8a977376",
+                "ledger_entry_sha256": "e5bebc576403815c53e63d329f426c8a4e1bd5973b8c271189aa96578aa0cf8b",
+                "run_ref": "session:local .ai-review/ss-01-adr/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "edff35fc688d222b16f09432834a46a69dbbf852d5f67b0ecabffee256464c49",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "507c59d63aa0f74847cb381b013e17247f8b934f65a713de4f11e998da8db10d",
+                "ledger_entry_sha256": "44d8a3f961f3545fcd507d9979eda7f58b884410e6c52517918e28ddc4311cda",
+                "run_ref": "codex:20261124T121808Z-2fa7f4af",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-24T13:05:39Z",
+          "workflow_release": "2.29.10"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "32d55a0b1709b8b481857a70ebaf1d0effa552b0fd18d6a43b8e9166477792b0",
@@ -5654,12 +5737,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 1,
-          "external": 0
+          "local": 2,
+          "external": 1
         }
       },
-      "state_revision": 14,
-      "last_transition": "2026-11-24T11:34:23Z",
+      "state_revision": 17,
+      "last_transition": "2026-11-24T13:05:39Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -5864,6 +5947,97 @@
               "at": "2026-11-24T11:17:23Z"
             }
           ]
+        },
+        "F-1ec434d9e4dc": {
+          "digest": "1ec434d9e4dce7b2a39ba5792d548e4e9935c0e83da28fc7d6860241c12b3465",
+          "text": "Decision 9 says \"a non-JSON body\" without saying whether that is judged by `Content-Type` or by parsing. A 200 `application/json` whose body doesn't parse belongs with \"fails validation\" (the error), and a `text/html` body belongs with local-first. Saying \"a body whose `Content-Type` is not `application/json`\" would leave ss-11 nothing to guess. Today's wording already gives the safe reading.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T11:45:19Z"
+            }
+          ]
+        },
+        "F-b7215ca28f16": {
+          "digest": "b7215ca28f16c9dfb02eb6860cbd67ad37eecd3efc670fc624fda58ebef7e51a",
+          "text": "The approved plan's \"Which store\" bullet (`docs/milestones/ss-01-adr-PLAN.md`) still says \"any body that is not that JSON\" means local-first, while the ADR now sends an invalid JSON config to the error. The ADR is the record later slices read, and the change serves the plan's own \"never falls back to an empty local ledger\" sentence, so this is bookkeeping only.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T11:45:19Z"
+            }
+          ]
+        },
+        "F-0c76c0bba0a0": {
+          "digest": "0c76c0bba0a0ec055649b7c286056ad032b24f4d79b633cf464cf539713e8d5b",
+          "text": "Carried over from round 1, still open: Decision 6 doesn't say what a `DELETE` of an already-deleted record answers (404 or 204), or whether the ss-12 \"a 409 whose current record equals the record sent\" comparison leaves out `rev`. ss-09 and ss-12 can settle these themselves. Neither is wrong as written.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T11:45:19Z"
+            }
+          ]
+        },
+        "F-cb09e594f96f": {
+          "digest": "cb09e594f96f763ba30724065e5ffb6cc4d3f0ab7ab779d84ad53f87020f3085",
+          "text": "Carried over from round 1, outside this item's write set: `docs/items/ss-11-store-selection.md` still suggests `GET /api/config` and tells ss-11 to \"Update ... ADR 0007's status\". The ADR now names `/settle-config.json` and says no later slice flips the status. A follow-up could reword that page.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T11:45:19Z"
+            }
+          ]
+        },
+        "F-cc918c5ff12d": {
+          "digest": "cc918c5ff12d65244828763cec4ea796c2a2e33f5c23e1c1da64b4f533630d71",
+          "text": "`docs/adr/0007-self-hosted-ledger-store.md:120–130`: explicitly state that 5xx handling takes precedence over the non-JSON fallback. An HTML 503 matches both descriptions. The intended error behavior is already stated; clarifying the order would help ss-11 implement it consistently.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T12:19:38Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "edff35fc688d222b16f09432834a46a69dbbf852d5f67b0ecabffee256464c49",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-24T11:45:19Z",
+          "verdict_sha256": "672ed8bde020112ab9a805290a6dfd93dca2aa9b1490d675afa644ab8a977376",
+          "run_ref": "session:local .ai-review/ss-01-adr/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "edff35fc688d222b16f09432834a46a69dbbf852d5f67b0ecabffee256464c49",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-24T12:19:38Z",
+          "verdict_sha256": "507c59d63aa0f74847cb381b013e17247f8b934f65a713de4f11e998da8db10d",
+          "run_ref": "codex:20261124T121808Z-2fa7f4af",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
