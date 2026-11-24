@@ -2,9 +2,13 @@
 
 ## Milestone
 
-None active. `lidl-layout-fixture` (Lidl receipt layout as a text fixture)
-was accepted on 2026-11-22; the next backlog item is `ss-01-adr`, the first
-slice of **M5.5 Self-hosted central storage** (14 slices, `docs/items/milestone-5-5.md`).
+**Active: `ss-01-adr`** — Record the self-hosted storage decisions (ADR 0007),
+the first slice of **M5.5 Self-hosted central storage** (14 slices,
+`docs/items/milestone-5-5.md`). Docs only, one checkpoint.
+
+- **CP1 (complete):** `docs/adr/0007-self-hosted-ledger-store.md` written and
+  `docs/ROADMAP.md`'s M5.5 section now points at it. `typecheck`, `lint`,
+  `format:check` and `npm test` pass (1685 tests, 1 skipped).
 
 ## Last completed: lidl-layout-fixture — Lidl receipt layout as a text fixture
 
