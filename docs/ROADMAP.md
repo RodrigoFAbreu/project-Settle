@@ -626,15 +626,10 @@ reach the deployment can read and change all of its data, so the deployment
 stays on a private network. The API should leave room for an identity on
 every request, so adding sign-in later is not a rewrite.
 
-**Decided (owner, 2026-11-23)**
-- PostgreSQL on the cluster, with the homelab's existing charts and backup tooling.
-- A TypeScript server on Node that shares the app's record types, validators and money module.
-- One server image serving the built site and `/api` on the same origin, with PostgreSQL as its own
-  workload; the static nginx image stays for local-first deployments.
-- Online-only in server mode: every record carries a version, a stale write is rejected (409) and the app
-  reloads it; no offline queue in the first version.
+**Decided (owner, 2026-11-23)**: see [ADR 0007](adr/0007-self-hosted-ledger-store.md), which records the
+database, the server, the deployment shape and online-only editing.
 
-**Settled by ADR 0007 (the first slice)**: the API's shape, what is shared versus per device, how the app
+**Recorded in ADR 0007 (the first slice)**: the API's shape, what is shared versus per device, how the app
 learns which store to use, room for sign-in later, the data-protection note, and the relation to M6 and M14.
 
 The milestone is cut into slices (`docs/items/milestone-5-5.md`; backlog ids `ss-01` to `ss-14`).

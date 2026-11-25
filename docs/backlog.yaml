@@ -40,7 +40,7 @@ items:
     detail: docs/items/lidl-layout-fixture.md
   - id: ss-01-adr
     title: "Record the self-hosted storage decisions (ADR 0007)"
-    status: next
+    status: done
     order: 9
     size: 1
     detail: docs/items/ss-01-adr.md

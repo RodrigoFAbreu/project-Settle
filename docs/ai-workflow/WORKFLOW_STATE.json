@@ -5508,6 +5508,776 @@
           "completed_at": "2026-11-20T19:02:14Z"
         }
       }
+    },
+    "ss-01-adr": {
+      "work_item_type": "product",
+      "work_item_kind": "product",
+      "work_item_id": "ss-01-adr",
+      "parent_work_item_id": null,
+      "plan_path": "docs/milestones/ss-01-adr-PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/ss-01-adr-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/ss-01-adr-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "MILESTONE_COMPLETE",
+      "plan_revision": 2,
+      "implementation_revision": 2,
+      "functional_review_round": null,
+      "base_commit": "286ba9c8419280ddf7e0b8b06304a8e40b85a93d",
+      "reviewed_implementation_head": "ca57098bfaa00c5408d515107cf9a75467d8849e",
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": "CP1",
+      "checkpoints": {
+        "CP1": {
+          "status": "COMPLETE",
+          "start_commit": "2249aefde1813528c625466e3db8b5e9a8f09b2e"
+        }
+      },
+      "current_bundle_id": "82acf63ae1e0f3433ae484da0aedd38a916a31a720f5ff503fa38ef9bb8d742a",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "82acf63ae1e0f3433ae484da0aedd38a916a31a720f5ff503fa38ef9bb8d742a",
+        "approved_review_content_id": "32d55a0b1709b8b481857a70ebaf1d0effa552b0fd18d6a43b8e9166477792b0",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/ss-01-adr-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b3da8fcc66f678ae7285f856cbf481850d0d0289"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/ss-01-adr-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "cb8a2ddccc31e9108cab308f3b6e5d96041fa151"
+          },
+          {
+            "path": "docs/milestones/ss-01-adr-PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d0a121d66ff755e1fdfa6425c420f792afa8393c"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-24T09:20:50Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "adopted",
+          "file_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+          "adopted_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+          "adopted_at": "2026-11-23T01:46:17Z",
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "32d55a0b1709b8b481857a70ebaf1d0effa552b0fd18d6a43b8e9166477792b0",
+            "ledger": {
+              "local": {
+                "bundle_id": "82acf63ae1e0f3433ae484da0aedd38a916a31a720f5ff503fa38ef9bb8d742a",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "2aeda9cfb4d347e59399f62b6dcbf9227868e0a8b394b661590dfc22e0973830",
+                "ledger_entry_sha256": "de9ef3a3eb4cae715372fb9f0537117a9f47411c6bb68a6f5860c4f5d3fadaa2",
+                "run_ref": "session:local .ai-review/ss-01-adr/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "82acf63ae1e0f3433ae484da0aedd38a916a31a720f5ff503fa38ef9bb8d742a",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "e94f831c1c30ca18ef0a0345fe9efd9cf9c817e6bcf2b20eb70609ba77f2dd3a",
+                "ledger_entry_sha256": "3a93c0ba0a224b189db48a6f37767f36abd5d0205b161dcd8cc9838391239186",
+                "run_ref": "codex:20261124T025222Z-0890b990",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-24T09:20:50Z",
+          "workflow_release": "2.29.10"
+        }
+      },
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "edff35fc688d222b16f09432834a46a69dbbf852d5f67b0ecabffee256464c49",
+        "approved_review_content_id": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+        "review_content_manifest": [
+          {
+            "path": "docs/adr/0007-self-hosted-ledger-store.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "796fee8e98975e4270279dacb3aabb745718dd78"
+          },
+          {
+            "path": "docs/ai-workflow/registry/ss-01-adr-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "60769b636b0cee19620134111c6466c7cdf80457"
+          }
+        ],
+        "reviewed_content_commit": "ca57098bfaa00c5408d515107cf9a75467d8849e",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-24T13:05:39Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "adopted",
+          "file_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+          "adopted_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+          "adopted_at": "2026-11-23T01:46:17Z",
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+            "ledger": {
+              "local": {
+                "bundle_id": "edff35fc688d222b16f09432834a46a69dbbf852d5f67b0ecabffee256464c49",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "672ed8bde020112ab9a805290a6dfd93dca2aa9b1490d675afa644ab8a977376",
+                "ledger_entry_sha256": "e5bebc576403815c53e63d329f426c8a4e1bd5973b8c271189aa96578aa0cf8b",
+                "run_ref": "session:local .ai-review/ss-01-adr/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "edff35fc688d222b16f09432834a46a69dbbf852d5f67b0ecabffee256464c49",
+                "verdict": "APPROVE",
+                "round": 2,
+                "verdict_sha256": "507c59d63aa0f74847cb381b013e17247f8b934f65a713de4f11e998da8db10d",
+                "ledger_entry_sha256": "44d8a3f961f3545fcd507d9979eda7f58b884410e6c52517918e28ddc4311cda",
+                "run_ref": "codex:20261124T121808Z-2fa7f4af",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-24T13:05:39Z",
+          "workflow_release": "2.29.10"
+        }
+      },
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "32d55a0b1709b8b481857a70ebaf1d0effa552b0fd18d6a43b8e9166477792b0",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "82acf63ae1e0f3433ae484da0aedd38a916a31a720f5ff503fa38ef9bb8d742a",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-23T21:52:46Z",
+          "verdict_sha256": "2aeda9cfb4d347e59399f62b6dcbf9227868e0a8b394b661590dfc22e0973830",
+          "run_ref": "session:local .ai-review/ss-01-adr/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "82acf63ae1e0f3433ae484da0aedd38a916a31a720f5ff503fa38ef9bb8d742a",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-24T02:54:02Z",
+          "verdict_sha256": "e94f831c1c30ca18ef0a0345fe9efd9cf9c817e6bcf2b20eb70609ba77f2dd3a",
+          "run_ref": "codex:20261124T025222Z-0890b990",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 2,
+          "external": 1
+        },
+        "implementation": {
+          "local": 2,
+          "external": 1
+        }
+      },
+      "state_revision": 18,
+      "last_transition": "2026-11-25T17:40:07Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-23T18:17:32Z",
+        "consumed": {
+          "review_content_id": "ef49c67473791f7a1d9c3351471a49de3a65f2c2ab185a24d577d96c0c6be32a",
+          "plan_revision": 1,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "32d55a0b1709b8b481857a70ebaf1d0effa552b0fd18d6a43b8e9166477792b0",
+          "plan_revision": 2
+        },
+        "bound": {
+          "review_content_id": "32d55a0b1709b8b481857a70ebaf1d0effa552b0fd18d6a43b8e9166477792b0",
+          "bundle_id": "82acf63ae1e0f3433ae484da0aedd38a916a31a720f5ff503fa38ef9bb8d742a",
+          "plan_revision": 2
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "ef49c67473791f7a1d9c3351471a49de3a65f2c2ab185a24d577d96c0c6be32a"
+      ],
+      "optional_findings": {
+        "F-bb79826f8f32": {
+          "digest": "bb79826f8f324ff30690ff782f4c82e4581488fbb4bc13adcf0d2128a81c6c30",
+          "text": "The status line says \"`Proposed` until the owner merges\", but under `GATE_POLICY.json` `human_approval: false` the Controller merges the accepted commit itself. The ADR then sits on `main` as `Proposed` with nobody due to flip it, and ss-02..ss-14 build on a record that still reads as undecided. Say who changes it to `Accepted`, and when (for example, merged means accepted, or the first slice that builds on it flips it).",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "ef49c67473791f7a1d9c3351471a49de3a65f2c2ab185a24d577d96c0c6be32a",
+              "verdict": "REVISE",
+              "at": "2026-11-23T18:13:56Z"
+            }
+          ]
+        },
+        "F-4060d3cfbe36": {
+          "digest": "4060d3cfbe36620bda79cf2a3a0a1201bde2f3e538389945e8cd5a98eccc41c5",
+          "text": "Idempotent `PUT` and required `If-Match`/`If-None-Match: *` interact. Replaying the same `PUT`, or re-running the ss-12 import, answers 409 even though it changes nothing. The ADR could say that a 409 whose current record equals the record sent counts as success for the import, so a re-run import doesn't report every record as a conflict.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "ef49c67473791f7a1d9c3351471a49de3a65f2c2ab185a24d577d96c0c6be32a",
+              "verdict": "REVISE",
+              "at": "2026-11-23T18:13:56Z"
+            }
+          ]
+        },
+        "F-25e049a4e462": {
+          "digest": "25e049a4e462051d04e6bfa4e82ed68c7e4c54c93323e61431ff9af7a15eb17d",
+          "text": "The API section does not say the server keeps ADR 0005's write contract: references re-checked inside the write's transaction, and a member who is named by any expense or payment can't be deleted. It also gives no status code for a body that fails validation (for example 422 with a `code`). One sentence would give ss-08/ss-09 their contract.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "ef49c67473791f7a1d9c3351471a49de3a65f2c2ab185a24d577d96c0c6be32a",
+              "verdict": "REVISE",
+              "at": "2026-11-23T18:13:56Z"
+            }
+          ]
+        },
+        "F-61857ab9f0c4": {
+          "digest": "61857ab9f0c4cd4d9020d41b311583f9e2f89fec59537e6d129a84c98df9cdeb",
+          "text": "The plan's API section allows only `GET`/`PUT`/`DELETE` on nested resources and treats the import as repeated `PUT`s (\"a 409 whose current record equals the record sent counts as success for the ss-12 import\"). But `docs/items/ss-12-import-local.md` specifies a bulk `POST /api/v1/import` that writes in one transaction and reports conflicts. The ADR could name that endpoint and give it the same equal-record-is-success rule. Then the ss-12 planner doesn't find the ADR's verb list and its own backlog page disagreeing.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "32d55a0b1709b8b481857a70ebaf1d0effa552b0fd18d6a43b8e9166477792b0",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T21:52:46Z"
+            }
+          ]
+        },
+        "F-c29a9c7c2bcb": {
+          "digest": "c29a9c7c2bcba21223a9010f5848d5d0460bdcb29423f3ab49cf4222964de15b",
+          "text": "CP1 says the merge makes the ADR `Accepted` and \"no later slice has to flip it\". But `docs/items/ss-11-store-selection.md`'s Rules still say \"Update the README's storage section and ADR 0007's status.\" The ADR could say what ss-11 changes instead (for example, a line saying it is implemented). Otherwise ss-11 is asked to change a status that is already final.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "32d55a0b1709b8b481857a70ebaf1d0effa552b0fd18d6a43b8e9166477792b0",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T21:52:46Z"
+            }
+          ]
+        },
+        "F-f06b9fcae4ed": {
+          "digest": "f06b9fcae4edec333c22427f3f962356051bb5e90f674ec092060bfa632f0452",
+          "text": "On a static deployment, the \"network error, 5xx → online-only error\" rule means a passing host error shows the online-only error instead of the local ledger, until the user reloads. Today this is rare, because there is no service worker (ADR 0001 defers it to M8). Once M8 adds offline support, an offline local-first PWA would hit this on every launch. The ADR could note that M8's service worker must answer `settle-config.json` from its cache (or treat \"no network and no cached server config\" as local-first).",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "32d55a0b1709b8b481857a70ebaf1d0effa552b0fd18d6a43b8e9166477792b0",
+              "verdict": "APPROVE",
+              "at": "2026-11-23T21:52:46Z"
+            }
+          ]
+        },
+        "F-0907fa584356": {
+          "digest": "0907fa584356204a9d743b31a9786dd85f68137d95895050ed0030758abb29d3",
+          "text": "The API decision could explicitly include ss-12’s bulk `POST /api/v1/import`, its single transaction, and its conflict reporting. The plan currently explains import idempotency through individual `PUT` responses; naming the bulk endpoint would give later slices a clearer shared contract.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "32d55a0b1709b8b481857a70ebaf1d0effa552b0fd18d6a43b8e9166477792b0",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T02:54:02Z"
+            }
+          ]
+        },
+        "F-47d158b89ebc": {
+          "digest": "47d158b89ebc05ad9e01a934e6abbac82816aba0faa9714fb58f1183fb3745d7",
+          "text": "Clarify that “Every other answer means local-first” excludes 5xx responses. The following sentence correctly assigns 5xx to the online-only error, but stating the exception directly would avoid two readings.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "32d55a0b1709b8b481857a70ebaf1d0effa552b0fd18d6a43b8e9166477792b0",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T02:54:02Z"
+            }
+          ]
+        },
+        "F-f73293d9c285": {
+          "digest": "f73293d9c285edb3cdc58ccb8e7c02a9c6caff1e05d129ac804e0f83bbe23152",
+          "text": "`docs/adr/0007-self-hosted-ledger-store.md:26` says \"Decisions 5 to 10 are **proposals**\", but decision 11 is a proposal too (its heading says so). It should read \"5 to 11\".",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "a9dbb3b0555d7b4d298e2f5948812b54fccf786365f61db741dfa9c00293a21d",
+              "verdict": "REVISE",
+              "at": "2026-11-24T11:17:23Z"
+            }
+          ]
+        },
+        "F-b77109736df6": {
+          "digest": "b77109736df634b4d7cbf5e2966633a0eeef60e390ea9d982c63bc961168dbae",
+          "text": "Decision 11's \"What is stored\" says \"everything the ledger records hold today\" but leaves out a few fields that are about people: each member's joined and left dates (`model.ts` `Member.joinedOn`/`leftOn`), a household's archive date, the records' created and updated timestamps, and the bill's own person names, tax, tip and discount (`split/model.ts` `Bill`). Either list them or drop the word \"everything\".",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "a9dbb3b0555d7b4d298e2f5948812b54fccf786365f61db741dfa9c00293a21d",
+              "verdict": "REVISE",
+              "at": "2026-11-24T11:17:23Z"
+            }
+          ]
+        },
+        "F-fcfd485815f5": {
+          "digest": "fcfd485815f5af110e1ebe39f94f8e7f7b550dd3880833e6f2d5d2dc901d5cbc",
+          "text": "Decision 9 names `settle-config.json` but not its URL path. ss-11's page suggests `GET /api/config`. The path decides what the static image answers (`/` falls back to `index.html`, while other `location` blocks in `nginx.conf` answer 404), so naming it, e.g. `/settle-config.json` at the site root, would help ss-11 pick the right one. Both answers lead to local-first under the rule, so nothing breaks either way.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "a9dbb3b0555d7b4d298e2f5948812b54fccf786365f61db741dfa9c00293a21d",
+              "verdict": "REVISE",
+              "at": "2026-11-24T11:17:23Z"
+            }
+          ]
+        },
+        "F-9e15e16e6537": {
+          "digest": "9e15e16e65378556d6da34e7576fd4e5cccf94258991ecd24e6b6f1c77aca16e",
+          "text": "`docs/items/ss-11-store-selection.md` still tells ss-11 to \"Update ... ADR 0007's status\", but the approved plan and the ADR say no later slice has to change that line. The page is outside this item's write set. A follow-up could reword it so ss-11 doesn't change an Accepted status.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "a9dbb3b0555d7b4d298e2f5948812b54fccf786365f61db741dfa9c00293a21d",
+              "verdict": "REVISE",
+              "at": "2026-11-24T11:17:23Z"
+            }
+          ]
+        },
+        "F-06272cd07555": {
+          "digest": "06272cd075551633ff20b96444214a23cd3dcb70cb4353fd02ec2c0e2c4f1163",
+          "text": "Decision 6 leaves two cases open: what a `DELETE` of an already-deleted record answers (404 or 204), and whether the ss-12 import's \"a 409 whose current record equals the record sent\" compares the record without its `rev`. ss-12 uses a bulk `POST /api/v1/import` (its item page), so the per-record rule there is applied inside that endpoint. Stating these now would save ss-09/ss-12 a guess. Neither is wrong as written.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "a9dbb3b0555d7b4d298e2f5948812b54fccf786365f61db741dfa9c00293a21d",
+              "verdict": "REVISE",
+              "at": "2026-11-24T11:17:23Z"
+            }
+          ]
+        },
+        "F-1ec434d9e4dc": {
+          "digest": "1ec434d9e4dce7b2a39ba5792d548e4e9935c0e83da28fc7d6860241c12b3465",
+          "text": "Decision 9 says \"a non-JSON body\" without saying whether that is judged by `Content-Type` or by parsing. A 200 `application/json` whose body doesn't parse belongs with \"fails validation\" (the error), and a `text/html` body belongs with local-first. Saying \"a body whose `Content-Type` is not `application/json`\" would leave ss-11 nothing to guess. Today's wording already gives the safe reading.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T11:45:19Z"
+            }
+          ]
+        },
+        "F-b7215ca28f16": {
+          "digest": "b7215ca28f16c9dfb02eb6860cbd67ad37eecd3efc670fc624fda58ebef7e51a",
+          "text": "The approved plan's \"Which store\" bullet (`docs/milestones/ss-01-adr-PLAN.md`) still says \"any body that is not that JSON\" means local-first, while the ADR now sends an invalid JSON config to the error. The ADR is the record later slices read, and the change serves the plan's own \"never falls back to an empty local ledger\" sentence, so this is bookkeeping only.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T11:45:19Z"
+            }
+          ]
+        },
+        "F-0c76c0bba0a0": {
+          "digest": "0c76c0bba0a0ec055649b7c286056ad032b24f4d79b633cf464cf539713e8d5b",
+          "text": "Carried over from round 1, still open: Decision 6 doesn't say what a `DELETE` of an already-deleted record answers (404 or 204), or whether the ss-12 \"a 409 whose current record equals the record sent\" comparison leaves out `rev`. ss-09 and ss-12 can settle these themselves. Neither is wrong as written.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T11:45:19Z"
+            }
+          ]
+        },
+        "F-cb09e594f96f": {
+          "digest": "cb09e594f96f763ba30724065e5ffb6cc4d3f0ab7ab779d84ad53f87020f3085",
+          "text": "Carried over from round 1, outside this item's write set: `docs/items/ss-11-store-selection.md` still suggests `GET /api/config` and tells ss-11 to \"Update ... ADR 0007's status\". The ADR now names `/settle-config.json` and says no later slice flips the status. A follow-up could reword that page.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T11:45:19Z"
+            }
+          ]
+        },
+        "F-cc918c5ff12d": {
+          "digest": "cc918c5ff12d65244828763cec4ea796c2a2e33f5c23e1c1da64b4f533630d71",
+          "text": "`docs/adr/0007-self-hosted-ledger-store.md:120–130`: explicitly state that 5xx handling takes precedence over the non-JSON fallback. An HTML 503 matches both descriptions. The intended error behavior is already stated; clarifying the order would help ss-11 implement it consistently.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 2,
+              "review_content_id": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+              "verdict": "APPROVE",
+              "at": "2026-11-24T12:19:38Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "edff35fc688d222b16f09432834a46a69dbbf852d5f67b0ecabffee256464c49",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-24T11:45:19Z",
+          "verdict_sha256": "672ed8bde020112ab9a805290a6dfd93dca2aa9b1490d675afa644ab8a977376",
+          "run_ref": "session:local .ai-review/ss-01-adr/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "edff35fc688d222b16f09432834a46a69dbbf852d5f67b0ecabffee256464c49",
+          "verdict": "APPROVE",
+          "round": 2,
+          "completed_at": "2026-11-24T12:19:38Z",
+          "verdict_sha256": "507c59d63aa0f74847cb381b013e17247f8b934f65a713de4f11e998da8db10d",
+          "run_ref": "codex:20261124T121808Z-2fa7f4af",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "gate_evidence": {
+        "functional": {
+          "flow-1": {
+            "flow_id": "flow-1",
+            "status": "passed",
+            "head": "e88e54a4bdddce72fec9e9888bf03fc67cdeafe4",
+            "ran_at": "2026-11-24T18:10:27Z",
+            "summary": {
+              "checklist_blob": "571afeda1357c986fc0076f223c2e3fa2afc0d92",
+              "text": "ADR has all required sections; decisions 1-4 (owner), 5-11 (proposal)."
+            },
+            "log_digest": "efc39ff7582bf2a46dbf9b282fd2b9371cfac808b48fb0f63a8a25bcdff78351",
+            "run_ref": "controller:20261124T181009Z-7b075792",
+            "reporter": "workflow-controller 1.32.0",
+            "identity": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+            "recorded_at": "2026-11-24T18:10:27Z"
+          },
+          "flow-2": {
+            "flow_id": "flow-2",
+            "status": "passed",
+            "head": "e88e54a4bdddce72fec9e9888bf03fc67cdeafe4",
+            "ran_at": "2026-11-24T18:10:27Z",
+            "summary": {
+              "checklist_blob": "571afeda1357c986fc0076f223c2e3fa2afc0d92",
+              "text": "Decision 9 sends a 200 JSON body that fails validation, a network error or a 5xx to the online-only/config error, never to local fallback."
+            },
+            "log_digest": "b512992138dddfbf50f72c7a2e6e555c33b71b759ddbc2ad3541c8512f0f05da",
+            "run_ref": "controller:20261124T181009Z-7b075792",
+            "reporter": "workflow-controller 1.32.0",
+            "identity": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+            "recorded_at": "2026-11-24T18:10:27Z"
+          },
+          "flow-3": {
+            "flow_id": "flow-3",
+            "status": "passed",
+            "head": "e88e54a4bdddce72fec9e9888bf03fc67cdeafe4",
+            "ran_at": "2026-11-24T18:10:27Z",
+            "summary": {
+              "checklist_blob": "571afeda1357c986fc0076f223c2e3fa2afc0d92",
+              "text": "Roadmap line links to the existing ADR file; Recorded in ADR 0007 lists all the required topics."
+            },
+            "log_digest": "6c6b65d18ddcc5b5f4beaaa79d4905fa4c6ebca4cee0739c4faefc3a2e309442",
+            "run_ref": "controller:20261124T181009Z-7b075792",
+            "reporter": "workflow-controller 1.32.0",
+            "identity": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+            "recorded_at": "2026-11-24T18:10:27Z"
+          },
+          "flow-4": {
+            "flow_id": "flow-4",
+            "status": "passed",
+            "head": "e88e54a4bdddce72fec9e9888bf03fc67cdeafe4",
+            "ran_at": "2026-11-24T18:16:22Z",
+            "summary": {
+              "checklist_blob": "571afeda1357c986fc0076f223c2e3fa2afc0d92",
+              "text": "Run by hand in the repo checkout at the approved head: typecheck, lint and format:check exit 0; npm test 96 files passed, 1685 passed, 1 skipped. The tester sandbox had no node_modules, so its failed flow-4 was environmental. The diff touches no app/ files."
+            },
+            "log_digest": "6ee933e102d1c2911bea541e2927d6b034f820c40ddfb7def1ba45a92f745b77",
+            "run_ref": "operator:ss-01-adr-flow-4",
+            "reporter": "orchestrator session (operator run)",
+            "identity": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+            "recorded_at": "2026-11-24T18:16:22Z"
+          },
+          "flow-5": {
+            "flow_id": "flow-5",
+            "status": "passed",
+            "head": "e88e54a4bdddce72fec9e9888bf03fc67cdeafe4",
+            "ran_at": "2026-11-24T18:10:27Z",
+            "summary": {
+              "checklist_blob": "571afeda1357c986fc0076f223c2e3fa2afc0d92",
+              "text": "Outside docs/ai-workflow and .ai-review, only ACTIVE_MILESTONE.md, ROADMAP.md, the ADR and ss-01-adr-PLAN.md changed."
+            },
+            "log_digest": "f7c1d37eb1d6ac234c64622bd97ba1c75e9a122a7553247193195b14919012e2",
+            "run_ref": "controller:20261124T181009Z-7b075792",
+            "reporter": "workflow-controller 1.32.0",
+            "identity": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+            "recorded_at": "2026-11-24T18:10:28Z"
+          }
+        },
+        "pr": {
+          "pr": {
+            "number": 15,
+            "url": "https://github.com/RodrigoFAbreu/project-Settle/pull/15"
+          },
+          "state": "open",
+          "head": "e88e54a4bdddce72fec9e9888bf03fc67cdeafe4",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+          "observed_at": "2026-11-25T17:40:07Z",
+          "ingest_seq": 4,
+          "repository": "RodrigoFAbreu/project-Settle",
+          "queried_commit": "ca57098bfaa00c5408d515107cf9a75467d8849e",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-11-25T17:40:07Z",
+            "raw_sha256": "565ef71aa9927958880447e18a732f96bf5a4cd966f6e80249d0d5e6f9aff006",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "978350509c2883379c95475668f0173a838512fa57d52a0dde4a0579be7c1cbb"
+          },
+          "fact_id": "df06417fd7d276fe731f2366b03d59803a69ae77b9b42f48c9715337e86ae4b4"
+        },
+        "pr_reported": {
+          "pr": {
+            "number": 15,
+            "url": "https://github.com/RodrigoFAbreu/project-Settle/pull/15"
+          },
+          "state": "open",
+          "head": "e88e54a4bdddce72fec9e9888bf03fc67cdeafe4",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+          "observed_at": "2026-11-25T17:30:20Z",
+          "ingest_seq": 2,
+          "repository": "RodrigoFAbreu/project-Settle",
+          "queried_commit": "ca57098bfaa00c5408d515107cf9a75467d8849e",
+          "provenance": {
+            "source": "orchestrator_forge",
+            "fetched_by": {
+              "name": "workflow-controller",
+              "version": "1.32.0"
+            },
+            "fetched_at": "2026-11-25T17:30:20Z",
+            "raw_sha256": "565ef71aa9927958880447e18a732f96bf5a4cd966f6e80249d0d5e6f9aff006",
+            "run_ref": "controller:20261125T173020Z-3f4aae68"
+          },
+          "fact_id": "ae744fb93bf946b7bf5011044b93124b1d535bb33d1a7b411b07715003568fae"
+        },
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 4
+        }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "adopted",
+        "file_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+        "adopted_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+        "floor_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['flow-1', 'flow-2', 'flow-3', 'flow-4', 'flow-5'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #15 at e88e54a4bdddce72fec9e9888bf03fc67cdeafe4 is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "ca57098bfaa00c5408d515107cf9a75467d8849e",
+          "anchor_identity": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+            "recorded_at": "2026-11-24T13:05:39Z"
+          },
+          "functional": {
+            "flow-1": {
+              "evidence_id": "08c92604e2e4b6a69e7504598be06e9dc25ceb626372c338be195b9766246687",
+              "log_digest": "efc39ff7582bf2a46dbf9b282fd2b9371cfac808b48fb0f63a8a25bcdff78351",
+              "run_ref": "controller:20261124T181009Z-7b075792"
+            },
+            "flow-2": {
+              "evidence_id": "58d5bbb00b21310c037faa96d7717ecee89a846dd8e0baefb27c5276e04fd1e7",
+              "log_digest": "b512992138dddfbf50f72c7a2e6e555c33b71b759ddbc2ad3541c8512f0f05da",
+              "run_ref": "controller:20261124T181009Z-7b075792"
+            },
+            "flow-3": {
+              "evidence_id": "8fc5cb34ced2e032b0af2769c143b05f06a8bdbf615e0f92b4e06b573bd018df",
+              "log_digest": "6c6b65d18ddcc5b5f4beaaa79d4905fa4c6ebca4cee0739c4faefc3a2e309442",
+              "run_ref": "controller:20261124T181009Z-7b075792"
+            },
+            "flow-4": {
+              "evidence_id": "db98ffc0a9972f57dd6ecbbea3d5b82bf011b602e595df898323b6091d15e866",
+              "log_digest": "6ee933e102d1c2911bea541e2927d6b034f820c40ddfb7def1ba45a92f745b77",
+              "run_ref": "operator:ss-01-adr-flow-4"
+            },
+            "flow-5": {
+              "evidence_id": "693897d7bb5ddf32500f6062812e229b8fce858303cf3231a841b2a991107cc0",
+              "log_digest": "f7c1d37eb1d6ac234c64622bd97ba1c75e9a122a7553247193195b14919012e2",
+              "run_ref": "controller:20261124T181009Z-7b075792"
+            }
+          },
+          "pr": {
+            "fact_id": "df06417fd7d276fe731f2366b03d59803a69ae77b9b42f48c9715337e86ae4b4",
+            "head": "e88e54a4bdddce72fec9e9888bf03fc67cdeafe4",
+            "provenance": "workflow_gh",
+            "raw_sha256": "565ef71aa9927958880447e18a732f96bf5a4cd966f6e80249d0d5e6f9aff006"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-11-25T17:40:07Z",
+        "workflow_release": "2.29.10"
+      }
     }
   },
   "gate_policy_adoption": {
