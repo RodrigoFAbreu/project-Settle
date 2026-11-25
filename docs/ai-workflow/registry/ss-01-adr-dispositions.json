@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "work_item_id": "ss-01-adr",
+  "dispositions": {
+    "F-06272cd07555": {
+      "disposition": "follow-up",
+      "link": "https://github.com/RodrigoFAbreu/project-Settle/blob/main/docs/items/ss-09-api-write-ledger.md"
+    },
+    "F-0907fa584356": {
+      "disposition": "dropped",
+      "reason": "ss-12's item page already specifies the bulk POST /api/v1/import, its single transaction and its conflict reporting, and ADR 0007 decision 6 names the import (ss-12). The ADR is the record of the API shape, not of ss-12's endpoint; ss-12 plans it. Editing the ADR now would stale the approved technical approval for no behavioural gain."
+    },
+    "F-0c76c0bba0a0": {
+      "disposition": "follow-up",
+      "link": "https://github.com/RodrigoFAbreu/project-Settle/blob/main/docs/items/ss-09-api-write-ledger.md"
+    },
+    "F-1ec434d9e4dc": {
+      "disposition": "fixed"
+    },
+    "F-25e049a4e462": {
+      "disposition": "fixed"
+    },
+    "F-4060d3cfbe36": {
+      "disposition": "fixed"
+    },
+    "F-47d158b89ebc": {
+      "disposition": "fixed"
+    },
+    "F-61857ab9f0c4": {
+      "disposition": "dropped",
+      "reason": "Same as F-0907fa584356: docs/items/ss-12-import-local.md defines the bulk POST /api/v1/import (one transaction, counts, conflicts reported instead of overwriting), so ss-12 does not depend on repeated PUTs. Decision 6's sentence about a 409 whose record equals the one sent is a rule for the import's conflict report. Wording only."
+    },
+    "F-9e15e16e6537": {
+      "disposition": "follow-up",
+      "link": "https://github.com/RodrigoFAbreu/project-Settle/blob/main/docs/items/ss-11-store-selection.md"
+    },
+    "F-b7215ca28f16": {
+      "disposition": "dropped",
+      "reason": "The approved plan is a record of what was planned; the ADR is the authority later slices read, and it states the final rule (an invalid JSON config goes to the online-only or configuration error). Changing the plan after approval would stale it and nothing a user sees depends on it."
+    },
+    "F-b77109736df6": {
+      "disposition": "fixed"
+    },
+    "F-bb79826f8f32": {
+      "disposition": "fixed"
+    },
+    "F-c29a9c7c2bcb": {
+      "disposition": "follow-up",
+      "link": "https://github.com/RodrigoFAbreu/project-Settle/blob/main/docs/items/ss-11-store-selection.md"
+    },
+    "F-cb09e594f96f": {
+      "disposition": "follow-up",
+      "link": "https://github.com/RodrigoFAbreu/project-Settle/blob/main/docs/items/ss-11-store-selection.md"
+    },
+    "F-cc918c5ff12d": {
+      "disposition": "follow-up",
+      "link": "https://github.com/RodrigoFAbreu/project-Settle/blob/main/docs/items/ss-11-store-selection.md"
+    },
+    "F-f06b9fcae4ed": {
+      "disposition": "dropped",
+      "reason": "A deliberate decision, not a defect: decision 9 never falls back to an empty local ledger when it cannot tell which deployment it is on, because that would diverge from the server. On a static host a passing 5xx or network error shows the online-only error until reload; this is rare today (no service worker) and the safe direction."
+    },
+    "F-f73293d9c285": {
+      "disposition": "fixed"
+    },
+    "F-fcfd485815f5": {
+      "disposition": "fixed"
+    }
+  }
+}

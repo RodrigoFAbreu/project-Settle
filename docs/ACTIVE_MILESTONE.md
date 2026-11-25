@@ -2,15 +2,23 @@
 
 ## Milestone
 
-**Active: `ss-01-adr`** — Record the self-hosted storage decisions (ADR 0007),
-the first slice of **M5.5 Self-hosted central storage** (14 slices,
-`docs/items/milestone-5-5.md`). Docs only, one checkpoint.
+No milestone is active.
 
-- **CP1 (complete):** `docs/adr/0007-self-hosted-ledger-store.md` written and
-  `docs/ROADMAP.md`'s M5.5 section now points at it. `typecheck`, `lint`,
-  `format:check` and `npm test` pass (1685 tests, 1 skipped).
+## Last completed: ss-01-adr — Record the self-hosted storage decisions
 
-## Last completed: lidl-layout-fixture — Lidl receipt layout as a text fixture
+ADR 0007 (`docs/adr/0007-self-hosted-ledger-store.md`), the first slice of
+**M5.5 Self-hosted central storage** (14 slices, `docs/items/milestone-5-5.md`).
+Docs only, one checkpoint; `docs/ROADMAP.md`'s M5.5 section points at the ADR.
+Accepted on 2026-11-25.
+
+- **CP1:** the ADR written. `typecheck`, `lint`, `format:check` and `npm test`
+  pass (1685 tests, 1 skipped).
+- **Optional findings:** eighteen. Eight fixed in the ADR, four dropped with
+  reasons, six follow-ups for ss-09 and ss-11 to settle. See
+  `docs/milestones/completed/ss-01-adr-findings.md`.
+- **Plan:** archived at `docs/milestones/completed/ss-01-adr-PLAN.md`.
+
+## Previously completed: lidl-layout-fixture — Lidl receipt layout as a text fixture
 
 One invented whole-receipt text fixture of the Lidl layout
 (`26-pt-lidl-desconto-sublinhado`), so the existing fixture test guards it.
@@ -31,8 +39,8 @@ No app code changes. Accepted on 2026-11-22.
 
 ## Next action
 
-`/milestone-plan` takes the next backlog item: `ss-01-adr`, the ADR that records
-the self-hosted storage decisions. M5.5 is cut into slices (`ss-01` to `ss-14`,
+`/milestone-plan` takes the next backlog item: `ss-02-store-interface`, which
+puts the ledger behind a store interface. M5.5 is cut into slices (`ss-01` to `ss-14`,
 `docs/items/milestone-5-5.md`); the Controller takes them in order, each is one
 milestone and one squash PR. Run it from an up-to-date `main`
 (`git switch main && git pull`); the Controller binds the milestone branch

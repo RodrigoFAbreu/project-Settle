@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": "ss-01-adr",
+  "active_work_item_id": null,
   "work_items": {
     "milestone-0": {
       "work_item_type": "product",
@@ -5518,7 +5518,7 @@
       "registry_path": "docs/ai-workflow/registry/ss-01-adr-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/ss-01-adr-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_FUNCTIONAL_REVIEW",
+      "phase": "MILESTONE_COMPLETE",
       "plan_revision": 2,
       "implementation_revision": 2,
       "functional_review_round": null,
@@ -5741,8 +5741,8 @@
           "external": 1
         }
       },
-      "state_revision": 17,
-      "last_transition": "2026-11-24T13:05:39Z",
+      "state_revision": 18,
+      "last_transition": "2026-11-25T17:40:07Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -6039,6 +6039,244 @@
           "run_ref": "codex:20261124T121808Z-2fa7f4af",
           "reviewer_model": "openai/gpt-6.1-sol"
         }
+      },
+      "gate_evidence": {
+        "functional": {
+          "flow-1": {
+            "flow_id": "flow-1",
+            "status": "passed",
+            "head": "e88e54a4bdddce72fec9e9888bf03fc67cdeafe4",
+            "ran_at": "2026-11-24T18:10:27Z",
+            "summary": {
+              "checklist_blob": "571afeda1357c986fc0076f223c2e3fa2afc0d92",
+              "text": "ADR has all required sections; decisions 1-4 (owner), 5-11 (proposal)."
+            },
+            "log_digest": "efc39ff7582bf2a46dbf9b282fd2b9371cfac808b48fb0f63a8a25bcdff78351",
+            "run_ref": "controller:20261124T181009Z-7b075792",
+            "reporter": "workflow-controller 1.32.0",
+            "identity": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+            "recorded_at": "2026-11-24T18:10:27Z"
+          },
+          "flow-2": {
+            "flow_id": "flow-2",
+            "status": "passed",
+            "head": "e88e54a4bdddce72fec9e9888bf03fc67cdeafe4",
+            "ran_at": "2026-11-24T18:10:27Z",
+            "summary": {
+              "checklist_blob": "571afeda1357c986fc0076f223c2e3fa2afc0d92",
+              "text": "Decision 9 sends a 200 JSON body that fails validation, a network error or a 5xx to the online-only/config error, never to local fallback."
+            },
+            "log_digest": "b512992138dddfbf50f72c7a2e6e555c33b71b759ddbc2ad3541c8512f0f05da",
+            "run_ref": "controller:20261124T181009Z-7b075792",
+            "reporter": "workflow-controller 1.32.0",
+            "identity": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+            "recorded_at": "2026-11-24T18:10:27Z"
+          },
+          "flow-3": {
+            "flow_id": "flow-3",
+            "status": "passed",
+            "head": "e88e54a4bdddce72fec9e9888bf03fc67cdeafe4",
+            "ran_at": "2026-11-24T18:10:27Z",
+            "summary": {
+              "checklist_blob": "571afeda1357c986fc0076f223c2e3fa2afc0d92",
+              "text": "Roadmap line links to the existing ADR file; Recorded in ADR 0007 lists all the required topics."
+            },
+            "log_digest": "6c6b65d18ddcc5b5f4beaaa79d4905fa4c6ebca4cee0739c4faefc3a2e309442",
+            "run_ref": "controller:20261124T181009Z-7b075792",
+            "reporter": "workflow-controller 1.32.0",
+            "identity": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+            "recorded_at": "2026-11-24T18:10:27Z"
+          },
+          "flow-4": {
+            "flow_id": "flow-4",
+            "status": "passed",
+            "head": "e88e54a4bdddce72fec9e9888bf03fc67cdeafe4",
+            "ran_at": "2026-11-24T18:16:22Z",
+            "summary": {
+              "checklist_blob": "571afeda1357c986fc0076f223c2e3fa2afc0d92",
+              "text": "Run by hand in the repo checkout at the approved head: typecheck, lint and format:check exit 0; npm test 96 files passed, 1685 passed, 1 skipped. The tester sandbox had no node_modules, so its failed flow-4 was environmental. The diff touches no app/ files."
+            },
+            "log_digest": "6ee933e102d1c2911bea541e2927d6b034f820c40ddfb7def1ba45a92f745b77",
+            "run_ref": "operator:ss-01-adr-flow-4",
+            "reporter": "orchestrator session (operator run)",
+            "identity": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+            "recorded_at": "2026-11-24T18:16:22Z"
+          },
+          "flow-5": {
+            "flow_id": "flow-5",
+            "status": "passed",
+            "head": "e88e54a4bdddce72fec9e9888bf03fc67cdeafe4",
+            "ran_at": "2026-11-24T18:10:27Z",
+            "summary": {
+              "checklist_blob": "571afeda1357c986fc0076f223c2e3fa2afc0d92",
+              "text": "Outside docs/ai-workflow and .ai-review, only ACTIVE_MILESTONE.md, ROADMAP.md, the ADR and ss-01-adr-PLAN.md changed."
+            },
+            "log_digest": "f7c1d37eb1d6ac234c64622bd97ba1c75e9a122a7553247193195b14919012e2",
+            "run_ref": "controller:20261124T181009Z-7b075792",
+            "reporter": "workflow-controller 1.32.0",
+            "identity": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+            "recorded_at": "2026-11-24T18:10:28Z"
+          }
+        },
+        "pr": {
+          "pr": {
+            "number": 15,
+            "url": "https://github.com/RodrigoFAbreu/project-Settle/pull/15"
+          },
+          "state": "open",
+          "head": "e88e54a4bdddce72fec9e9888bf03fc67cdeafe4",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+          "observed_at": "2026-11-25T17:40:07Z",
+          "ingest_seq": 4,
+          "repository": "RodrigoFAbreu/project-Settle",
+          "queried_commit": "ca57098bfaa00c5408d515107cf9a75467d8849e",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-11-25T17:40:07Z",
+            "raw_sha256": "565ef71aa9927958880447e18a732f96bf5a4cd966f6e80249d0d5e6f9aff006",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "978350509c2883379c95475668f0173a838512fa57d52a0dde4a0579be7c1cbb"
+          },
+          "fact_id": "df06417fd7d276fe731f2366b03d59803a69ae77b9b42f48c9715337e86ae4b4"
+        },
+        "pr_reported": {
+          "pr": {
+            "number": 15,
+            "url": "https://github.com/RodrigoFAbreu/project-Settle/pull/15"
+          },
+          "state": "open",
+          "head": "e88e54a4bdddce72fec9e9888bf03fc67cdeafe4",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+          "observed_at": "2026-11-25T17:30:20Z",
+          "ingest_seq": 2,
+          "repository": "RodrigoFAbreu/project-Settle",
+          "queried_commit": "ca57098bfaa00c5408d515107cf9a75467d8849e",
+          "provenance": {
+            "source": "orchestrator_forge",
+            "fetched_by": {
+              "name": "workflow-controller",
+              "version": "1.32.0"
+            },
+            "fetched_at": "2026-11-25T17:30:20Z",
+            "raw_sha256": "565ef71aa9927958880447e18a732f96bf5a4cd966f6e80249d0d5e6f9aff006",
+            "run_ref": "controller:20261125T173020Z-3f4aae68"
+          },
+          "fact_id": "ae744fb93bf946b7bf5011044b93124b1d535bb33d1a7b411b07715003568fae"
+        },
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 4
+        }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "adopted",
+        "file_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+        "adopted_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+        "floor_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['flow-1', 'flow-2', 'flow-3', 'flow-4', 'flow-5'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #15 at e88e54a4bdddce72fec9e9888bf03fc67cdeafe4 is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "ca57098bfaa00c5408d515107cf9a75467d8849e",
+          "anchor_identity": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "447e8039213bac2d930c41e083120295892b90dd20fd3e22f7592699ddb2f44a",
+            "recorded_at": "2026-11-24T13:05:39Z"
+          },
+          "functional": {
+            "flow-1": {
+              "evidence_id": "08c92604e2e4b6a69e7504598be06e9dc25ceb626372c338be195b9766246687",
+              "log_digest": "efc39ff7582bf2a46dbf9b282fd2b9371cfac808b48fb0f63a8a25bcdff78351",
+              "run_ref": "controller:20261124T181009Z-7b075792"
+            },
+            "flow-2": {
+              "evidence_id": "58d5bbb00b21310c037faa96d7717ecee89a846dd8e0baefb27c5276e04fd1e7",
+              "log_digest": "b512992138dddfbf50f72c7a2e6e555c33b71b759ddbc2ad3541c8512f0f05da",
+              "run_ref": "controller:20261124T181009Z-7b075792"
+            },
+            "flow-3": {
+              "evidence_id": "8fc5cb34ced2e032b0af2769c143b05f06a8bdbf615e0f92b4e06b573bd018df",
+              "log_digest": "6c6b65d18ddcc5b5f4beaaa79d4905fa4c6ebca4cee0739c4faefc3a2e309442",
+              "run_ref": "controller:20261124T181009Z-7b075792"
+            },
+            "flow-4": {
+              "evidence_id": "db98ffc0a9972f57dd6ecbbea3d5b82bf011b602e595df898323b6091d15e866",
+              "log_digest": "6ee933e102d1c2911bea541e2927d6b034f820c40ddfb7def1ba45a92f745b77",
+              "run_ref": "operator:ss-01-adr-flow-4"
+            },
+            "flow-5": {
+              "evidence_id": "693897d7bb5ddf32500f6062812e229b8fce858303cf3231a841b2a991107cc0",
+              "log_digest": "f7c1d37eb1d6ac234c64622bd97ba1c75e9a122a7553247193195b14919012e2",
+              "run_ref": "controller:20261124T181009Z-7b075792"
+            }
+          },
+          "pr": {
+            "fact_id": "df06417fd7d276fe731f2366b03d59803a69ae77b9b42f48c9715337e86ae4b4",
+            "head": "e88e54a4bdddce72fec9e9888bf03fc67cdeafe4",
+            "provenance": "workflow_gh",
+            "raw_sha256": "565ef71aa9927958880447e18a732f96bf5a4cd966f6e80249d0d5e6f9aff006"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-11-25T17:40:07Z",
+        "workflow_release": "2.29.10"
       }
     }
   },
