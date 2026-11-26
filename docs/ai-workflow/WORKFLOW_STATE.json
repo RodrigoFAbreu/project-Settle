@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "ss-03-shared-domain",
   "work_items": {
     "milestone-0": {
       "work_item_type": "product",
@@ -7001,6 +7001,320 @@
         },
         "evaluated_at": "2026-11-26T18:54:15Z",
         "workflow_release": "2.29.10"
+      }
+    },
+    "ss-03-shared-domain": {
+      "work_item_type": "product",
+      "work_item_kind": "product",
+      "work_item_id": "ss-03-shared-domain",
+      "parent_work_item_id": null,
+      "plan_path": "docs/milestones/ss-03-shared-domain-PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/ss-03-shared-domain-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/ss-03-shared-domain-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 5,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "559631680862076e8e7822ddb363ff1417384d0c",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "43c94115f71fed44991f766810f4ecc18b4767e707962cc54899551929edeadf",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "43c94115f71fed44991f766810f4ecc18b4767e707962cc54899551929edeadf",
+        "approved_review_content_id": "b9ff3f24ad6437a9b4e3abd54e6f62f81e011ac43a9d70611e4dee4f4b59077a",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/ss-03-shared-domain-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5e06729f38861114aa14b2b4a2e6f7b02a378633"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/ss-03-shared-domain-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7507b1581bc386b508c11e2fcfa4c5996931c8c4"
+          },
+          {
+            "path": "docs/milestones/ss-03-shared-domain-PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "67dcf036fdc89365a7464105df5b12edb4da39ed"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-26T21:09:38Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "adopted",
+          "file_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+          "adopted_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+          "adopted_at": "2026-11-23T01:46:17Z",
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "b9ff3f24ad6437a9b4e3abd54e6f62f81e011ac43a9d70611e4dee4f4b59077a",
+            "ledger": {
+              "local": {
+                "bundle_id": "43c94115f71fed44991f766810f4ecc18b4767e707962cc54899551929edeadf",
+                "verdict": "APPROVE",
+                "round": 5,
+                "verdict_sha256": "2cec65e915f895f2c2b29f6c67b575bf83c81b0b772f7a292aec042fe1a5f31d",
+                "ledger_entry_sha256": "5934865d3ee97bc353cb456785e8aebc22d84288fb8f99900def112227aa7dd6",
+                "run_ref": "session:local .ai-review/ss-03-shared-domain/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "43c94115f71fed44991f766810f4ecc18b4767e707962cc54899551929edeadf",
+                "verdict": "APPROVE",
+                "round": 5,
+                "verdict_sha256": "0444b089a2aafb87606884adf290db908183d96f64825ade6b98ffd5a4c7103c",
+                "ledger_entry_sha256": "fc7708bc3508197f5ddbe2961484daab751f86b1ce5b98f51315525a1ed4799f",
+                "run_ref": "codex:20261126T210559Z-b91a19aa",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-26T21:09:38Z",
+          "workflow_release": "2.29.10"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "b9ff3f24ad6437a9b4e3abd54e6f62f81e011ac43a9d70611e4dee4f4b59077a",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "43c94115f71fed44991f766810f4ecc18b4767e707962cc54899551929edeadf",
+          "verdict": "APPROVE",
+          "round": 5,
+          "completed_at": "2026-11-26T21:05:38Z",
+          "verdict_sha256": "2cec65e915f895f2c2b29f6c67b575bf83c81b0b772f7a292aec042fe1a5f31d",
+          "run_ref": "session:local .ai-review/ss-03-shared-domain/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "43c94115f71fed44991f766810f4ecc18b4767e707962cc54899551929edeadf",
+          "verdict": "APPROVE",
+          "round": 5,
+          "completed_at": "2026-11-26T21:07:19Z",
+          "verdict_sha256": "0444b089a2aafb87606884adf290db908183d96f64825ade6b98ffd5a4c7103c",
+          "run_ref": "codex:20261126T210559Z-b91a19aa",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 5,
+          "external": 3
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 20,
+      "last_transition": "2026-11-26T21:09:38Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-26T21:03:06Z",
+        "consumed": {
+          "review_content_id": "bfe946adc47bf9f2994d8abe0508ce5bebf1e7ac9a0660c8b4f2aa2c4f77cbe9",
+          "plan_revision": 4,
+          "legacy": false
+        },
+        "published": {
+          "review_content_id": "b9ff3f24ad6437a9b4e3abd54e6f62f81e011ac43a9d70611e4dee4f4b59077a",
+          "plan_revision": 5
+        },
+        "bound": {
+          "review_content_id": "b9ff3f24ad6437a9b4e3abd54e6f62f81e011ac43a9d70611e4dee4f4b59077a",
+          "bundle_id": "43c94115f71fed44991f766810f4ecc18b4767e707962cc54899551929edeadf",
+          "plan_revision": 5
+        }
+      },
+      "consumed_plan_review_content_ids": [
+        "23e18e269a18b9614279f326a016e93e7924c124dc3ced67d912b8bb33c1e652",
+        "45832817e63a05fc346328f7d3e9aeac5ca469d5780f90e94dbe6a93aa9196d3",
+        "9f68ca797abf3e23037e138e8010999ebc5f82d58c1488351566963c93e3d663",
+        "bfe946adc47bf9f2994d8abe0508ce5bebf1e7ac9a0660c8b4f2aa2c4f77cbe9"
+      ],
+      "optional_findings": {
+        "F-08a8369c86c3": {
+          "digest": "08a8369c86c328230b52fde6a0565e0d32f77b90af13584dc0da8ccd6d0e33b3",
+          "text": "`app/src/i18n/literalText.test.ts:10-58`: the literal-text guard walks only `app/src/`, so the five moved modules drop out of its coverage without anything failing (the `files.length > 60` floor still holds). Consider having the guard also walk `shared/src/`, or say in the plan that the guard does not cover `shared/` code.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "23e18e269a18b9614279f326a016e93e7924c124dc3ced67d912b8bb33c1e652",
+              "verdict": "REVISE",
+              "at": "2026-11-26T21:05:00Z"
+            }
+          ]
+        },
+        "F-f73b141331e7": {
+          "digest": "f73b141331e7db2289aaa4f87b4a65ea1c0251ade135dcdd0c7f1a067c26c107",
+          "text": "`app/vite.config.ts:27-31`: `resolve.alias` is an empty array when `VITEST` is set. \"Vitest inherits it through `mergeConfig`\" holds only if the `@settle/shared` entry sits outside that conditional. The plan could say so, because otherwise every test fails to resolve the alias.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "23e18e269a18b9614279f326a016e93e7924c124dc3ced67d912b8bb33c1e652",
+              "verdict": "REVISE",
+              "at": "2026-11-26T21:05:00Z"
+            }
+          ]
+        },
+        "F-2eac95f85255": {
+          "digest": "2eac95f852550cd4addb13d705a8e0c398c630e4bbf7ef3b5878cb3a4663da88",
+          "text": "`app/src/features/split/draft.ts:6-20` (CP2, the draft split): after the cut, `validateBill` is used only by `loadDraft`, so its import in `shared/src/draft.ts` becomes unused, which fails `noUnusedLocals` and `no-unused-vars`. The new app `draft.ts` also needs the private `type Json = unknown`, because `loadDraft` declares `const draft: Json`. The plan's \"bodies unchanged / only the stated edits\" could say that the split moves the `validateBill` import to the app file, and that `Json` is either exported or redeclared there. The compiler forces both, so this is bookkeeping.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "9f68ca797abf3e23037e138e8010999ebc5f82d58c1488351566963c93e3d663",
+              "verdict": "REVISE",
+              "at": "2026-11-26T20:45:27Z"
+            }
+          ]
+        },
+        "F-fb27a2b9dd4c": {
+          "digest": "fb27a2b9dd4c6e1d6c682d7e452bdd14c1bf3e763af9a13d7beadf256b0881e6",
+          "text": "Plan header and \"Pull request\" section: the title `refactor: share the domain types and validators in a workspace package` says \"workspace package\", but the plan explicitly rejects npm workspaces and says `shared/` is not yet a package. The title becomes the squash commit on `main`. Consider wording such as `refactor: move the domain types and validators into shared/`. The decision heading \"The one content edit\" could also say \"first\", because there are now two.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 2,
+              "review_content_id": "9f68ca797abf3e23037e138e8010999ebc5f82d58c1488351566963c93e3d663",
+              "verdict": "REVISE",
+              "at": "2026-11-26T20:45:27Z"
+            }
+          ]
+        },
+        "F-b401792c293e": {
+          "digest": "b401792c293eb377d25a084bfd75a1172f8081c28ae0a972744a852bd1dc6177",
+          "text": "`docs/milestones/ss-03-shared-domain-PLAN.md:6`: the header still says `**Plan revision:** 2`, but the title line and the registry say revision 3. This is bookkeeping only.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "45832817e63a05fc346328f7d3e9aeac5ca469d5780f90e94dbe6a93aa9196d3",
+              "verdict": "APPROVE",
+              "at": "2026-11-26T20:48:56Z"
+            }
+          ]
+        },
+        "F-fbd2352ce4a0": {
+          "digest": "fbd2352ce4a0d91409c5d3ff688bff1bf09c88fc35137a3f30ed9dc3e0fc7784",
+          "text": "`docs/milestones/ss-03-shared-domain-PLAN.md:120-122` (\"Dev server\"): the plan says `scripts/browser.mjs` needs `server.fs.allow`. `app/scripts/browser.mjs:78-82` starts `vite preview`, which serves the built `dist/` and ignores `server.fs.allow`. Only `npm run dev` needs it. The decision is still correct; only its stated reason is off.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "45832817e63a05fc346328f7d3e9aeac5ca469d5780f90e94dbe6a93aa9196d3",
+              "verdict": "APPROVE",
+              "at": "2026-11-26T20:48:56Z"
+            }
+          ]
+        },
+        "F-e1a76a00a448": {
+          "digest": "e1a76a00a448ca61fcf110b08b9fcd9a6cdf1d00ae7dc50df8fbd05c024d1c2f",
+          "text": "`docs/milestones/ss-03-shared-domain-PLAN.md:6` still identifies the plan as revision 2; the title and registry identify revision 3.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "MANUAL_EXTERNAL_PLAN_REVIEW",
+              "round": 3,
+              "review_content_id": "45832817e63a05fc346328f7d3e9aeac5ca469d5780f90e94dbe6a93aa9196d3",
+              "verdict": "REVISE",
+              "at": "2026-11-26T20:51:45Z"
+            }
+          ]
+        },
+        "F-731955f9d219": {
+          "digest": "731955f9d21944872524e28f7c4b1a17525d4a8193cbb526885b0786754e0bda",
+          "text": "`app/scripts/measure-quality.mjs:65-87`: unlike `check-requests.mjs` (main\n  guarded at `:793-802`), this script runs its body on import. It throws\n  without `dist/index.html` and then calls `withBrowser`. So the CP1/CP2 check\n  \"the same import of `./scripts/measure-quality.mjs` exits 0\" depends on a\n  build, the local calibration set and Chromium, not only on module\n  resolution. A failure caused by a missing Chromium could be mistaken for a\n  resolution break, or the reverse. A link-only check would be cleaner:\n  `node --input-type=module -e \"await import('./src/features/receipt/accuracy.ts'); await import('./src/features/receipt/localFixtures.node.ts')\"`\n  imports the same module graph without running a script.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "bfe946adc47bf9f2994d8abe0508ce5bebf1e7ac9a0660c8b4f2aa2c4f77cbe9",
+              "verdict": "APPROVE",
+              "at": "2026-11-26T21:00:00Z"
+            }
+          ]
+        },
+        "F-3fde8e4ba8b2": {
+          "digest": "3fde8e4ba8b2056a205952678b597d88e1b7c41c3c0b37c816ea70442327cb83",
+          "text": "`app/src/features/household/model.ts:375`: the comment names\n  `data/records.ts`, which becomes `shared/src/records.ts`. The comment goes\n  stale, because the plan permits no other edit to moved files. This is\n  harmless. Either accept it or allow comment path updates in the moved\n  files.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 4,
+              "review_content_id": "bfe946adc47bf9f2994d8abe0508ce5bebf1e7ac9a0660c8b4f2aa2c4f77cbe9",
+              "verdict": "APPROVE",
+              "at": "2026-11-26T21:00:00Z"
+            }
+          ]
+        },
+        "F-62f975f33c61": {
+          "digest": "62f975f33c614c77cf206314393db3172f14321464d76387ada0c365c7f062bb",
+          "text": "**The `git diff -M --stat` check cannot show `draft.ts` as a rename.** CP2 (`docs/milestones/ss-03-shared-domain-PLAN.md:235-236`) expects \"the four moves as renames\", but the split recreates `app/src/features/split/draft.ts` at its old path. Plain `-M` only pairs a deleted path with an added one, so `shared/src/draft.ts` will show as a new file and the old path as modified. Nothing goes wrong for the user. At CP2, use `git diff -B -M --stat` (or `-C`) for the draft move, or record that it shows as add plus modify.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 5,
+              "review_content_id": "b9ff3f24ad6437a9b4e3abd54e6f62f81e011ac43a9d70611e4dee4f4b59077a",
+              "verdict": "APPROVE",
+              "at": "2026-11-26T21:05:38Z"
+            }
+          ]
+        }
       }
     }
   },
