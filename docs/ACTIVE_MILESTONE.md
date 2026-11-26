@@ -14,7 +14,13 @@ Behaviour-neutral refactor, three checkpoints, plan at
   (default: `createIdbStore`); `HouseholdDataProvider` memoises `store` from
   `db` and `HouseholdDataValue` gains it. Additive: `db` and every consumer
   unchanged. `typecheck`, `lint` pass; `activeStore` and `src/pages` tests pass.
-- **CP3:** not started.
+- **CP3 (complete):** the 14 consumers read `store` from `useHouseholdData()`
+  and call `store.method(...)`; `useLoaded`/`useLedger` take the store and
+  `householdData.ts` no longer imports `repository.ts`; `db` is dropped from the
+  context value and the provider. `app/src/data/seam.test.ts` fails if a
+  non-test file outside `src/data/` imports `repository.ts`. `typecheck`, `lint`,
+  `format:check` pass; full `npm test` passes (99 files, 1694 tests, 1 skipped).
+  Browser flows not run.
 
 ## Last completed: ss-01-adr — Record the self-hosted storage decisions
 

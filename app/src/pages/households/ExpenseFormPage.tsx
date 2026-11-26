@@ -1,6 +1,5 @@
 import { useCallback } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router'
-import { getExpense } from '../../data/repository.ts'
 import { QuickExpenseForm } from '../../features/household/components/QuickExpenseForm.tsx'
 import { useLoaded } from '../../features/household/householdData.ts'
 import { isoDate } from '../../features/household/model.ts'
@@ -8,6 +7,7 @@ import { useT } from '../../i18n/language.ts'
 import { Card } from '../../ui/Card.tsx'
 import { EXPENSE_PARAM } from '../../features/household/components/ExpenseRow.tsx'
 import { useHouseholdContext } from './householdContext.ts'
+import type { LedgerStore } from '../../data/ledgerStore.ts'
 
 /** A new quick expense, or editing one (M4 plan, CP3). */
 export function NewExpensePage() {
@@ -41,7 +41,9 @@ export function EditExpensePage() {
   const location = useLocation()
   const { eid = '' } = useParams()
   const { household, members } = useHouseholdContext()
-  const loaded = useLoaded(useCallback((db) => getExpense(db, eid), [eid]))
+  const loaded = useLoaded(
+    useCallback((store: LedgerStore) => store.getExpense(eid), [eid]),
+  )
   if (loaded.state !== 'ready') return null
   const expense = loaded.value
   if (expense === null || expense.householdId !== household.id) {

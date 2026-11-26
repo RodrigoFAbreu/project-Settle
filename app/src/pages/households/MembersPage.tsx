@@ -3,16 +3,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useRegion } from '../../app/region.ts'
 import { writeHouseholdPointer } from '../../data/pointer.ts'
-import {
-  MemberInUseError,
-  MemberLimitError,
-  addMember,
-  deleteMember,
-  renameHousehold,
-  renameMember,
-  setHouseholdArchived,
-  setMemberLeft,
-} from '../../data/repository.ts'
+import { MemberInUseError, MemberLimitError } from '../../data/ledgerStore.ts'
 import { useHouseholdData } from '../../features/household/householdData.ts'
 import { dateLocale, formatDate } from '../../features/household/format.ts'
 import { nameError } from '../../features/household/forms.ts'
@@ -49,7 +40,7 @@ type Editing =
 export function MembersPage() {
   const { t, language } = useLanguage()
   const { region } = useRegion()
-  const { db, changed } = useHouseholdData()
+  const { store, changed } = useHouseholdData()
   const { household, members, unreadableMembers } = useHouseholdContext()
   const navigate = useNavigate()
   const today = isoDate(new Date())
@@ -122,8 +113,8 @@ export function MembersPage() {
             variant="quiet"
             aria-label={t('members.undoLeavingFor', { name: member.name })}
             onClick={() => {
-              if (db !== null) {
-                run(setMemberLeft(db, household.id, member.id, null))
+              if (store !== null) {
+                run(store.setMemberLeft(household.id, member.id, null))
               }
             }}
           >
@@ -161,9 +152,9 @@ export function MembersPage() {
       <AddMemberCard
         today={today}
         onAdd={(name, joinedOn) => {
-          if (db === null) return
+          if (store === null) return
           run(
-            addMember(db, {
+            store.addMember({
               v: RECORD_VERSION,
               id: newId(),
               householdId: household.id,
@@ -217,8 +208,8 @@ export function MembersPage() {
         initial={editing?.kind === 'rename' ? editing.member.name : ''}
         onClose={() => setEditing(null)}
         onSave={(name) => {
-          if (db !== null && editing?.kind === 'rename') {
-            run(renameMember(db, household.id, editing.member.id, name))
+          if (store !== null && editing?.kind === 'rename') {
+            run(store.renameMember(household.id, editing.member.id, name))
           }
         }}
       />
@@ -231,9 +222,13 @@ export function MembersPage() {
         initial={household.name}
         onClose={() => setEditing(null)}
         onSave={(name) => {
-          if (db !== null) {
+          if (store !== null) {
             run(
-              renameHousehold(db, household.id, name, new Date().toISOString()),
+              store.renameHousehold(
+                household.id,
+                name,
+                new Date().toISOString(),
+              ),
             )
           }
         }}
@@ -245,8 +240,8 @@ export function MembersPage() {
         today={today}
         onClose={() => setEditing(null)}
         onSave={(leftOn) => {
-          if (db !== null && editing?.kind === 'leave') {
-            run(setMemberLeft(db, household.id, editing.member.id, leftOn))
+          if (store !== null && editing?.kind === 'leave') {
+            run(store.setMemberLeft(household.id, editing.member.id, leftOn))
           }
         }}
       />
@@ -270,8 +265,8 @@ export function MembersPage() {
               <Button
                 variant="primary"
                 onClick={() => {
-                  if (db !== null) {
-                    run(deleteMember(db, household.id, editing.member.id))
+                  if (store !== null) {
+                    run(store.deleteMember(household.id, editing.member.id))
                   }
                 }}
               >
@@ -296,9 +291,9 @@ export function MembersPage() {
             <Button
               variant="primary"
               onClick={() => {
-                if (db === null) return
+                if (store === null) return
                 const now = new Date().toISOString()
-                void setHouseholdArchived(db, household.id, now, now).then(
+                void store.setHouseholdArchived(household.id, now, now).then(
                   () => {
                     writeHouseholdPointer(null)
                     changed()

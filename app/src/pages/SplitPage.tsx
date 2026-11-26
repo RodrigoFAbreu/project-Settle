@@ -15,7 +15,6 @@ import {
 } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { writeHouseholdPointer } from '../data/pointer.ts'
-import { getExpense, listMembers } from '../data/repository.ts'
 import { SaveToHouseholdDialog } from '../features/household/components/SaveToHouseholdDialog.tsx'
 import {
   useHouseholdData,
@@ -64,6 +63,7 @@ import { useT } from '../i18n/language.ts'
 import { Button } from '../ui/Button.tsx'
 import { Card } from '../ui/Card.tsx'
 import { Steps } from '../ui/Steps.tsx'
+import type { LedgerStore } from '../data/ledgerStore.ts'
 
 /** From this width, Who had what shows The split beside the items (S9). */
 const BESIDE = '(min-width: 1024px)'
@@ -95,7 +95,10 @@ export function SplitPage() {
 function ExpenseSplit({ expenseId }: { expenseId: string }) {
   const t = useT()
   const loaded = useLoaded(
-    useCallback((db: IDBDatabase) => getExpense(db, expenseId), [expenseId]),
+    useCallback(
+      (store: LedgerStore) => store.getExpense(expenseId),
+      [expenseId],
+    ),
   )
   if (loaded.state !== 'ready') return null
   const expense = loaded.value
@@ -128,7 +131,7 @@ function HouseholdSeeder({
   const { status } = useHouseholdData()
   const loaded = useLoaded(
     useCallback(
-      (db: IDBDatabase) => listMembers(db, householdId),
+      (store: LedgerStore) => store.listMembers(householdId),
       [householdId],
     ),
   )

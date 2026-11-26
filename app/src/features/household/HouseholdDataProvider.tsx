@@ -92,8 +92,8 @@ export function HouseholdDataProvider({
   const store = useMemo(() => (db === null ? null : activeStore(db)), [db])
 
   const value = useMemo(
-    () => ({ status, db, store, revision, open, changed }),
-    [status, db, store, revision, open, changed],
+    () => ({ status, store, revision, open, changed }),
+    [status, store, revision, open, changed],
   )
   return (
     <HouseholdDataContext.Provider value={value}>

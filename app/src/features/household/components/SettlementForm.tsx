@@ -3,8 +3,7 @@ import { useRegion } from '../../../app/region.ts'
 import {
   MissingReferenceError,
   SettlementNotFoundError,
-  saveSettlement,
-} from '../../../data/repository.ts'
+} from '../../../data/ledgerStore.ts'
 import { useT } from '../../../i18n/language.ts'
 import { parseAmount, type Cents } from '../../../lib/money.ts'
 import { Button } from '../../../ui/Button.tsx'
@@ -69,7 +68,7 @@ export function SettlementForm({
 }) {
   const t = useT()
   const { region } = useRegion()
-  const { db, changed } = useHouseholdData()
+  const { store, changed } = useHouseholdData()
   const [id] = useState(() => initial?.id ?? newId())
   const [createdAt] = useState(
     () => initial?.createdAt ?? new Date().toISOString(),
@@ -168,9 +167,9 @@ export function SettlementForm({
     if (saving) return
     setSubmitted(true)
     setSaveError(undefined)
-    if (errors.size > 0 || db === null) return
+    if (errors.size > 0 || store === null) return
     setSaving(true)
-    saveSettlement(db, settlement, { replacing: initial !== undefined }).then(
+    store.saveSettlement(settlement, { replacing: initial !== undefined }).then(
       () => {
         setSaving(false)
         changed()

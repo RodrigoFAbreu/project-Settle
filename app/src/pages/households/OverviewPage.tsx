@@ -6,7 +6,6 @@ import {
 import { useCallback, useId, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { useRegion } from '../../app/region.ts'
-import { listExpenses } from '../../data/repository.ts'
 import { monthlyTotals } from '../../features/household/charts.ts'
 import {
   ExpenseColumns,
@@ -38,6 +37,7 @@ import { Icon } from '../../ui/Icon.tsx'
 import { BalancesCard } from './BalancesCard.tsx'
 import { useHouseholdContext } from './householdContext.ts'
 import styles from './households.module.css'
+import type { LedgerStore } from '../../data/ledgerStore.ts'
 
 const LATEST = 6
 
@@ -61,7 +61,10 @@ export function OverviewPage() {
   const locale = dateLocale(language, region.locale)
   const base = `/households/${household.id}`
   const loaded = useLoaded(
-    useCallback((db) => listExpenses(db, household.id), [household.id]),
+    useCallback(
+      (store: LedgerStore) => store.listExpenses(household.id),
+      [household.id],
+    ),
   )
   const ledger = useLedger(household.id, members, unreadableMembers)
   const active = activeMembers(members, today)
