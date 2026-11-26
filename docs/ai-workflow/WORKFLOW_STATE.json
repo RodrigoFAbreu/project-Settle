@@ -6288,7 +6288,7 @@
       "registry_path": "docs/ai-workflow/registry/ss-02-store-interface-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/ss-02-store-interface-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 1,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -6401,7 +6401,216 @@
           "workflow_release": "2.29.10"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "88e361874c722f47752af31e5c408107cf80e5d4b24a9b9f79ed4a38e82b215f",
+        "approved_review_content_id": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+        "review_content_manifest": [
+          {
+            "path": "app/src/data/activeStore.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d1c25cd3e56d84d4ba5a37b73fa04fd86c09872f"
+          },
+          {
+            "path": "app/src/data/activeStore.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "786b43b7c0292da96dabf0ecc1aa34ad716f5e6e"
+          },
+          {
+            "path": "app/src/data/idbStore.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9e1faf4051bb4c14c2f77942930fad8d220e4735"
+          },
+          {
+            "path": "app/src/data/idbStore.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2bee9e72c8a5b9900ac95d4242dd5b1950931dc3"
+          },
+          {
+            "path": "app/src/data/ledgerStore.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1f0fa6eb83c57d1ad5cc7cf341c9826a68687fdc"
+          },
+          {
+            "path": "app/src/data/repository.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "580924738f01be2d0aa26c9675fa378274038900"
+          },
+          {
+            "path": "app/src/data/seam.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f7cabc06e4ab75f2775ae10a534dbb9d436d5732"
+          },
+          {
+            "path": "app/src/features/household/HouseholdDataProvider.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0b39fe304d812970bfe3a03d56441ef8a7c5474d"
+          },
+          {
+            "path": "app/src/features/household/components/QuickExpenseForm.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "dc4e8f1d8f862f22ede6f8c89b8f1484b0ef47da"
+          },
+          {
+            "path": "app/src/features/household/components/SaveToHouseholdDialog.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "699cf51e36de6b29ce5f61b00be461dcf0fd9a39"
+          },
+          {
+            "path": "app/src/features/household/components/SettlementForm.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d0b06dc58b66d19d1459649a8b20d0530b4746b8"
+          },
+          {
+            "path": "app/src/features/household/householdData.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a1628a13a950d6360e071c2d7f0882196c0eefeb"
+          },
+          {
+            "path": "app/src/pages/SplitPage.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "86e0d3600f9a033e8053309d8fb9a359a814532b"
+          },
+          {
+            "path": "app/src/pages/households/ExpenseDialog.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "8c21d79aa0c3d3c581a7057ebafb0a4a50f3329d"
+          },
+          {
+            "path": "app/src/pages/households/ExpenseFormPage.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9b81fe9188da1c76a4fb58aeb025046c2e92a67c"
+          },
+          {
+            "path": "app/src/pages/households/ExpensesPage.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b6d20e418c450046ef5af33cf9d40495936df663"
+          },
+          {
+            "path": "app/src/pages/households/HouseholdRedirect.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "47e57fabad9f890dd6246a92c6e4201a1f82dbb8"
+          },
+          {
+            "path": "app/src/pages/households/HouseholdShell.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "06fc4f671ff4e7cf4638a358b218fb05a0c04478"
+          },
+          {
+            "path": "app/src/pages/households/HouseholdsPage.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "cb1eac552bd5ed8dc2cd89fba27ff7e6130c53bd"
+          },
+          {
+            "path": "app/src/pages/households/MembersPage.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "286ee383945127d0db4dfe6b4c2f1f3498cb8b05"
+          },
+          {
+            "path": "app/src/pages/households/OverviewPage.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ed43eca6967ae77ebb1f3c913f200b585e73f405"
+          },
+          {
+            "path": "app/src/pages/households/SettlementDialog.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6ec4d330286ba25c7e9eba79f770bdba954d463f"
+          },
+          {
+            "path": "docs/ai-workflow/registry/ss-02-store-interface-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "277f61347e9afbf41a8507563077d0e843e8ba13"
+          }
+        ],
+        "reviewed_content_commit": "ad670d2b9af9dd916bac382a54ac39f5361d6cf8",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-26T17:47:47Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "adopted",
+          "file_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+          "adopted_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+          "adopted_at": "2026-11-23T01:46:17Z",
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+            "ledger": {
+              "local": {
+                "bundle_id": "88e361874c722f47752af31e5c408107cf80e5d4b24a9b9f79ed4a38e82b215f",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "f03fcb4cacab3871af22a0ed81c3da7f2dd55449485b98f6404706dab4f4b82a",
+                "ledger_entry_sha256": "6ea6e9a36ca286ddfe5dec58aac9325fb425eb78c0759eb4491a881afb85c63d",
+                "run_ref": "session:local .ai-review/ss-02-store-interface/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "88e361874c722f47752af31e5c408107cf80e5d4b24a9b9f79ed4a38e82b215f",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "93b5e6d54371df40fa757dddd501e5da612ad93a4e2a572bb47d7600accfefbd",
+                "ledger_entry_sha256": "9fa12e230f8e9fa9010f7484edfc9422ba88c51efdfb4c76a21db9266ae12ad1",
+                "run_ref": "codex:20261126T174516Z-3e498ae7",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-26T17:47:47Z",
+          "workflow_release": "2.29.10"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "568e3759c934deea39bac085e76b6c94cfffddf393d2dded3748268355267f75",
@@ -6432,12 +6641,12 @@
           "external": 1
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 13,
-      "last_transition": "2026-11-26T17:41:07Z",
+      "state_revision": 16,
+      "last_transition": "2026-11-26T17:47:47Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -6495,6 +6704,55 @@
               "at": "2026-11-26T17:28:24Z"
             }
           ]
+        },
+        "F-315b5ecea563": {
+          "digest": "315b5ecea563929c2892da8a1f107d56fe1117bb15d9a35e01335aa1ede2aa16",
+          "text": "O1: `HouseholdsPage.tsx` (`useCallback((store: LedgerStore) => loadRows(store, today), ...)`) and `SaveToHouseholdDialog.tsx` (`useCallback((store: LedgerStore) => store.listHouseholds(), [])`) name the callback parameter `store`, shadowing the `store` destructured from `useHouseholdData()` in the same component. Behaviour is correct (the callback must use its argument, which is the same object), but a reader can mistake which one is meant; other call sites use `s`. Cosmetic only; nothing the user sees changes.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+              "verdict": "APPROVE",
+              "at": "2026-11-26T17:50:00Z"
+            }
+          ]
+        },
+        "F-8213dca3fd59": {
+          "digest": "8213dca3fd5936b3cc44f0922e723d18df50a93b08825af42f903ad46410598b",
+          "text": "`app/src/data/seam.test.ts:29`: The import regex misses valid dynamic imports containing comments or template literals, such as ``import(`../data/repository.ts`)``. Extend detection and add fixtures for these forms. No current consumer bypasses the seam.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+              "verdict": "APPROVE",
+              "at": "2026-11-26T17:47:02Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "88e361874c722f47752af31e5c408107cf80e5d4b24a9b9f79ed4a38e82b215f",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-26T17:50:00Z",
+          "verdict_sha256": "f03fcb4cacab3871af22a0ed81c3da7f2dd55449485b98f6404706dab4f4b82a",
+          "run_ref": "session:local .ai-review/ss-02-store-interface/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "88e361874c722f47752af31e5c408107cf80e5d4b24a9b9f79ed4a38e82b215f",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-26T17:47:02Z",
+          "verdict_sha256": "93b5e6d54371df40fa757dddd501e5da612ad93a4e2a572bb47d7600accfefbd",
+          "run_ref": "codex:20261126T174516Z-3e498ae7",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
