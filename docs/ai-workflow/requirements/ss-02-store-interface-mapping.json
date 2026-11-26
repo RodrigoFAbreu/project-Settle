@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "work_item_id": "ss-02-store-interface",
+  "requirements": {
+    "REQ-1": {
+      "description": "A LedgerStore interface covers every operation repository.ts exports today (households, members, expenses including expensesWithReceiptKey, settlements) with the same typed errors, defined once and re-exported by repository.ts",
+      "checkpoint_ids": [
+        "CP1"
+      ]
+    },
+    "REQ-2": {
+      "description": "The IndexedDB code stays as one implementation (db.ts, records.ts and the migration runner untouched) and one module hands the app the active store, defaulting to IndexedDB",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    },
+    "REQ-3": {
+      "description": "The 14 consumers use the active store and no longer import repository.ts; a test guards the seam",
+      "checkpoint_ids": [
+        "CP3"
+      ]
+    },
+    "REQ-4": {
+      "description": "Behaviour, UI and stored data do not change: the existing tests pass unchanged except import paths; no second implementation, server or config",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2",
+        "CP3"
+      ]
+    }
+  }
+}

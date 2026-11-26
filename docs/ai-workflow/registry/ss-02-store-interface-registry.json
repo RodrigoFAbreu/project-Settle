@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "work_item_id": "ss-02-store-interface",
+  "plan_revision": 1,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "the LedgerStore interface and its IndexedDB implementation",
+      "depends_on": [],
+      "complexity": 2,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "the active-store module and the provider",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 1,
+      "session_target": 1
+    },
+    {
+      "id": "CP3",
+      "name": "switch the 14 consumers and guard the seam",
+      "depends_on": [
+        "CP2"
+      ],
+      "complexity": 3,
+      "session_target": 1
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": null,
+  "active_work_item_id": "ss-02-store-interface",
   "work_items": {
     "milestone-0": {
       "work_item_type": "product",
@@ -6277,6 +6277,212 @@
         },
         "evaluated_at": "2026-11-25T17:40:07Z",
         "workflow_release": "2.29.10"
+      }
+    },
+    "ss-02-store-interface": {
+      "work_item_type": "product",
+      "work_item_kind": "product",
+      "work_item_id": "ss-02-store-interface",
+      "parent_work_item_id": null,
+      "plan_path": "docs/milestones/ss-02-store-interface-PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/ss-02-store-interface-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/ss-02-store-interface-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "IMPLEMENTING",
+      "plan_revision": 1,
+      "implementation_revision": null,
+      "functional_review_round": null,
+      "base_commit": "f0bccadd4f6418ad60c7d939af9ada0f520d1e09",
+      "reviewed_implementation_head": null,
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": null,
+      "checkpoints": {},
+      "current_bundle_id": "78ccdd755d9cf1b8f8b2be10b5b691d2ce1823652db0cb22d4ec83702eb6d973",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "78ccdd755d9cf1b8f8b2be10b5b691d2ce1823652db0cb22d4ec83702eb6d973",
+        "approved_review_content_id": "568e3759c934deea39bac085e76b6c94cfffddf393d2dded3748268355267f75",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/ss-02-store-interface-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "65cc2ba6a704082f2b9e0ac7eccd335250432959"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/ss-02-store-interface-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d06c199ab3bfb34479728571623d515b722464ce"
+          },
+          {
+            "path": "docs/milestones/ss-02-store-interface-PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d055487780f1d8a86c0a15b78dbca4168f7509be"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-26T17:32:11Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "adopted",
+          "file_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+          "adopted_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+          "adopted_at": "2026-11-23T01:46:17Z",
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "568e3759c934deea39bac085e76b6c94cfffddf393d2dded3748268355267f75",
+            "ledger": {
+              "local": {
+                "bundle_id": "78ccdd755d9cf1b8f8b2be10b5b691d2ce1823652db0cb22d4ec83702eb6d973",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "191e82cf1e2579243bac01b4ea177b51e5ed4f5555ce5f20556dfce2477066ca",
+                "ledger_entry_sha256": "70a9ae94473be32448d88edd0f470d3c9c30a12e2711c2b5db7a7d2487b60c30",
+                "run_ref": "session:local .ai-review/ss-02-store-interface/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "78ccdd755d9cf1b8f8b2be10b5b691d2ce1823652db0cb22d4ec83702eb6d973",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "a5b853eaf969a2fd2a7a48e5129517cadfd1827d583ac670434c256b9ab4f924",
+                "ledger_entry_sha256": "fbb875608025bd121ab8330887a4c228bbdbbcb7dc2b8d977edd66deec18e44e",
+                "run_ref": "codex:20261126T172844Z-f1f43377",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-26T17:32:11Z",
+          "workflow_release": "2.29.10"
+        }
+      },
+      "technical_approval": null,
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "568e3759c934deea39bac085e76b6c94cfffddf393d2dded3748268355267f75",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "78ccdd755d9cf1b8f8b2be10b5b691d2ce1823652db0cb22d4ec83702eb6d973",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-26T17:28:24Z",
+          "verdict_sha256": "191e82cf1e2579243bac01b4ea177b51e5ed4f5555ce5f20556dfce2477066ca",
+          "run_ref": "session:local .ai-review/ss-02-store-interface/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "78ccdd755d9cf1b8f8b2be10b5b691d2ce1823652db0cb22d4ec83702eb6d973",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-26T17:30:15Z",
+          "verdict_sha256": "a5b853eaf969a2fd2a7a48e5129517cadfd1827d583ac670434c256b9ab4f924",
+          "run_ref": "codex:20261126T172844Z-f1f43377",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 1,
+          "external": 1
+        },
+        "implementation": {
+          "local": 0,
+          "external": 0
+        }
+      },
+      "state_revision": 6,
+      "last_transition": "2026-11-26T17:32:11Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-26T17:25:56Z",
+        "consumed": null,
+        "published": {
+          "review_content_id": "568e3759c934deea39bac085e76b6c94cfffddf393d2dded3748268355267f75",
+          "plan_revision": 1
+        },
+        "bound": {
+          "review_content_id": "568e3759c934deea39bac085e76b6c94cfffddf393d2dded3748268355267f75",
+          "bundle_id": "78ccdd755d9cf1b8f8b2be10b5b691d2ce1823652db0cb22d4ec83702eb6d973",
+          "plan_revision": 1
+        }
+      },
+      "optional_findings": {
+        "F-07f7204e22b4": {
+          "digest": "07f7204e22b4d27d6708f539328ead75d84ee8723eb69e57ea3e82dc8b236365",
+          "text": "CP3's wording \"Drop `db` from the context value (and the provider)\" could be read as removing the provider's `db` state. That state must stay: the provider still needs it to build the store, to clear it on version change and to close it (`useEffect(() => () => db?.close(), [db])`, `HouseholdDataProvider.tsx:84`). Only the field in `HouseholdDataValue` should go.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "568e3759c934deea39bac085e76b6c94cfffddf393d2dded3748268355267f75",
+              "verdict": "APPROVE",
+              "at": "2026-11-26T17:28:24Z"
+            }
+          ]
+        },
+        "F-1b3ed366f1cb": {
+          "digest": "1b3ed366f1cb929cd4564f5d269e33c149b6b038f639b8d712ba3df6c8a38352",
+          "text": "`seam.test.ts` only forbids importing `repository.ts`. A consumer could still import `idbStore.ts` (or call `createIdbStore`) directly and bypass `activeStore.ts`, which is the place `ss-11` will switch stores. Consider having the test also forbid `idbStore.ts` outside `app/src/data/`.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "568e3759c934deea39bac085e76b6c94cfffddf393d2dded3748268355267f75",
+              "verdict": "APPROVE",
+              "at": "2026-11-26T17:28:24Z"
+            }
+          ]
+        },
+        "F-1a193a2cf989": {
+          "digest": "1a193a2cf98986416e5aa0f535427bd7829df4e8042b16b29050b7aac048955b",
+          "text": "CP3's prose says \"each of the 14 consumers\" right after handling `householdData.ts` separately. The 14 already include `householdData.ts` (13 listed component/page files plus it). The intent is clear; only the count reads as if it were 14 besides it.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "568e3759c934deea39bac085e76b6c94cfffddf393d2dded3748268355267f75",
+              "verdict": "APPROVE",
+              "at": "2026-11-26T17:28:24Z"
+            }
+          ]
+        }
       }
     }
   },
