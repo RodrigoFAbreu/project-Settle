@@ -154,41 +154,52 @@ None. The last plan, `lidl-layout-fixture`'s, is archived at
 
 ## Functional review checklist
 
-Item `ss-01-adr` (docs only; no app code, no build, no network, no `gh`).
-Every flow below runs offline from the repository checkout and writes nothing.
+Item `ss-02-store-interface` (behaviour-neutral refactor: the ledger sits
+behind `LedgerStore`; the user sees no change). Automated checks run offline in
+`app/`; the browser flows need a build and Chromium, so a sandbox without them
+reports those flows as not run.
 
-**Setup:** branch `feature/ss-01-adr`, clean tree. Nothing to install for the
-reading flows; flow 4 needs `app/` dependencies (`npm ci` already done).
+**Setup:** branch `feature/ss-02-store-interface`, clean tree. In `app/`:
+`npm ci` (once), then `npm run dev` (or `npm run build && npm run preview`)
+for the browser flows. No feature flags.
 
-**Test data:** none.
+**Test data:** a fresh browser profile (no data), and optionally a profile that
+already holds a household with members, a few expenses and one settlement
+(create them in flow 4; reuse them in flow 5 to prove nothing was lost).
 
 **Flows**
 
-1. **The ADR is complete.** Open `docs/adr/0007-self-hosted-ledger-store.md`.
-   Expected: Context, 11 numbered Decisions, Slices, Consequences and
-   "What this ADR does not decide". Decisions 1-4 are labelled `(owner)`
-   (PostgreSQL, TypeScript server on Node, one image/one origin, online-only
-   with 409 on a stale write); decisions 5-11 are labelled `(proposal)`
-   (API under `/api/v1`, client ids and server versions, ADR 0005's write
-   contract kept, shared vs per-device data, store selection, room for
-   sign-in, data protection).
-2. **Online-only error path.** In decision 9, an invalid JSON store config
-   leads to the online-only error, not a silent fallback to local storage.
-3. **Roadmap points at the ADR.** In `docs/ROADMAP.md`, the M5.5 section's
-   "Decided (owner, 2026-11-23)" line links to `adr/0007-self-hosted-ledger-store.md`
-   and the link resolves; "Recorded in ADR 0007" lists the API shape, shared
-   vs per device, store selection, sign-in room, data protection, M6/M14.
-4. **Automated checks (optional re-run).** In `app/`: `npm run typecheck`,
-   `npm run lint`, `npm run format:check`, `npm test`. Expected: all pass
-   (1685 tests, 1 skipped); the diff touches no `app/` files.
-5. **Scope.** `git diff 286ba9c..HEAD --stat` outside `docs/ai-workflow` and
-   `.ai-review` shows only `ACTIVE_MILESTONE.md`, `ROADMAP.md`, the ADR and
-   `docs/milestones/ss-01-adr-PLAN.md`.
+1. **Automated checks.** In `app/`: `npm run typecheck`, `npm run lint`,
+   `npm run format:check`, `npm test`. Expected: all pass (99 files, 1694
+   tests, 1 skipped).
+2. **The seam holds.** `npx vitest run src/data/seam.test.ts`. Expected: 2
+   tests pass. Then add `import '../../data/repository'` to a non-test file
+   under `src/pages/` and re-run: the test fails naming that file. Revert the
+   change.
+3. **The store is tested through the interface.** `npx vitest run
+   src/data/idbStore.test.ts src/data/activeStore.test.ts`. Expected: pass;
+   the tests call `LedgerStore` methods only, and `activeStore(db)` returns
+   the IndexedDB binding.
+4. **Household flows in the browser (no change from before).** Create a
+   household, add two members, add an expense (quick expense and the full
+   form), edit it, delete it, record a settlement, and view Overview balances.
+   Expected: each step works as on `main`; balances are exact and settling up
+   zeroes them.
+5. **Data persists across reload.** Reload the page, then reopen the household
+   from the list. Expected: members, expenses and settlement are all still
+   there; a profile created on `main` before switching branches also loads.
+6. **Split page and save-to-household.** On the Split page, split a bill and
+   use "save to household". Expected: the expense appears in that household's
+   Expenses.
+7. **Scope.** `git diff f0bccad..HEAD --stat` outside `docs/ai-workflow` and
+   `.ai-review` shows only `app/src/data/`, the provider, `householdData.ts`,
+   the 14 consumers under `app/src/features/household` and `app/src/pages`,
+   `docs/ACTIVE_MILESTONE.md` and the plan.
 
-**Known limitations / out of scope:** the ADR records decisions only. No
-server, API, schema, deployment or app change exists yet; those are slices
-`ss-02` to `ss-14`. Decisions marked `(proposal)` are open to the owner's
-change in review.
+**Known limitations / out of scope:** no server, API, schema or deployment
+change, and no store-selection config (later slices, `ss-03` onward). IndexedDB
+stays the only store. No stored-data change, so no migration. The browser flows
+(4-6) were not run by the implementer.
 
 <!--
 This file is `workflow_state.FUNCTIONAL_CHECKLIST_PATH`. It is
