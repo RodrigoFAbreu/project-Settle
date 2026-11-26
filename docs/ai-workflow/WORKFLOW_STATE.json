@@ -7012,7 +7012,7 @@
       "registry_path": "docs/ai-workflow/registry/ss-03-shared-domain-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/ss-03-shared-domain-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_LOCAL_IMPLEMENTATION_REVIEW",
+      "phase": "AWAITING_FUNCTIONAL_REVIEW",
       "plan_revision": 5,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -7125,7 +7125,810 @@
           "workflow_release": "2.29.10"
         }
       },
-      "technical_approval": null,
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "95e96e5153a565159f49167910222b9ff6656f2f7dfa45f8c4e01657f2b0fca5",
+        "approved_review_content_id": "1ceb99c9cb2fae7d3119f3b379b2ae32045163c1315ba427234fcdad90327627",
+        "review_content_manifest": [
+          {
+            "path": "app/README.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f2ac717f0e8707350cb1acdd57ba7cf03138cb12"
+          },
+          {
+            "path": "app/eslint.config.js",
+            "exists": true,
+            "mode": "100644",
+            "blob": "897c479da1439ac8a32c3b6156fd33f58ef43400"
+          },
+          {
+            "path": "app/package.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0ee426ef0b3ee2b2737eac95365071dc600c102a"
+          },
+          {
+            "path": "app/src/app/region.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "034e34ac3d7c7fd04aa792f070f5cd6b317128c5"
+          },
+          {
+            "path": "app/src/data/completion.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "64f1b07b48ac0bd2b55f107697a911d4050d6dac"
+          },
+          {
+            "path": "app/src/data/idbStore.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "cb0d82bdec4f849f1bf06ba0e73cd1cc9891f798"
+          },
+          {
+            "path": "app/src/data/ledgerStore.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4090ee4e36d2235cd242d2efd3a06ad343a9892c"
+          },
+          {
+            "path": "app/src/data/repository.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f712d588cc6cdb24582aa682454d4891f8fbf1ac"
+          },
+          {
+            "path": "app/src/data/settlements.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "30debacf02af98f97c8f42397cfea48f0f121417"
+          },
+          {
+            "path": "app/src/data/sharedBoundary.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5f1ba84280a86cf259ca1b899ef0941e5d9b1b3e"
+          },
+          {
+            "path": "app/src/features/household/balanceText.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "645053b81826cb19d960df0e0ff413dd076703a1"
+          },
+          {
+            "path": "app/src/features/household/balanceText.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ed9afb0d20d78cfdccceeb0fbc0bb006104edac8"
+          },
+          {
+            "path": "app/src/features/household/balanceWords.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "dbb31020e96c75e0f4eb1a42dd6870596d2b4552"
+          },
+          {
+            "path": "app/src/features/household/balances.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d5cc0c90c8ae0c6770e39aa6ee7e1ef60f659048"
+          },
+          {
+            "path": "app/src/features/household/balances.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "efff2414967038ade9924c442ed2529c8348814e"
+          },
+          {
+            "path": "app/src/features/household/categories.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d4a27369b9f05df61a8f31ad1024d061318c5460"
+          },
+          {
+            "path": "app/src/features/household/charts.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9604499e3244ab8950c0595de291f3e2c39e8540"
+          },
+          {
+            "path": "app/src/features/household/charts.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "8c8eefb2c9da8fa0d70f76d8064607447d6d218c"
+          },
+          {
+            "path": "app/src/features/household/components/ExpenseRow.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3859fa1f62000c933a4a58569a968d89d9082658"
+          },
+          {
+            "path": "app/src/features/household/components/MonthCharts.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "62fbf496bbbd4d335952d1693a6d30623be67532"
+          },
+          {
+            "path": "app/src/features/household/components/QuickExpenseForm.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "12a0a69bcaeaf1eb6fd42dd66c8e5d5478b646e1"
+          },
+          {
+            "path": "app/src/features/household/components/SaveToHouseholdDialog.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2215b2cf97b58327415ab57bc85686661e4df94d"
+          },
+          {
+            "path": "app/src/features/household/components/SettlementForm.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4e0d7e8bea6b16c7157e504d2296f66f535b1081"
+          },
+          {
+            "path": "app/src/features/household/components/SettlementRow.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2ff3109ff5a7970182a3a77e8d8caef47b57c7b8"
+          },
+          {
+            "path": "app/src/features/household/format.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "645e410753295f4910868b8855e783d6851638fe"
+          },
+          {
+            "path": "app/src/features/household/forms.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b1b42adbe71faefec36c67cc590a2c78fe9ca539"
+          },
+          {
+            "path": "app/src/features/household/householdData.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "51e49fd7b9dd8fb7937ab09ff61615e3f78771cb"
+          },
+          {
+            "path": "app/src/features/household/itemised.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1a6ff6460699ebde4f19a71c4ad8401b3369bd8d"
+          },
+          {
+            "path": "app/src/features/household/model.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "45ba76fbf1c1bb6c8d3aa5eeefd6cc926af13f0d"
+          },
+          {
+            "path": "app/src/features/household/quickForm.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5e4ae89e22b6100b28ae2685a40b78f6ff5c4926"
+          },
+          {
+            "path": "app/src/features/household/search.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c3f7da0b0af7319347aee19a93f1a29b39fe1907"
+          },
+          {
+            "path": "app/src/features/household/search.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "c62b1c5f365756a4c1c805c075b6a66a8d2b7eda"
+          },
+          {
+            "path": "app/src/features/household/shares.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "198d741715518fc39c91a17b254e320b37693d4d"
+          },
+          {
+            "path": "app/src/features/household/shares.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "70cdc7bb19a8d46ed077191659b104be05398e31"
+          },
+          {
+            "path": "app/src/features/household/totals.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a2d684699931d9f798312daebb620356650de61a"
+          },
+          {
+            "path": "app/src/features/receipt/accuracy.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2fbc9795b97ccd4cba9f4b6ef3ae66bab0604b6e"
+          },
+          {
+            "path": "app/src/features/receipt/accuracy.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9886a55a1e60d841ffdd039d309540b8de23f1ee"
+          },
+          {
+            "path": "app/src/features/receipt/components/ReceiptCheck.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f634a8e9ab41eb70a9e07eb4924041bd15a633a9"
+          },
+          {
+            "path": "app/src/features/receipt/components/ReceiptLines.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "20ea5de286b1cceaa70604ebeb60c6764dc6639b"
+          },
+          {
+            "path": "app/src/features/receipt/components/ScanReceipt.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3d07cd994c3363d7b205229929d3de24c56c7d3a"
+          },
+          {
+            "path": "app/src/features/receipt/expectedBill.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "db77f98f8973df2de64597fd9a0a68f1c272ee9f"
+          },
+          {
+            "path": "app/src/features/receipt/expectedBill.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5db2754fbdbd8257f144d6274480e588a35c415f"
+          },
+          {
+            "path": "app/src/features/receipt/fiscalQr.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0a54c69242a0b28d647fcc379e857c8aef839e42"
+          },
+          {
+            "path": "app/src/features/receipt/fixtures/textFixtures.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "50b8b8f00f9a6ec6e4781bcfe312d0c51245ad4c"
+          },
+          {
+            "path": "app/src/features/receipt/importReceipt.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6dee12c4bea4804798bbef0c277179ebae7bcf95"
+          },
+          {
+            "path": "app/src/features/receipt/importReceipt.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "de879076599fb2e7508c7de717f2bf2811fde875"
+          },
+          {
+            "path": "app/src/features/receipt/importUi.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5099418d8b64b12926f290bfe3da0a07949c4718"
+          },
+          {
+            "path": "app/src/features/receipt/importUi.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "73e3c7b9eda940737547e755b8e63206b90be47d"
+          },
+          {
+            "path": "app/src/features/receipt/lineReview.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "e1e0679a34142645595958e5419ad98f419a0e43"
+          },
+          {
+            "path": "app/src/features/receipt/lineReview.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2e481a31861ea2a54341eee7c274739d4b3f55e6"
+          },
+          {
+            "path": "app/src/features/receipt/localFixtures.node.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2c4013b8b51176b6d6dcc56e88a6a783e506259c"
+          },
+          {
+            "path": "app/src/features/receipt/localReport.node.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "af1647882a618139b01418ea716119f8cf849346"
+          },
+          {
+            "path": "app/src/features/receipt/messages.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "8fbc47a99dc76dc2ec675e925e835a9719f42993"
+          },
+          {
+            "path": "app/src/features/receipt/model.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "8391e91cb84df68cb4082da3fa96e23a16d4e268"
+          },
+          {
+            "path": "app/src/features/receipt/parse/amounts.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "bc3c8bcc5ed39e193dfdc1914ad8521c2e6c9e13"
+          },
+          {
+            "path": "app/src/features/receipt/parse/parseReceiptText.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9017add483ab3f67d2b2c3622deddf91d4ced9fa"
+          },
+          {
+            "path": "app/src/features/receipt/receiptKey.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a4d0fbf6fa7935f3b6804a2c5ff2faf001cbceba"
+          },
+          {
+            "path": "app/src/features/receipt/receiptStore.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f9cfbbea466e6a976e92bb8549605809431d89a5"
+          },
+          {
+            "path": "app/src/features/receipt/receiptStore.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0edae3c27582f649b6cff113698c8f732afcc5fa"
+          },
+          {
+            "path": "app/src/features/receipt/receipts.ocr.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6e4efb2b7080761c90d2254e338b28bb0b5eb877"
+          },
+          {
+            "path": "app/src/features/receipt/reconcile.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4cf080bcc83a412e347667ee385549d8af8c2bd1"
+          },
+          {
+            "path": "app/src/features/receipt/reconcile.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a0c95430c141048f2c5391b1c48cb42f70634c20"
+          },
+          {
+            "path": "app/src/features/receipt/review.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d655464e26bd0d7a2842e6279f7b8b6277c5b85c"
+          },
+          {
+            "path": "app/src/features/receipt/toBill.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "50c1ce734078b92b1d5508050795df3e5a5acab7"
+          },
+          {
+            "path": "app/src/features/receipt/toBill.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7ab4d805cceccee4d845d7f0941df353032cddaf"
+          },
+          {
+            "path": "app/src/features/split/billReducer.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d6573c92a6613c586b47da67f922b7652fac6581"
+          },
+          {
+            "path": "app/src/features/split/billReducer.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "13808d22959f72894d24e43a8df0eafa50d93974"
+          },
+          {
+            "path": "app/src/features/split/components/AdjustmentsSection.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "8088fa2b3070a29cac03d72ad4e8b9a479294bb4"
+          },
+          {
+            "path": "app/src/features/split/components/ItemsSection.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "82528bd47842db330a0af6537f2bd0cd7eb7b6e6"
+          },
+          {
+            "path": "app/src/features/split/components/PeopleSection.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "565fc00480c1965d9ff25f12850e252c4c8bfe72"
+          },
+          {
+            "path": "app/src/features/split/components/ResultSection.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "af169283eae6ce071ba883dcff25c03a35ca275e"
+          },
+          {
+            "path": "app/src/features/split/components/fields.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "bb259df2cd3c64c8711db74e129aaa641c3f0480"
+          },
+          {
+            "path": "app/src/features/split/components/inputs.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3a794031019be998042bf70ddc035867b5c1274e"
+          },
+          {
+            "path": "app/src/features/split/draft.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ece41d7b32886465bde0e382fbf4014e030dd02d"
+          },
+          {
+            "path": "app/src/features/split/draft.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "83529152efeccf92bc80abf9918abd230b4ee5a8"
+          },
+          {
+            "path": "app/src/features/split/format.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ed9c9452efd5eb67ecbceb7afb99f0d7b3a15b1a"
+          },
+          {
+            "path": "app/src/features/split/format.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f293ed1a78c05c5e9cb8e377843905b333b25f3d"
+          },
+          {
+            "path": "app/src/features/split/split.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b30594f37dec656f974095aa61c9b0636ad9dad5"
+          },
+          {
+            "path": "app/src/features/split/split.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4a706f506ce436a172f8f5d6bc0986ef5f4f3cd3"
+          },
+          {
+            "path": "app/src/features/split/steps.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2b619d9bcb0322cbaf724f2214ebfc74419364fa"
+          },
+          {
+            "path": "app/src/features/split/useBill.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a69772879d9770a4d96af72c5c9355598a474939"
+          },
+          {
+            "path": "app/src/i18n/notRead.test.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "27eca505d63f2c95c1b59f22eb401d814dc036f8"
+          },
+          {
+            "path": "app/src/i18n/portuguese.test.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1cd98973936a4a1b9686ff91895d92a664b51baf"
+          },
+          {
+            "path": "app/src/lib/money.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3ca4395d9004f613d08efdb71ae58c90970238fb"
+          },
+          {
+            "path": "app/src/pages/HomePage.test.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b3f73b1ccb69c27f38a7b17382b354efd8b1ee7d"
+          },
+          {
+            "path": "app/src/pages/SettingsPage.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5c30fdb95f0c6696db1b07d1de1989a9d793e87f"
+          },
+          {
+            "path": "app/src/pages/SplitPage.receipt.test.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9a0bab96e0dcb2382627ee5ad0ca43269a3d8d96"
+          },
+          {
+            "path": "app/src/pages/SplitPage.review.test.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "affdfe060f40e1f9b5fa602c590a14540a09a1cc"
+          },
+          {
+            "path": "app/src/pages/SplitPage.steps.test.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a7cadcfd340610f99eac2ed30e4831a95182bc92"
+          },
+          {
+            "path": "app/src/pages/SplitPage.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ac7781d7fe85195ea40905f1428ebc34b0b3f085"
+          },
+          {
+            "path": "app/src/pages/households/BalanceDetailPage.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "26c9aa3493bd76826be868945e5934ed2d68f60f"
+          },
+          {
+            "path": "app/src/pages/households/BalancesPage.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "adbd094dc94f3ab43aa992e5ee971a5b91fab81d"
+          },
+          {
+            "path": "app/src/pages/households/ExpenseDialog.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "98f22135ab05858cb60265aa4ce3144d7845a339"
+          },
+          {
+            "path": "app/src/pages/households/ExpenseFormPage.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "179ee7ed6ac7653beb56dea196b3da19f7905e2d"
+          },
+          {
+            "path": "app/src/pages/households/ExpensesPage.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1019b99982ae9ed4d93fd631a1e071915432a525"
+          },
+          {
+            "path": "app/src/pages/households/HouseholdShell.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "85c15d0caae67f1363511490723aca4d53a1719e"
+          },
+          {
+            "path": "app/src/pages/households/HouseholdsPage.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "7cc0ced5f7c337ad05536c36995e40d0135bd020"
+          },
+          {
+            "path": "app/src/pages/households/MembersPage.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6c5f566ab858260b5167092224a0b264913766f9"
+          },
+          {
+            "path": "app/src/pages/households/OverviewPage.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "cac801d0e27e160479ff49eda6a2c39129c14cf1"
+          },
+          {
+            "path": "app/src/pages/households/SettlementDialog.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f3a86c875463725e51ab5db8b5035bda695567f8"
+          },
+          {
+            "path": "app/src/pages/households/balances.test.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "fb2fd0ba76134c40b43993ea172c165dd97e4e23"
+          },
+          {
+            "path": "app/src/pages/households/expenseDialog.test.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "35e822673f529172a21b1878c22836883ed4de5a"
+          },
+          {
+            "path": "app/src/pages/households/expenses.test.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "788820db48f9986e8ba5cc48f4f5e1d380ea321d"
+          },
+          {
+            "path": "app/src/pages/households/householdContext.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f9b9a309081dcba3a8a8bfe566b25fdb6b0b50d5"
+          },
+          {
+            "path": "app/src/pages/households/itemised.test.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5ae34e708cd1fdceecdfa00368639e2d78f7d225"
+          },
+          {
+            "path": "app/src/pages/households/overviewCharts.test.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d3df8c6afa240ea62fe55b7d857276b2a6594316"
+          },
+          {
+            "path": "app/src/pages/households/payments.test.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "bd5c8893cfcc409703293c92bd6f1b20afd5b80c"
+          },
+          {
+            "path": "app/src/test/households.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "038d3fce01d66492630adab1d6113d209e9c4ab5"
+          },
+          {
+            "path": "app/src/ui/Amount.test.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3c5f4c0a1d52d65e1be43d07f4a026c2fadfe7d9"
+          },
+          {
+            "path": "app/src/ui/Amount.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "4f14cc4e8cdbf433b95f66967717341a1ccf5ee2"
+          },
+          {
+            "path": "app/src/ui/PersonBadge.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1041492e5a6c43bb289dc6710fbbdb68e7e1ca18"
+          },
+          {
+            "path": "app/src/ui/gallery/KitGallery.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "e19dd2cc07aaac938c5c77b2fe544fed562f7b9e"
+          },
+          {
+            "path": "app/src/ui/signedAmount.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6df50c1d73d8d82b990610446fee7ce71ab77265"
+          },
+          {
+            "path": "app/vite.config.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d7bdfe62d1ad962fad95a5472ff4519a64c955ef"
+          },
+          {
+            "path": "docs/ai-workflow/registry/ss-03-shared-domain-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "36aa3a8541eeabedb7a0e486e718a603d77a3179"
+          },
+          {
+            "path": "shared/README.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "3512d7406f4ff5149859a504ea56b17bb04883ee"
+          },
+          {
+            "path": "shared/src/bill.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6d72f663ecd4b3d9e119a46ec9379fd63daf56c5"
+          },
+          {
+            "path": "shared/src/draft.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "5679be2c1ead156c515e6aa14b2e032fff584401"
+          },
+          {
+            "path": "shared/src/household.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "abfe8a08a4a11c9271cb125ee8d1221a766b2adf"
+          },
+          {
+            "path": "shared/src/money.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "22c1f2b7977b0efc6b1f89e35348f7014cb1d1be"
+          },
+          {
+            "path": "shared/src/records.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "83b75995880c35214536ee55e24658df2b1726fb"
+          },
+          {
+            "path": "shared/tsconfig.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b7a898f0df5db427a7370a9209f072e84bb8b2d3"
+          }
+        ],
+        "reviewed_content_commit": "1780aafacf33b99a6f7ddfe2a58776a14e3277b9",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-26T22:12:00Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "adopted",
+          "file_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+          "adopted_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+          "adopted_at": "2026-11-23T01:46:17Z",
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "1ceb99c9cb2fae7d3119f3b379b2ae32045163c1315ba427234fcdad90327627",
+            "ledger": {
+              "local": {
+                "bundle_id": "95e96e5153a565159f49167910222b9ff6656f2f7dfa45f8c4e01657f2b0fca5",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "5542863e910b3a98169d24631fe227f755b823dad2779b5cd830262cb8dd9002",
+                "ledger_entry_sha256": "dc45817bfb19944e7664dfcf3168c83777ff74eaa8c4d525adf6a96796dedd3b",
+                "run_ref": "session:local .ai-review/ss-03-shared-domain/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "95e96e5153a565159f49167910222b9ff6656f2f7dfa45f8c4e01657f2b0fca5",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "a86b8fbef9bff72732d8f4f5326800bdaea47ef22f402d7f505c88716120647f",
+                "ledger_entry_sha256": "450548f7111590a518e25510e840f5b5fddc43cf1160bf7a4e6cbc0c3222d97d",
+                "run_ref": "codex:20261126T213509Z-8d363c56",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-26T22:12:00Z",
+          "workflow_release": "2.29.10"
+        }
+      },
       "technical_review_block_pins": [],
       "plan_review_stages": {
         "review_content_id": "b9ff3f24ad6437a9b4e3abd54e6f62f81e011ac43a9d70611e4dee4f4b59077a",
@@ -7156,12 +7959,12 @@
           "external": 3
         },
         "implementation": {
-          "local": 0,
-          "external": 0
+          "local": 1,
+          "external": 1
         }
       },
-      "state_revision": 27,
-      "last_transition": "2026-11-26T21:30:38Z",
+      "state_revision": 30,
+      "last_transition": "2026-11-26T22:12:00Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -7327,6 +8130,83 @@
               "at": "2026-11-26T21:05:38Z"
             }
           ]
+        },
+        "F-cb880600bf5c": {
+          "digest": "cb880600bf5c17ecc52b47df6f9df8c6551124646c9d2db58c7095642448341b",
+          "text": "`docs/adr/0005-local-ledger-store.md:30` still names `app/src/data/records.ts`. That file is now `shared/src/records.ts`. A reader who follows the ADR finds no file there. ADRs are historical records, so either leave the reference as it is or add a short \"(now `shared/src/records.ts`)\".",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "1ceb99c9cb2fae7d3119f3b379b2ae32045163c1315ba427234fcdad90327627",
+              "verdict": "APPROVE",
+              "at": "2026-11-26T21:34:43Z"
+            }
+          ]
+        },
+        "F-7d4876379070": {
+          "digest": "7d48763790706ce93b258b4541461cbc9341beb60bd5985bcba68e2fa06847fe",
+          "text": "`shared/src/draft.ts:1-5`: the header comment still describes the draft as \"kept in `localStorage`\". After the split, this file holds only the pure readers, and the storage half lives in `app/src/features/split/draft.ts`. The plan allows no edit to moved files beyond the two it names, so this is acceptable for now. It is worth a one-line fix the next time the file is touched, along with the stale `data/records.ts` name in `shared/src/household.ts:375`.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "1ceb99c9cb2fae7d3119f3b379b2ae32045163c1315ba427234fcdad90327627",
+              "verdict": "APPROVE",
+              "at": "2026-11-26T21:34:43Z"
+            }
+          ]
+        },
+        "F-8235a85fd6ac": {
+          "digest": "8235a85fd6acc1e9fe8804e5fe3cb77823c5385aca97e99e71f833521ad4f60e",
+          "text": "`TEST_RESULTS.md` does not record three checks that CP1 and CP2 name. First, the dev-server check. Second, the deliberate bad lines (`document` makes typecheck fail, `fetch` makes lint fail, bad formatting makes format:check fail, `window.localStorage` in `shared/src/draft.ts` makes typecheck fail). Third, the CP3 negative cases of the boundary guard. I reran the dev-server check myself: `/@fs/.../shared/src/money.ts`, `/src/pages/SettingsPage.tsx` and its `?raw` form answered 200, and a file outside both allowed roots (`container/Dockerfile`) answered 403. `eslint --print-config shared/src/money.ts`, run from the repository root, shows that the static-only `no-restricted-globals` and `no-restricted-properties` rules apply. `sharedBoundary.test.ts` tests the negative cases in code. This is bookkeeping only.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "1ceb99c9cb2fae7d3119f3b379b2ae32045163c1315ba427234fcdad90327627",
+              "verdict": "APPROVE",
+              "at": "2026-11-26T21:34:43Z"
+            }
+          ]
+        },
+        "F-3cdc45041412": {
+          "digest": "3cdc4504141243cd9a826901a64435ba245061ddb14842735e911b6e6ffbde00",
+          "text": "`app/README.md`'s layout tree no longer lists `src/lib/`, but `app/src/lib/money.test.ts` is still there. Either keep a `lib/` line (\"money.test.ts, which tests ../shared/src/money.ts\") or leave it as is.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "1ceb99c9cb2fae7d3119f3b379b2ae32045163c1315ba427234fcdad90327627",
+              "verdict": "APPROVE",
+              "at": "2026-11-26T21:34:43Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "1ceb99c9cb2fae7d3119f3b379b2ae32045163c1315ba427234fcdad90327627",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "95e96e5153a565159f49167910222b9ff6656f2f7dfa45f8c4e01657f2b0fca5",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-26T21:34:43Z",
+          "verdict_sha256": "5542863e910b3a98169d24631fe227f755b823dad2779b5cd830262cb8dd9002",
+          "run_ref": "session:local .ai-review/ss-03-shared-domain/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "95e96e5153a565159f49167910222b9ff6656f2f7dfa45f8c4e01657f2b0fca5",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-26T21:37:31Z",
+          "verdict_sha256": "a86b8fbef9bff72732d8f4f5326800bdaea47ef22f402d7f505c88716120647f",
+          "run_ref": "codex:20261126T213509Z-8d363c56",
+          "reviewer_model": "openai/gpt-6.1-sol"
         }
       }
     }
