@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": "ss-02-store-interface",
+  "active_work_item_id": null,
   "work_items": {
     "milestone-0": {
       "work_item_type": "product",
@@ -6288,7 +6288,7 @@
       "registry_path": "docs/ai-workflow/registry/ss-02-store-interface-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/ss-02-store-interface-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_FUNCTIONAL_REVIEW",
+      "phase": "MILESTONE_COMPLETE",
       "plan_revision": 1,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -6645,8 +6645,8 @@
           "external": 1
         }
       },
-      "state_revision": 16,
-      "last_transition": "2026-11-26T17:47:47Z",
+      "state_revision": 17,
+      "last_transition": "2026-11-26T18:54:15Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -6754,6 +6754,253 @@
           "run_ref": "codex:20261126T174516Z-3e498ae7",
           "reviewer_model": "openai/gpt-6.1-sol"
         }
+      },
+      "gate_evidence": {
+        "functional": {
+          "flow-1": {
+            "flow_id": "flow-1",
+            "status": "passed",
+            "head": "7aeace266e0a4cfd5f02e3ad515e29f90c4bdbb0",
+            "ran_at": "2026-11-26T17:53:31Z",
+            "summary": {
+              "checklist_blob": "55919e459b4caac035bf322a3a64f288684923d0",
+              "text": "Run by hand at the approved head in the repo checkout: typecheck, lint, format:check exit 0; npm test 99 files passed, 1694 passed, 1 skipped (matches the checklist)."
+            },
+            "log_digest": "66c8bb4cf562d410011cb84d29071bfdadb9085374933bddcf345a6aaa82da5c",
+            "run_ref": "operator:ss-02-flow-1",
+            "reporter": "orchestrator session (operator run)",
+            "identity": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+            "recorded_at": "2026-11-26T17:53:31Z"
+          },
+          "flow-2": {
+            "flow_id": "flow-2",
+            "status": "passed",
+            "head": "7aeace266e0a4cfd5f02e3ad515e29f90c4bdbb0",
+            "ran_at": "2026-11-26T17:53:31Z",
+            "summary": {
+              "checklist_blob": "55919e459b4caac035bf322a3a64f288684923d0",
+              "text": "Run by hand: seam.test.ts passes (2 tests); after adding an import of data/repository to src/pages/HomePage.tsx the seam test failed naming pages/HomePage.tsx; change reverted, tree clean."
+            },
+            "log_digest": "e631192ebc034edd45921885b24f9fb6dffd4f1a6425ffe382e79db4652d18a9",
+            "run_ref": "operator:ss-02-flow-2",
+            "reporter": "orchestrator session (operator run)",
+            "identity": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+            "recorded_at": "2026-11-26T17:53:31Z"
+          },
+          "flow-3": {
+            "flow_id": "flow-3",
+            "status": "passed",
+            "head": "7aeace266e0a4cfd5f02e3ad515e29f90c4bdbb0",
+            "ran_at": "2026-11-26T17:53:31Z",
+            "summary": {
+              "checklist_blob": "55919e459b4caac035bf322a3a64f288684923d0",
+              "text": "Run by hand: idbStore.test.ts, activeStore.test.ts and seam.test.ts all pass (9 tests)."
+            },
+            "log_digest": "cd47cdf583e5155b30fb8bb7652ba760da8bf6318903375da450301ab1656cf7",
+            "run_ref": "operator:ss-02-flow-3",
+            "reporter": "orchestrator session (operator run)",
+            "identity": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+            "recorded_at": "2026-11-26T17:53:31Z"
+          },
+          "flow-4": {
+            "flow_id": "flow-4",
+            "status": "passed",
+            "head": "7aeace266e0a4cfd5f02e3ad515e29f90c4bdbb0",
+            "ran_at": "2026-11-26T17:53:31Z",
+            "summary": {
+              "checklist_blob": "55919e459b4caac035bf322a3a64f288684923d0",
+              "text": "Run by hand in the built app (vite preview, built-in browser, fresh profile): created a household with two people, added an expense via the full form, recorded Ben's 15,00 payment through Mark as paid (balances reached settled up), edited the expense amount 30,00 to 40,00 (shares 20,00 each; Ben then owed 5,00, exact), deleted the expense with confirmation."
+            },
+            "log_digest": "12dbb22516850829bcf3ac3355bf882aafb1a7c4fac86685df52bc382b99eddc",
+            "run_ref": "operator:ss-02-flow-4",
+            "reporter": "orchestrator session (operator run)",
+            "identity": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+            "recorded_at": "2026-11-26T17:53:31Z"
+          },
+          "flow-5": {
+            "flow_id": "flow-5",
+            "status": "passed",
+            "head": "7aeace266e0a4cfd5f02e3ad515e29f90c4bdbb0",
+            "ran_at": "2026-11-26T17:53:31Z",
+            "summary": {
+              "checklist_blob": "55919e459b4caac035bf322a3a64f288684923d0",
+              "text": "Run by hand in the built app: after a full page reload the household list, members, edited expense and the settlement all persisted; balances after reload were Ana +5,00 and Ben -5,00. Not exercised: a profile created on main before switching branches."
+            },
+            "log_digest": "03b0fa36b811e6ec7e01fd007d78929d966052265f75849d87bbb874edd842f5",
+            "run_ref": "operator:ss-02-flow-5",
+            "reporter": "orchestrator session (operator run)",
+            "identity": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+            "recorded_at": "2026-11-26T17:53:31Z"
+          },
+          "flow-6": {
+            "flow_id": "flow-6",
+            "status": "passed",
+            "head": "7aeace266e0a4cfd5f02e3ad515e29f90c4bdbb0",
+            "ran_at": "2026-11-26T17:53:31Z",
+            "summary": {
+              "checklist_blob": "55919e459b4caac035bf322a3a64f288684923d0",
+              "text": "Run by hand in the built app: from the household's Add expense menu opened the Split page, typed one bill item (Pizza 12,00 shared by Ana and Ben), used Save to a household; the expense Pizza night 12,00 appeared in the household's Expenses with items and 6,00 shares."
+            },
+            "log_digest": "2cb8cc3c45c4d37ec270a485935b20c3ecb47404678932b3764d32f354e0e9e6",
+            "run_ref": "operator:ss-02-flow-6",
+            "reporter": "orchestrator session (operator run)",
+            "identity": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+            "recorded_at": "2026-11-26T17:53:31Z"
+          },
+          "flow-7": {
+            "flow_id": "flow-7",
+            "status": "passed",
+            "head": "7aeace266e0a4cfd5f02e3ad515e29f90c4bdbb0",
+            "ran_at": "2026-11-26T17:49:30Z",
+            "summary": {
+              "checklist_blob": "55919e459b4caac035bf322a3a64f288684923d0",
+              "text": "Diff f0bccad..HEAD outside docs/ai-workflow and .ai-review touches only app/src/data/ (7 files), HouseholdDataProvider.tsx, householdData.ts, 3 household components, SplitPage and 9 pages/households files, docs/ACTIVE_MILESTONE.md and the plan. Nothing else. I count 13 consumers plus the provider and householdData.ts (15 files in total), not exactly 14, but no file is out of scope."
+            },
+            "log_digest": "a5231f7870bce92935fdc56bdc7b6d38a46057fb1b73db8ed3f5e972148a6b05",
+            "run_ref": "controller:20261126T174914Z-be12f015",
+            "reporter": "workflow-controller 1.32.0",
+            "identity": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+            "recorded_at": "2026-11-26T17:49:30Z"
+          }
+        },
+        "pr": {
+          "pr": {
+            "number": 16,
+            "url": "https://github.com/RodrigoFAbreu/project-Settle/pull/16"
+          },
+          "state": "open",
+          "head": "7aeace266e0a4cfd5f02e3ad515e29f90c4bdbb0",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+          "observed_at": "2026-11-26T18:54:15Z",
+          "ingest_seq": 1,
+          "repository": "RodrigoFAbreu/project-Settle",
+          "queried_commit": "ad670d2b9af9dd916bac382a54ac39f5361d6cf8",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-11-26T18:54:15Z",
+            "raw_sha256": "d684edb212ca438a3eb4c19eee42a603cbbea6aff9ae6d1da8ef2c9ef05cba1b",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "978350509c2883379c95475668f0173a838512fa57d52a0dde4a0579be7c1cbb"
+          },
+          "fact_id": "0617d6996a5430911d288e446d994c6442e6cd21ccc3179cc833ab4ee3dab493"
+        },
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 1
+        }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "adopted",
+        "file_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+        "adopted_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+        "floor_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['flow-1', 'flow-2', 'flow-3', 'flow-4', 'flow-5', 'flow-6', 'flow-7'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #16 at 7aeace266e0a4cfd5f02e3ad515e29f90c4bdbb0 is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "ad670d2b9af9dd916bac382a54ac39f5361d6cf8",
+          "anchor_identity": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+            "recorded_at": "2026-11-26T17:47:47Z"
+          },
+          "functional": {
+            "flow-1": {
+              "evidence_id": "60b47a11a6c494a886157153ef2ccd2a2e4d258107bc0b4cf70141908b77bcb4",
+              "log_digest": "66c8bb4cf562d410011cb84d29071bfdadb9085374933bddcf345a6aaa82da5c",
+              "run_ref": "operator:ss-02-flow-1"
+            },
+            "flow-2": {
+              "evidence_id": "56115500d9ab4cc33752c65bfe370459f70c7fe9ca1b456f4abcf6b9213f843a",
+              "log_digest": "e631192ebc034edd45921885b24f9fb6dffd4f1a6425ffe382e79db4652d18a9",
+              "run_ref": "operator:ss-02-flow-2"
+            },
+            "flow-3": {
+              "evidence_id": "343183fe856e13e63739cfe591fce04c83bfaf917221ba25af392e52713ca3a6",
+              "log_digest": "cd47cdf583e5155b30fb8bb7652ba760da8bf6318903375da450301ab1656cf7",
+              "run_ref": "operator:ss-02-flow-3"
+            },
+            "flow-4": {
+              "evidence_id": "4a3271beda1441c842bf3ee3b56332bd7154d812c325a43763c2a59e222bf04f",
+              "log_digest": "12dbb22516850829bcf3ac3355bf882aafb1a7c4fac86685df52bc382b99eddc",
+              "run_ref": "operator:ss-02-flow-4"
+            },
+            "flow-5": {
+              "evidence_id": "1ab6f1e732fdc26d7180c42b0e4a6c3158e52e111e35d3200ed6f7aff2eb2457",
+              "log_digest": "03b0fa36b811e6ec7e01fd007d78929d966052265f75849d87bbb874edd842f5",
+              "run_ref": "operator:ss-02-flow-5"
+            },
+            "flow-6": {
+              "evidence_id": "993453cba33b36ceefc4af7d8dfda18cf0d1adbf39967f6600aeb642d8c5c56c",
+              "log_digest": "2cb8cc3c45c4d37ec270a485935b20c3ecb47404678932b3764d32f354e0e9e6",
+              "run_ref": "operator:ss-02-flow-6"
+            },
+            "flow-7": {
+              "evidence_id": "0ba453b99fd0c4f842b9c5f58a001af41b4afd4b2766e76ea3e0ef3d5763ccf1",
+              "log_digest": "a5231f7870bce92935fdc56bdc7b6d38a46057fb1b73db8ed3f5e972148a6b05",
+              "run_ref": "controller:20261126T174914Z-be12f015"
+            }
+          },
+          "pr": {
+            "fact_id": "0617d6996a5430911d288e446d994c6442e6cd21ccc3179cc833ab4ee3dab493",
+            "head": "7aeace266e0a4cfd5f02e3ad515e29f90c4bdbb0",
+            "provenance": "workflow_gh",
+            "raw_sha256": "d684edb212ca438a3eb4c19eee42a603cbbea6aff9ae6d1da8ef2c9ef05cba1b"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-11-26T18:54:15Z",
+        "workflow_release": "2.29.10"
       }
     }
   },

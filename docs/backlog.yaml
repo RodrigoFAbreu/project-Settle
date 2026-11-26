@@ -46,7 +46,7 @@ items:
     detail: docs/items/ss-01-adr.md
   - id: ss-02-store-interface
     title: "Put the ledger behind a store interface"
-    status: next
+    status: done
     order: 10
     depends_on: [ss-01-adr]
     size: 3

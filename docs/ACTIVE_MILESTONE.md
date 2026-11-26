@@ -1,28 +1,22 @@
 # Active Milestone
 
-## Milestone
+## Last completed: ss-02-store-interface — Put the ledger behind a store interface
 
-`ss-02-store-interface` — Put the ledger behind a store interface (M5.5 slice 2).
-Behaviour-neutral refactor, three checkpoints, plan at
-`docs/milestones/ss-02-store-interface-PLAN.md`.
+M5.5 slice 2. Behaviour-neutral refactor, three checkpoints: the ledger sits
+behind `LedgerStore` (`app/src/data/ledgerStore.ts`, IndexedDB binding
+`createIdbStore`, selected by `activeStore(db)`); the 14 consumers read `store`
+from `useHouseholdData()`; `app/src/data/seam.test.ts` fails if a non-test file
+outside `src/data/` imports `repository.ts`. Accepted on 2026-11-26.
 
-- **CP1 (complete):** `LedgerStore`, `Listed` and the seven typed errors in
-  `app/src/data/ledgerStore.ts` (re-exported by `repository.ts`); the IndexedDB
-  binding `createIdbStore` in `idbStore.ts`, tested through the interface only.
-  `typecheck`, `lint`, `format:check` pass; `src/data` tests pass (77).
-- **CP2 (complete):** `activeStore(db)` in `app/src/data/activeStore.ts`
-  (default: `createIdbStore`); `HouseholdDataProvider` memoises `store` from
-  `db` and `HouseholdDataValue` gains it. Additive: `db` and every consumer
-  unchanged. `typecheck`, `lint` pass; `activeStore` and `src/pages` tests pass.
-- **CP3 (complete):** the 14 consumers read `store` from `useHouseholdData()`
-  and call `store.method(...)`; `useLoaded`/`useLedger` take the store and
-  `householdData.ts` no longer imports `repository.ts`; `db` is dropped from the
-  context value and the provider. `app/src/data/seam.test.ts` fails if a
-  non-test file outside `src/data/` imports `repository.ts`. `typecheck`, `lint`,
-  `format:check` pass; full `npm test` passes (99 files, 1694 tests, 1 skipped).
-  Browser flows not run.
+- **Verification:** `typecheck`, `lint`, `format:check` pass; full `npm test`
+  passes (99 files, 1694 tests, 1 skipped). Browser flows were not run by the
+  implementer.
+- **Optional findings:** five, all dropped with reasons (two plan wording, one
+  cosmetic parameter name, two seam-guard hardenings no consumer needs yet). See
+  `docs/milestones/completed/ss-02-store-interface-findings.md`.
+- **Plan:** archived at `docs/milestones/completed/ss-02-store-interface-PLAN.md`.
 
-## Last completed: ss-01-adr — Record the self-hosted storage decisions
+## Previously completed: ss-01-adr — Record the self-hosted storage decisions
 
 ADR 0007 (`docs/adr/0007-self-hosted-ledger-store.md`), the first slice of
 **M5.5 Self-hosted central storage** (14 slices, `docs/items/milestone-5-5.md`).
@@ -36,7 +30,7 @@ Accepted on 2026-11-25.
   `docs/milestones/completed/ss-01-adr-findings.md`.
 - **Plan:** archived at `docs/milestones/completed/ss-01-adr-PLAN.md`.
 
-## Previously completed: lidl-layout-fixture — Lidl receipt layout as a text fixture
+## Earlier: lidl-layout-fixture — Lidl receipt layout as a text fixture
 
 One invented whole-receipt text fixture of the Lidl layout
 (`26-pt-lidl-desconto-sublinhado`), so the existing fixture test guards it.
@@ -57,12 +51,11 @@ No app code changes. Accepted on 2026-11-22.
 
 ## Next action
 
-`/milestone-plan` takes the next backlog item: `ss-02-store-interface`, which
-puts the ledger behind a store interface. M5.5 is cut into slices (`ss-01` to `ss-14`,
-`docs/items/milestone-5-5.md`); the Controller takes them in order, each is one
-milestone and one squash PR. Run it from an up-to-date `main`
-(`git switch main && git pull`); the Controller binds the milestone branch
-itself. `ss-14-deploy-homelab` is homelab-gitops work, not a Controller item.
+`/milestone-plan` takes the next backlog item: `ss-03-shared-domain` (share the
+domain types and validators in one package). M5.5 is cut into slices (`ss-01` to
+`ss-14`, `docs/items/milestone-5-5.md`); the Controller takes them in order, each
+is one milestone and one squash PR. `ss-14-deploy-homelab` is homelab-gitops
+work, not a Controller item.
 
 ## Before that: M5 — Balances and settling up
 
@@ -149,8 +142,8 @@ None.
 
 ## Active plan
 
-None. The last plan, `lidl-layout-fixture`'s, is archived at
-`docs/milestones/completed/lidl-layout-fixture-PLAN.md`.
+None. The last plan, `ss-02-store-interface`'s, is archived at
+`docs/milestones/completed/ss-02-store-interface-PLAN.md`.
 
 ## Functional review checklist
 
