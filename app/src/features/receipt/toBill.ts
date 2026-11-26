@@ -10,7 +10,7 @@ import {
   sum,
   type Cents,
   type MoneyCurrency,
-} from '../../lib/money.ts'
+} from '../../../../shared/src/money.ts'
 import {
   LIMITS,
   isBillRatio,

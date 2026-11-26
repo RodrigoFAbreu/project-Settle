@@ -29,7 +29,7 @@ import {
 import { receiptToBill } from '../features/receipt/toBill.ts'
 import { createBill } from '../features/split/billReducer.ts'
 import { loadDraft, saveDraft } from '../features/split/draft.ts'
-import { cents } from '../lib/money.ts'
+import { cents } from '../../../shared/src/money.ts'
 import { currentStep, showStep, wideScreen } from '../test/splitSteps.tsx'
 import { SplitPage } from './SplitPage.tsx'
 

@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { defineConfig, searchForWorkspaceRoot } from 'vite'
 import { cspMeta } from './cspMeta.ts'
 
 /**
@@ -33,4 +33,9 @@ export default defineConfig({
   // The PaddleOCR worker is a module worker: it loads ONNX Runtime with a
   // dynamic import.
   worker: { format: 'es' },
+  // `shared/` sits beside `app/`; the dev server serves only its workspace
+  // root unless told more. A user list replaces the default, so keep the root.
+  server: {
+    fs: { allow: [searchForWorkspaceRoot(process.cwd()), '../shared'] },
+  },
 })

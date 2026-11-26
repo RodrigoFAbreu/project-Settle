@@ -42,7 +42,7 @@ import {
   inMonth,
   totalOf,
 } from '../features/household/totals.ts'
-import { cents } from '../lib/money.ts'
+import { cents } from '../../../shared/src/money.ts'
 import {
   MIGRATIONS,
   createSchemaV1,

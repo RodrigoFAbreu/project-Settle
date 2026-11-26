@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { cents, type Cents, type Ratio } from '../../lib/money.ts'
+import { cents, type Cents, type Ratio } from '../../../../shared/src/money.ts'
 import {
   lineTotal,
   toBillRatio,

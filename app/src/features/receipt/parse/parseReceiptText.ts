@@ -14,7 +14,7 @@ import {
   type Cents,
   type MoneyCurrency,
   type Ratio,
-} from '../../../lib/money.ts'
+} from '../../../../../shared/src/money.ts'
 import { toBillRatio } from '../../split/model.ts'
 import { isValidNif } from '../fiscalQr.ts'
 import type {

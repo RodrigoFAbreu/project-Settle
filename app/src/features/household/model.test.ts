@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest'
-import { cents } from '../../lib/money.ts'
+import { cents } from '../../../../shared/src/money.ts'
 import { createBill } from '../split/billReducer.ts'
 import {
   equalSplit,

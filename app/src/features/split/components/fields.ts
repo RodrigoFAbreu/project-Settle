@@ -11,7 +11,7 @@ import {
   type MoneyLocale,
   type ParseAmountError,
   type Ratio,
-} from '../../../lib/money.ts'
+} from '../../../../../shared/src/money.ts'
 import {
   LIMITS,
   displayName,

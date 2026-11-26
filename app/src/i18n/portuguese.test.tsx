@@ -43,7 +43,7 @@ import {
   type BillError,
 } from '../features/split/model.ts'
 import { computeSplit } from '../features/split/split.ts'
-import { cents } from '../lib/money.ts'
+import { cents } from '../../../shared/src/money.ts'
 import { LANGUAGE_STORAGE_KEY } from './language.ts'
 import { LanguageProvider } from './LanguageProvider.tsx'
 import { translator } from './t.ts'

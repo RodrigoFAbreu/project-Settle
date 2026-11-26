@@ -23,7 +23,7 @@ import {
   type MoneyLocale,
   type ParseAmountResult,
   type Ratio,
-} from './money.ts'
+} from '../../../shared/src/money.ts'
 
 const MAX = Number.MAX_SAFE_INTEGER
 

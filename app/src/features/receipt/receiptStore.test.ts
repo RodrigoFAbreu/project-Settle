@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { cents } from '../../lib/money.ts'
+import { cents } from '../../../../shared/src/money.ts'
 import type { ReceiptSummary } from './model.ts'
 import {
   RECEIPT_STORAGE_KEY,

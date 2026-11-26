@@ -3,7 +3,7 @@
  * stored expense, never stored. The shares sum exactly to the expense's
  * amount.
  */
-import { allocate, sum, type Cents } from '../../lib/money.ts'
+import { allocate, sum, type Cents } from '../../../../shared/src/money.ts'
 import { computeSplit } from '../split/split.ts'
 import {
   expenseContentErrors,

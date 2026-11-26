@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest'
-import { cents, sum, type Cents } from '../../lib/money.ts'
+import { cents, sum, type Cents } from '../../../../shared/src/money.ts'
 import { createBill } from '../split/billReducer.ts'
 import { quickExpense } from '../../test/households.ts'
 import type { Expense, QuickSplit } from './model.ts'

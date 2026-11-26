@@ -48,7 +48,7 @@ export default defineConfig([
     // Static-only (M2 plan, D9, M-I-1): production code never opens a
     // network channel, so the only network reads are the libraries' own
     // GETs of the vendor/ files. Tests may stub fetch (R5-O-1).
-    files: ['src/**/*.{ts,tsx}'],
+    files: ['src/**/*.{ts,tsx}', 'shared/src/**/*.{ts,tsx}'],
     ignores: ['**/*.test.{ts,tsx}', '**/*.node.ts', 'src/test/**'],
     rules: {
       'no-restricted-globals': [

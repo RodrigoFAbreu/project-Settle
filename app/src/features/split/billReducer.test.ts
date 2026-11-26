@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { cents } from '../../lib/money.ts'
+import { cents } from '../../../../shared/src/money.ts'
 import {
   billReducer,
   createBill,

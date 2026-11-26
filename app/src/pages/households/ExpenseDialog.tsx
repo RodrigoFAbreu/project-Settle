@@ -21,7 +21,7 @@ import {
 } from '../../features/household/shares.ts'
 import { lineTotal } from '../../features/split/model.ts'
 import { useLanguage } from '../../i18n/language.ts'
-import { formatAmount } from '../../lib/money.ts'
+import { formatAmount } from '../../../../shared/src/money.ts'
 import { Amount } from '../../ui/Amount.tsx'
 import { Button } from '../../ui/Button.tsx'
 import { ShareBar } from '../../ui/Charts.tsx'

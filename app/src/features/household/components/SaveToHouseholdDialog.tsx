@@ -8,7 +8,7 @@ import {
   MissingReferenceError,
 } from '../../../data/ledgerStore.ts'
 import { useLanguage } from '../../../i18n/language.ts'
-import { formatAmount } from '../../../lib/money.ts'
+import { formatAmount } from '../../../../../shared/src/money.ts'
 import { Button } from '../../../ui/Button.tsx'
 import { Dialog } from '../../../ui/Dialog.tsx'
 import { SelectField, TextField } from '../../../ui/Field.tsx'

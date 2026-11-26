@@ -13,7 +13,7 @@ import { execFileSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'
-import { cents, type Cents } from '../../lib/money.ts'
+import { cents, type Cents } from '../../../../shared/src/money.ts'
 import type { ExpectedBill } from './accuracy.ts'
 import type { TotalSource } from './model.ts'
 

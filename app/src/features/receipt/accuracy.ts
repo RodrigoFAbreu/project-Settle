@@ -14,7 +14,7 @@
  * R19's local coverage (M2R1) is kept as `amountCoverage`, so M2's
  * numbers stay comparable.
  */
-import type { Cents } from '../../lib/money.ts'
+import type { Cents } from '../../../../shared/src/money.ts'
 import { adjustmentAmount, lineTotal, type Bill } from '../split/model.ts'
 import { isNotReadItemName } from '../../i18n/notRead.ts'
 import type { ReceiptSummary } from './model.ts'

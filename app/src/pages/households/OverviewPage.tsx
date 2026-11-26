@@ -29,7 +29,7 @@ import {
   totalOf,
 } from '../../features/household/totals.ts'
 import { useLanguage } from '../../i18n/language.ts'
-import { formatAmount } from '../../lib/money.ts'
+import { formatAmount } from '../../../../shared/src/money.ts'
 import { Button } from '../../ui/Button.tsx'
 import { Card } from '../../ui/Card.tsx'
 import { Dialog } from '../../ui/Dialog.tsx'

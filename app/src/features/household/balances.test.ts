@@ -5,7 +5,7 @@
  * hand-checked examples of Phase 3's edge cases, and the budgets.
  */
 import { describe, expect, it } from 'vitest'
-import { cents, type Cents } from '../../lib/money.ts'
+import { cents, type Cents } from '../../../../shared/src/money.ts'
 import { createBill } from '../split/billReducer.ts'
 import type { Bill } from '../split/model.ts'
 import {

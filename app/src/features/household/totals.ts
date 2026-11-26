@@ -2,7 +2,7 @@
  * Month totals (M4 plan, H13): always computed from the stored expenses,
  * never stored (H5).
  */
-import { sum, type Cents } from '../../lib/money.ts'
+import { sum, type Cents } from '../../../../shared/src/money.ts'
 import type { CategoryId, Expense } from './model.ts'
 import { expenseAmount } from './shares.ts'
 

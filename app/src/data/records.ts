@@ -4,7 +4,7 @@
  * A reader never throws and never touches the database: a record it
  * rejects stays stored as it is, and is only counted.
  */
-import type { Cents, Ratio } from '../lib/money.ts'
+import type { Cents, Ratio } from '../../../shared/src/money.ts'
 import {
   RECORD_VERSION,
   expenseContentErrors,

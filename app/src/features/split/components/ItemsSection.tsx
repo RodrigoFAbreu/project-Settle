@@ -10,7 +10,7 @@ import {
 import type { Region } from '../../../app/region.ts'
 import { useT } from '../../../i18n/language.ts'
 import type { Translate } from '../../../i18n/t.ts'
-import { formatAmount } from '../../../lib/money.ts'
+import { formatAmount } from '../../../../../shared/src/money.ts'
 import { Amount } from '../../../ui/Amount.tsx'
 import { Button } from '../../../ui/Button.tsx'
 import { Icon } from '../../../ui/Icon.tsx'

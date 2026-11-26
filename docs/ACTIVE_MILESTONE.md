@@ -1,5 +1,22 @@
 # Active Milestone
 
+## In progress: ss-03-shared-domain — Share the domain types and validators in one package
+
+M5.5 slice 3. Behaviour-neutral move of five modules into `shared/` at the
+repository root, imported by relative path. Three checkpoints. Plan:
+`docs/milestones/ss-03-shared-domain-PLAN.md`.
+
+- **CP1 (complete):** `shared/tsconfig.json`, `shared/README.md`, the wiring
+  (`vite.config.ts` `server.fs.allow`, `eslint.config.js`, the four `package.json`
+  scripts) and `lib/money.ts` moved to `shared/src/money.ts` (rename, 100%
+  similar; 81 importers rewritten). `typecheck`, `lint`, `format:check` pass; `npm test`
+  1694 passed, 1 skipped (baseline equal); `npm run build` file list and sizes
+  identical to baseline. Node imports of `check-requests.mjs` and the
+  `measure-quality` dependencies exit 0. Dev server answers 200 for
+  `shared/src/money.ts` and for app modules. A `document` line fails `typecheck`, a `fetch` call fails
+  `lint`, a badly formatted line fails `format:check` (each tried, reverted).
+- **CP2, CP3:** not started.
+
 ## Last completed: ss-02-store-interface — Put the ledger behind a store interface
 
 M5.5 slice 2. Behaviour-neutral refactor, three checkpoints: the ledger sits

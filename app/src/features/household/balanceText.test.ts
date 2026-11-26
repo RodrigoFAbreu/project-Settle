@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_REGION } from '../../app/region.ts'
 import { translator } from '../../i18n/t.ts'
-import { cents } from '../../lib/money.ts'
+import { cents } from '../../../../shared/src/money.ts'
 import { fourMembers, quickExpense, settlement } from '../../test/households.ts'
 import { balances, suggestSettlements, type LedgerInput } from './balances.ts'
 import { IncompleteBalancesError, balanceText } from './balanceText.ts'

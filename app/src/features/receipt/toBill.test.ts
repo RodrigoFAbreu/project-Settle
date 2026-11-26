@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { cents, type Cents } from '../../lib/money.ts'
+import { cents, type Cents } from '../../../../shared/src/money.ts'
 import { createBill } from '../split/billReducer.ts'
 import { lineTotal, validateBill, type Bill } from '../split/model.ts'
 import { loadTextFixtures } from './fixtures/textFixtures.ts'

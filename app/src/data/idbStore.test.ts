@@ -15,7 +15,7 @@ import {
   quickExpense,
   settlement,
 } from '../test/households.ts'
-import { cents } from '../lib/money.ts'
+import { cents } from '../../../shared/src/money.ts'
 import { createIdbStore } from './idbStore.ts'
 import * as ledger from './ledgerStore.ts'
 import * as repository from './repository.ts'

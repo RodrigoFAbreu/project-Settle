@@ -1,7 +1,7 @@
 import type { Dispatch } from 'react'
 import type { Region } from '../../../app/region.ts'
 import { useT } from '../../../i18n/language.ts'
-import { cents } from '../../../lib/money.ts'
+import { cents } from '../../../../../shared/src/money.ts'
 import type { BillAction } from '../billReducer.ts'
 import type {
   Adjustment,

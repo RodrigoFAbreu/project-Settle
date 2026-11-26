@@ -1,6 +1,10 @@
 import type { Region } from '../../../app/region.ts'
 import type { Translate } from '../../../i18n/t.ts'
-import { formatAmount, sum, type Cents } from '../../../lib/money.ts'
+import {
+  formatAmount,
+  sum,
+  type Cents,
+} from '../../../../../shared/src/money.ts'
 import { Amount } from '../../../ui/Amount.tsx'
 import { Bars, Donut } from '../../../ui/Charts.tsx'
 import { Icon } from '../../../ui/Icon.tsx'

@@ -3,7 +3,7 @@
  * refresh doesn't lose it. One draft, no history. It's scratch data, so
  * anything that can't be trusted is dropped for a fresh bill.
  */
-import type { Cents, Ratio } from '../../lib/money.ts'
+import type { Cents, Ratio } from '../../../../shared/src/money.ts'
 import {
   validateBill,
   type Adjustment,

@@ -9,7 +9,7 @@ import {
   negate,
   type Cents,
   type MoneyCurrency,
-} from '../../../lib/money.ts'
+} from '../../../../../shared/src/money.ts'
 
 /** Lowercase, with accents removed: `Serviço` → `servico`. */
 export function fold(text: string): string {

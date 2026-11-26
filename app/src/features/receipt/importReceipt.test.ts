@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { cents } from '../../lib/money.ts'
+import { cents } from '../../../../shared/src/money.ts'
 import { createBill } from '../split/billReducer.ts'
 import type { Bill } from '../split/model.ts'
 import { parseFiscalQr, type FiscalQr } from './fiscalQr.ts'

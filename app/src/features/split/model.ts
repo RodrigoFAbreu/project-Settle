@@ -10,7 +10,7 @@ import {
   sum,
   type Cents,
   type Ratio,
-} from '../../lib/money.ts'
+} from '../../../../shared/src/money.ts'
 
 export interface Person {
   id: string

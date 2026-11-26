@@ -7,7 +7,7 @@ import {
   SUPPORTED_LOCALES,
   type MoneyCurrency,
   type MoneyLocale,
-} from '../lib/money.ts'
+} from '../../../shared/src/money.ts'
 import { Amount } from '../ui/Amount.tsx'
 import { Card } from '../ui/Card.tsx'
 import { SelectField } from '../ui/Field.tsx'

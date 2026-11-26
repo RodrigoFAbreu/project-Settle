@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { translator } from '../../i18n/t.ts'
-import { cents } from '../../lib/money.ts'
+import { cents } from '../../../../shared/src/money.ts'
 import { resultAsText } from './format.ts'
 import { computeSplit } from './split.ts'
 import { displayName, type Bill } from './model.ts'

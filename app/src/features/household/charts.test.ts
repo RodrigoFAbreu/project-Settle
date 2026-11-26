@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Cents } from '../../lib/money.ts'
+import type { Cents } from '../../../../shared/src/money.ts'
 import {
   CATEGORY_CHART_COLOURS,
   categorySlices,

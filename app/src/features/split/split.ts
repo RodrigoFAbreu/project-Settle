@@ -12,7 +12,7 @@ import {
   subtract,
   sum,
   type Cents,
-} from '../../lib/money.ts'
+} from '../../../../shared/src/money.ts'
 import {
   adjustmentAmount,
   lineTotal,

@@ -2,7 +2,7 @@
  * The check panel's live comparison (M2 plan, D14): the bill total from
  * `computeSplit` against the receipt's trusted total.
  */
-import { subtract, type Cents } from '../../lib/money.ts'
+import { subtract, type Cents } from '../../../../shared/src/money.ts'
 import type { Bill } from '../split/model.ts'
 import { computeSplit } from '../split/split.ts'
 import type { ReceiptSummary } from './model.ts'

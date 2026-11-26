@@ -16,7 +16,7 @@ import { loadDraft, saveDraft } from '../../features/split/draft.ts'
 import type { Bill } from '../../features/split/model.ts'
 import { billHasContent } from '../../features/receipt/importUi.ts'
 import { isoDate } from '../../features/household/model.ts'
-import { cents } from '../../lib/money.ts'
+import { cents } from '../../../../shared/src/money.ts'
 import { NOW, fourMembers, household, member } from '../../test/households.ts'
 import { renderApp, stubIndexedDb } from '../../test/renderApp.tsx'
 

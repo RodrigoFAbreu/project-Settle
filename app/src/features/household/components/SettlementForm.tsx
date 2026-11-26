@@ -5,7 +5,7 @@ import {
   SettlementNotFoundError,
 } from '../../../data/ledgerStore.ts'
 import { useT } from '../../../i18n/language.ts'
-import { parseAmount, type Cents } from '../../../lib/money.ts'
+import { parseAmount, type Cents } from '../../../../../shared/src/money.ts'
 import { Button } from '../../../ui/Button.tsx'
 import { SelectField, TextField } from '../../../ui/Field.tsx'
 import { newId } from '../../split/billReducer.ts'
