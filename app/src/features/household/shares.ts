@@ -10,7 +10,7 @@ import {
   type Expense,
   type ItemisedSplit,
   type QuickSplit,
-} from './model.ts'
+} from '../../../../shared/src/household.ts'
 
 /** FNV-1a over the id's UTF-16 code units: a stable, well-spread hash. */
 export function stableHash(id: string): number {

@@ -19,7 +19,10 @@ import {
   REST_CHART_COLOUR,
 } from '../charts.ts'
 import { formatDate, formatMonth } from '../format.ts'
-import type { CategoryId, Expense } from '../model.ts'
+import type {
+  CategoryId,
+  Expense,
+} from '../../../../../shared/src/household.ts'
 import styles from './MonthCharts.module.css'
 
 /*

@@ -41,7 +41,7 @@ import {
   displayName,
   type Bill,
   type BillError,
-} from '../features/split/model.ts'
+} from '../../../shared/src/bill.ts'
 import { computeSplit } from '../features/split/split.ts'
 import { cents } from '../../../shared/src/money.ts'
 import { LANGUAGE_STORAGE_KEY } from './language.ts'

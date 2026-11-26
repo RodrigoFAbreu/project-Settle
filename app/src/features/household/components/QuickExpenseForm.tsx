@@ -20,7 +20,7 @@ import {
   sortByPosition,
   type Expense,
   type Member,
-} from '../model.ts'
+} from '../../../../../shared/src/household.ts'
 import {
   QUICK_METHODS,
   buildQuickExpense,

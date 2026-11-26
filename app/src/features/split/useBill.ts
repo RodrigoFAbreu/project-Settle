@@ -7,7 +7,7 @@ import {
   type BillAction,
 } from './billReducer.ts'
 import { loadDraft, saveDraft } from './draft.ts'
-import type { Bill } from './model.ts'
+import type { Bill } from '../../../../shared/src/bill.ts'
 
 /** Ids for a new bill: see {@link createBill}. */
 export function newBillIds(): string[] {

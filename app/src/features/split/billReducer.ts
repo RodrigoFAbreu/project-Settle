@@ -12,7 +12,7 @@ import {
   type Item,
   type Person,
   type SplitMode,
-} from './model.ts'
+} from '../../../../shared/src/bill.ts'
 
 export type BillAction =
   | { type: 'addItem'; id: string }

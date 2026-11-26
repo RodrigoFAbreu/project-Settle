@@ -7,7 +7,7 @@ import { Icon } from '../../../ui/Icon.tsx'
 import { signedAmount } from '../../../ui/signedAmount.ts'
 import { paidWords } from '../balanceWords.ts'
 import { formatDate } from '../format.ts'
-import type { Member, Settlement } from '../model.ts'
+import type { Member, Settlement } from '../../../../../shared/src/household.ts'
 import styles from './ExpenseRow.module.css'
 
 /** The URL parameter that opens a payment over a household page (B8). */

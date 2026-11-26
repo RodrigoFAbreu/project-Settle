@@ -6,7 +6,7 @@ import {
   parseAmount,
   type Cents,
 } from '../../../../../shared/src/money.ts'
-import { LIMITS, type Bill } from '../../split/model.ts'
+import { LIMITS, type Bill } from '../../../../../shared/src/bill.ts'
 import { amountInputMessage } from '../../split/components/fields.ts'
 import splitStyles from '../../split/components/split.module.css'
 import { ROLE_KEYS, canAddAsItem, nameFromLine } from '../lineReview.ts'

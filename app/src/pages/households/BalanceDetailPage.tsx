@@ -20,9 +20,9 @@ import {
   formatMonth,
 } from '../../features/household/format.ts'
 import { useLedger } from '../../features/household/householdData.ts'
-import { isoDate } from '../../features/household/model.ts'
+import { isoDate } from '../../../../shared/src/household.ts'
 import { monthOf } from '../../features/household/totals.ts'
-import { displayName } from '../../features/split/model.ts'
+import { displayName } from '../../../../shared/src/bill.ts'
 import { useLanguage } from '../../i18n/language.ts'
 import { formatAmount } from '../../../../shared/src/money.ts'
 import { Amount } from '../../ui/Amount.tsx'

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { cents, type Cents } from '../../../../shared/src/money.ts'
-import type { Adjustment, Bill } from '../split/model.ts'
+import type { Adjustment, Bill } from '../../../../shared/src/bill.ts'
 import {
   amountCoverage,
   editDistance,

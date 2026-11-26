@@ -8,7 +8,7 @@ import {
   saveExpense,
   saveSettlement,
 } from '../../data/repository.ts'
-import { isoDate, maxExpenseDate } from '../../features/household/model.ts'
+import { isoDate, maxExpenseDate } from '../../../../shared/src/household.ts'
 import { LANGUAGE_STORAGE_KEY } from '../../i18n/language.ts'
 import { cents } from '../../../../shared/src/money.ts'
 import {

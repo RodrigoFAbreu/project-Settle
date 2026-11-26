@@ -15,7 +15,18 @@ repository root, imported by relative path. Three checkpoints. Plan:
   `measure-quality` dependencies exit 0. Dev server answers 200 for
   `shared/src/money.ts` and for app modules. A `document` line fails `typecheck`, a `fetch` call fails
   `lint`, a badly formatted line fails `format:check` (each tried, reverted).
-- **CP2, CP3:** not started.
+- **CP2 (complete):** `features/split/model.ts`, `features/household/model.ts`
+  and `data/records.ts` moved with `git mv` to `shared/src/bill.ts`, `household.ts`
+  and `records.ts`; `features/split/draft.ts` split: the pure readers (`readBill`,
+  `DRAFT_VERSION`, `isObject`) in `shared/src/draft.ts`, `loadDraft`/`saveDraft`/
+  `DRAFT_STORAGE_KEY` in a smaller `app/src/features/split/draft.ts`.
+  `displayName` takes a structural translator type. Importers rewritten by a
+  throwaway script. `typecheck` (now also `tsc -p ../shared`), `lint`,
+  `format:check` pass; `npm test` 1694 passed, 1 skipped (baseline equal). Both
+  Node imports exit 0. A `window.localStorage` line in `shared/src/draft.ts` fails
+  `tsc -p ../shared` (tried, reverted). `git diff -M` shows three renames; the
+  draft module shows as a split (new app file plus shared file).
+- **CP3:** not started.
 
 ## Last completed: ss-02-store-interface — Put the ledger behind a store interface
 

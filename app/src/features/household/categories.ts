@@ -10,7 +10,7 @@ import {
   IconWifi,
   type Icon as TablerIcon,
 } from '@tabler/icons-react'
-import type { CategoryId } from './model.ts'
+import type { CategoryId } from '../../../../shared/src/household.ts'
 
 /** Each category's icon (M4 plan, H8), always shown beside its name. */
 export const CATEGORY_ICONS: Record<CategoryId, TablerIcon> = {

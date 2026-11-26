@@ -21,7 +21,7 @@ import {
   type BillField,
   type Item,
   type ToBillRatioResult,
-} from '../model.ts'
+} from '../../../../../shared/src/bill.ts'
 
 /** The id of the input (or group) that a {@link BillField} names. */
 export function fieldId(field: BillField): string {

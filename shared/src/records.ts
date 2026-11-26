@@ -4,7 +4,7 @@
  * A reader never throws and never touches the database: a record it
  * rejects stays stored as it is, and is only counted.
  */
-import type { Cents, Ratio } from '../../../shared/src/money.ts'
+import type { Cents, Ratio } from './money.ts'
 import {
   RECORD_VERSION,
   expenseContentErrors,
@@ -19,8 +19,8 @@ import {
   type QuickSplit,
   type Settlement,
   settlementContentErrors,
-} from '../features/household/model.ts'
-import { readBill } from '../features/split/draft.ts'
+} from './household.ts'
+import { readBill } from './draft.ts'
 
 type Json = unknown
 

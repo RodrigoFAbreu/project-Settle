@@ -13,7 +13,7 @@ import {
   amountInputMessage,
   amountText,
 } from '../../split/components/fields.ts'
-import { displayName } from '../../split/model.ts'
+import { displayName } from '../../../../../shared/src/bill.ts'
 import { paymentOutcome, type LedgerInput } from '../balances.ts'
 import { hasLeft, outcomeLine } from '../balanceWords.ts'
 import { useHouseholdData } from '../householdData.ts'
@@ -25,7 +25,7 @@ import {
   type Member,
   type Settlement,
   type SettlementField,
-} from '../model.ts'
+} from '../../../../../shared/src/household.ts'
 import styles from './QuickExpenseForm.module.css'
 
 /** What Mark as paid fills in: a suggested payment. */

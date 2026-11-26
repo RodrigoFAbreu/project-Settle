@@ -14,12 +14,12 @@ import {
   isoDate,
   type Household,
   type Member,
-} from '../../features/household/model.ts'
+} from '../../../../shared/src/household.ts'
 import {
   expenseAmount,
   expenseShares,
 } from '../../features/household/shares.ts'
-import { lineTotal } from '../../features/split/model.ts'
+import { lineTotal } from '../../../../shared/src/bill.ts'
 import { useLanguage } from '../../i18n/language.ts'
 import { formatAmount } from '../../../../shared/src/money.ts'
 import { Amount } from '../../ui/Amount.tsx'

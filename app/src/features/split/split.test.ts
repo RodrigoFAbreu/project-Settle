@@ -9,7 +9,7 @@ import {
   type BillErrorCode,
   type Item,
   type SplitMode,
-} from './model.ts'
+} from '../../../../shared/src/bill.ts'
 import { computeSplit, type SplitResult } from './split.ts'
 
 // Seeded PRNG (mulberry32), as in money.test.ts.

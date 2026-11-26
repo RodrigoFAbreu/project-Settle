@@ -6,7 +6,7 @@ import { cents } from '../../../../shared/src/money.ts'
 import { fourMembers, quickExpense, settlement } from '../../test/households.ts'
 import { balances, suggestSettlements, type LedgerInput } from './balances.ts'
 import { IncompleteBalancesError, balanceText } from './balanceText.ts'
-import type { Expense } from './model.ts'
+import type { Expense } from '../../../../shared/src/household.ts'
 
 /*
  * The settle-up text (M5 plan, B9): both languages, no date in the

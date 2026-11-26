@@ -3,7 +3,7 @@ import { translator } from '../../i18n/t.ts'
 import { cents } from '../../../../shared/src/money.ts'
 import { resultAsText } from './format.ts'
 import { computeSplit } from './split.ts'
-import { displayName, type Bill } from './model.ts'
+import { displayName, type Bill } from '../../../../shared/src/bill.ts'
 
 const en = translator('en')
 

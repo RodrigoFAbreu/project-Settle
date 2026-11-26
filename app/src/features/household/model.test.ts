@@ -24,7 +24,7 @@ import {
   settlementContentErrors,
   validateSettlement,
   type Settlement,
-} from './model.ts'
+} from '../../../../shared/src/household.ts'
 
 const members = fourMembers()
 

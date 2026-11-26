@@ -7,7 +7,7 @@
 import { describe, expect, it } from 'vitest'
 import { cents, type Cents } from '../../../../shared/src/money.ts'
 import { createBill } from '../split/billReducer.ts'
-import type { Bill } from '../split/model.ts'
+import type { Bill } from '../../../../shared/src/bill.ts'
 import {
   equalSplit,
   fourMembers,
@@ -25,7 +25,12 @@ import {
   type LedgerInput,
   type SuggestedPayment,
 } from './balances.ts'
-import type { Expense, Member, QuickSplit, Settlement } from './model.ts'
+import type {
+  Expense,
+  Member,
+  QuickSplit,
+  Settlement,
+} from '../../../../shared/src/household.ts'
 
 const NONE = { members: 0, expenses: 0, settlements: 0 }
 

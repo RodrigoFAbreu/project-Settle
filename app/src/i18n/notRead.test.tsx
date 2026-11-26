@@ -17,7 +17,7 @@ import { ReceiptImportProvider } from '../features/receipt/ReceiptImportProvider
 import { saveReceiptSummary } from '../features/receipt/receiptStore.ts'
 import { isUnreadImport, readShare } from '../features/receipt/review.ts'
 import { loadDraft, saveDraft } from '../features/split/draft.ts'
-import type { Bill, Item } from '../features/split/model.ts'
+import type { Bill, Item } from '../../../shared/src/bill.ts'
 import { cents } from '../../../shared/src/money.ts'
 import { SplitPage } from '../pages/SplitPage.tsx'
 import { LANGUAGE_STORAGE_KEY } from './language.ts'

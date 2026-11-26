@@ -8,7 +8,7 @@ import {
   type Cents,
   type Ratio,
 } from '../../../../../shared/src/money.ts'
-import { LIMITS, toBillRatio } from '../model.ts'
+import { LIMITS, toBillRatio } from '../../../../../shared/src/bill.ts'
 import {
   amountInputMessage,
   amountText,

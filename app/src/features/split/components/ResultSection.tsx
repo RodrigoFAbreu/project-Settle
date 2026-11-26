@@ -8,7 +8,7 @@ import { Button } from '../../../ui/Button.tsx'
 import { Icon } from '../../../ui/Icon.tsx'
 import { personColorStyle, personInitial } from '../../../ui/personColor.ts'
 import { resultAsText } from '../format.ts'
-import type { Bill } from '../model.ts'
+import type { Bill } from '../../../../../shared/src/bill.ts'
 import type { BreakdownLine, SplitOutcome, SplitResult } from '../split.ts'
 import {
   adjustmentLabel,

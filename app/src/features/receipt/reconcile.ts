@@ -3,7 +3,7 @@
  * `computeSplit` against the receipt's trusted total.
  */
 import { subtract, type Cents } from '../../../../shared/src/money.ts'
-import type { Bill } from '../split/model.ts'
+import type { Bill } from '../../../../shared/src/bill.ts'
 import { computeSplit } from '../split/split.ts'
 import type { ReceiptSummary } from './model.ts'
 

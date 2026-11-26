@@ -7,7 +7,7 @@ import {
   listExpenses,
   saveExpense,
 } from '../../data/repository.ts'
-import { isoDate } from '../../features/household/model.ts'
+import { isoDate } from '../../../../shared/src/household.ts'
 import { LANGUAGE_STORAGE_KEY } from '../../i18n/language.ts'
 import {
   equalSplit,

@@ -12,7 +12,7 @@
  * check panel only; they're never part of the summary, so never saved.
  */
 import type { MoneyCurrency } from '../../../../shared/src/money.ts'
-import type { Bill } from '../split/model.ts'
+import type { Bill } from '../../../../shared/src/bill.ts'
 import type { DecodeResult } from './decode.ts'
 import type { FiscalQr } from './fiscalQr.ts'
 import type {

@@ -3,7 +3,7 @@
  * component file so it only exports components.
  */
 import type { MessageKey } from '../../i18n/t.ts'
-import { LIMITS } from '../split/model.ts'
+import { LIMITS } from '../../../../shared/src/bill.ts'
 import type { LineRole, ReviewLine } from './model.ts'
 
 /** Each role's text, as the review writes it (never colour alone). */

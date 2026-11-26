@@ -12,7 +12,7 @@ import {
   negate,
   type Cents,
 } from '../../../../../shared/src/money.ts'
-import { LIMITS, type Bill } from '../../split/model.ts'
+import { LIMITS, type Bill } from '../../../../../shared/src/bill.ts'
 import splitStyles from '../../split/components/split.module.css'
 import { warningMessage } from '../messages.ts'
 import type {

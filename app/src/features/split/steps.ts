@@ -1,5 +1,5 @@
 import { billHasContent } from '../receipt/importUi.ts'
-import type { Bill } from './model.ts'
+import type { Bill } from '../../../../shared/src/bill.ts'
 
 /** The split's three steps (M3 plan, S9), as the `step` URL parameter. */
 export type SplitStep = 'receipt' | 'items' | 'split'

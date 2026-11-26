@@ -11,7 +11,7 @@ import {
   type Member,
   type QuickSplit,
   type Settlement,
-} from '../features/household/model.ts'
+} from '../../../shared/src/household.ts'
 import { cents } from '../../../shared/src/money.ts'
 
 export const NOW = '2026-10-09T12:00:00.000Z'

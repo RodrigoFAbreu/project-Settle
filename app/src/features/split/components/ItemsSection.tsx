@@ -26,7 +26,7 @@ import {
   type BillError,
   type BillField,
   type Item,
-} from '../model.ts'
+} from '../../../../../shared/src/bill.ts'
 import { fieldError, fieldId, itemName } from './fields.ts'
 import { AmountInput, RatioInput, Stepper, TextInput } from './inputs.tsx'
 import styles from './split.module.css'

@@ -6,7 +6,7 @@ import {
   newId,
   type BillAction,
 } from './billReducer.ts'
-import { validateBill, type Bill } from './model.ts'
+import { validateBill, type Bill } from '../../../../shared/src/bill.ts'
 
 function run(bill: Bill, ...actions: BillAction[]): Bill {
   return actions.reduce(billReducer, bill)

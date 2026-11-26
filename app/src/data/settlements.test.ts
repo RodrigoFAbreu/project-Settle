@@ -18,7 +18,7 @@ import {
   settlement,
 } from '../test/households.ts'
 import { openDatabase } from './db.ts'
-import { readSettlement } from './records.ts'
+import { readSettlement } from '../../../shared/src/records.ts'
 import {
   HouseholdNotFoundError,
   MemberInUseError,

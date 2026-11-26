@@ -15,7 +15,11 @@
  * numbers stay comparable.
  */
 import type { Cents } from '../../../../shared/src/money.ts'
-import { adjustmentAmount, lineTotal, type Bill } from '../split/model.ts'
+import {
+  adjustmentAmount,
+  lineTotal,
+  type Bill,
+} from '../../../../shared/src/bill.ts'
 import { isNotReadItemName } from '../../i18n/notRead.ts'
 import type { ReceiptSummary } from './model.ts'
 import { checkReceipt, type ReceiptCheck } from './reconcile.ts'

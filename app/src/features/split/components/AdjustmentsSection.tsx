@@ -9,7 +9,7 @@ import type {
   Bill,
   BillError,
   SplitMode,
-} from '../model.ts'
+} from '../../../../../shared/src/bill.ts'
 import { adjustmentLabel, fieldError, fieldId } from './fields.ts'
 import { AmountInput, RatioInput } from './inputs.tsx'
 import styles from './split.module.css'

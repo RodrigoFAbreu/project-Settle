@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { cents, sum, type Cents } from '../../../../shared/src/money.ts'
 import { createBill } from '../split/billReducer.ts'
 import { quickExpense } from '../../test/households.ts'
-import type { Expense, QuickSplit } from './model.ts'
+import type { Expense, QuickSplit } from '../../../../shared/src/household.ts'
 import { allocateRotated, expenseAmount, expenseShares } from './shares.ts'
 
 function shares(expense: Expense): Cents[] {

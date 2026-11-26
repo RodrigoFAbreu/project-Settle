@@ -13,7 +13,7 @@ import {
   type Household,
   type Member,
   type Settlement,
-} from '../features/household/model.ts'
+} from '../../../shared/src/household.ts'
 import {
   INDEX,
   STORE,
@@ -27,7 +27,7 @@ import {
   readHousehold,
   readMember,
   readSettlement,
-} from './records.ts'
+} from '../../../shared/src/records.ts'
 
 import {
   HouseholdNotFoundError,

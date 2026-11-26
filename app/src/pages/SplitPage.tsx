@@ -26,7 +26,7 @@ import {
   isoDate,
   type Expense,
   type Member,
-} from '../features/household/model.ts'
+} from '../../../shared/src/household.ts'
 import { useRegion } from '../app/region.ts'
 import { useMediaQuery } from '../app/useMediaQuery.ts'
 import { ReceiptCheck } from '../features/receipt/components/ReceiptCheck.tsx'
@@ -51,7 +51,7 @@ import { PeopleSection } from '../features/split/components/PeopleSection.tsx'
 import { ResultSection } from '../features/split/components/ResultSection.tsx'
 import styles from '../features/split/components/split.module.css'
 import { newId } from '../features/split/billReducer.ts'
-import { displayName, type Bill } from '../features/split/model.ts'
+import { displayName, type Bill } from '../../../shared/src/bill.ts'
 import { computeSplit } from '../features/split/split.ts'
 import {
   defaultStep,

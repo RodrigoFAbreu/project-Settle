@@ -18,7 +18,7 @@ import {
   isoDate,
   type Household,
   type Member,
-} from '../../features/household/model.ts'
+} from '../../../../shared/src/household.ts'
 import { useT } from '../../i18n/language.ts'
 import { Button, IconButton } from '../../ui/Button.tsx'
 import { Card } from '../../ui/Card.tsx'

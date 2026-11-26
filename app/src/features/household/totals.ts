@@ -3,7 +3,7 @@
  * never stored (H5).
  */
 import { sum, type Cents } from '../../../../shared/src/money.ts'
-import type { CategoryId, Expense } from './model.ts'
+import type { CategoryId, Expense } from '../../../../shared/src/household.ts'
 import { expenseAmount } from './shares.ts'
 
 /** `YYYY-MM` of a `YYYY-MM-DD` date. */

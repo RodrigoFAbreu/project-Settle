@@ -9,7 +9,7 @@ import {
   type CategoryId,
   type Expense,
   type Settlement,
-} from './model.ts'
+} from '../../../../shared/src/household.ts'
 
 export interface HistoryFilter {
   /** Paid by them, or sharing in it. */

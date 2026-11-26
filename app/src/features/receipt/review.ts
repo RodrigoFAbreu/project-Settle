@@ -12,7 +12,7 @@ import {
   sum,
   type Cents,
 } from '../../../../shared/src/money.ts'
-import { LIMITS, lineTotal, type Bill } from '../split/model.ts'
+import { LIMITS, lineTotal, type Bill } from '../../../../shared/src/bill.ts'
 import type { ReceiptSummary } from './model.ts'
 import type { ReceiptCheck } from './reconcile.ts'
 
