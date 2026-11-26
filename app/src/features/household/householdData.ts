@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react'
 import { listExpenses, listSettlements } from '../../data/repository.ts'
+import type { LedgerStore } from '../../data/ledgerStore.ts'
 import type { LedgerInput } from './balances.ts'
 import type { Member } from './model.ts'
 
@@ -27,6 +28,8 @@ export type HouseholdDataStatus =
 export interface HouseholdDataValue {
   status: HouseholdDataStatus
   db: IDBDatabase | null
+  /** The ledger's store over `db`; null until it is open. */
+  store: LedgerStore | null
   /** Bumped after every write, here or in another tab. */
   revision: number
   /** Opens the database on first use. */

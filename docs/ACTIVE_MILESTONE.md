@@ -10,7 +10,11 @@ Behaviour-neutral refactor, three checkpoints, plan at
   `app/src/data/ledgerStore.ts` (re-exported by `repository.ts`); the IndexedDB
   binding `createIdbStore` in `idbStore.ts`, tested through the interface only.
   `typecheck`, `lint`, `format:check` pass; `src/data` tests pass (77).
-- **CP2, CP3:** not started.
+- **CP2 (complete):** `activeStore(db)` in `app/src/data/activeStore.ts`
+  (default: `createIdbStore`); `HouseholdDataProvider` memoises `store` from
+  `db` and `HouseholdDataValue` gains it. Additive: `db` and every consumer
+  unchanged. `typecheck`, `lint` pass; `activeStore` and `src/pages` tests pass.
+- **CP3:** not started.
 
 ## Last completed: ss-01-adr — Record the self-hosted storage decisions
 

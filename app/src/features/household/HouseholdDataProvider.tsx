@@ -6,6 +6,7 @@ import {
   useState,
   type ReactNode,
 } from 'react'
+import { activeStore } from '../../data/activeStore.ts'
 import {
   MigrationFailedError,
   StorageOutdatedError,
@@ -88,9 +89,11 @@ export function HouseholdDataProvider({
     channel.current?.postMessage('changed')
   }, [])
 
+  const store = useMemo(() => (db === null ? null : activeStore(db)), [db])
+
   const value = useMemo(
-    () => ({ status, db, revision, open, changed }),
-    [status, db, revision, open, changed],
+    () => ({ status, db, store, revision, open, changed }),
+    [status, db, store, revision, open, changed],
   )
   return (
     <HouseholdDataContext.Provider value={value}>
