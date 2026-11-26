@@ -2,7 +2,15 @@
 
 ## Milestone
 
-No milestone is active.
+`ss-02-store-interface` — Put the ledger behind a store interface (M5.5 slice 2).
+Behaviour-neutral refactor, three checkpoints, plan at
+`docs/milestones/ss-02-store-interface-PLAN.md`.
+
+- **CP1 (complete):** `LedgerStore`, `Listed` and the seven typed errors in
+  `app/src/data/ledgerStore.ts` (re-exported by `repository.ts`); the IndexedDB
+  binding `createIdbStore` in `idbStore.ts`, tested through the interface only.
+  `typecheck`, `lint`, `format:check` pass; `src/data` tests pass (77).
+- **CP2, CP3:** not started.
 
 ## Last completed: ss-01-adr — Record the self-hosted storage decisions
 

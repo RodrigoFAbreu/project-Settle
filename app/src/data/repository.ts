@@ -29,50 +29,27 @@ import {
   readSettlement,
 } from './records.ts'
 
-/** Records that read, and how many didn't (kept, never deleted, H1). */
-export interface Listed<T> {
-  items: T[]
-  unreadable: number
+import {
+  HouseholdNotFoundError,
+  MemberInUseError,
+  MemberLimitError,
+  MemberNotFoundError,
+  MissingReferenceError,
+  ExpenseNotFoundError,
+  SettlementNotFoundError,
+  type Listed,
+} from './ledgerStore.ts'
+
+export {
+  ExpenseNotFoundError,
+  HouseholdNotFoundError,
+  MemberInUseError,
+  MemberLimitError,
+  MemberNotFoundError,
+  MissingReferenceError,
+  SettlementNotFoundError,
+  type Listed,
 }
-
-/** The household doesn't exist (or can't be read). */
-export class HouseholdNotFoundError extends Error {}
-
-/** The member doesn't exist in this household (or can't be read). */
-export class MemberNotFoundError extends Error {}
-
-/**
- * An expense names a member that isn't in its household any more,
- * typically deleted in another tab (M-I-3). Nothing was written.
- */
-export class MissingReferenceError extends Error {
-  readonly memberIds: readonly string[]
-  constructor(memberIds: readonly string[]) {
-    super(memberIds.join(', '))
-    this.memberIds = memberIds
-  }
-}
-
-/**
- * A member delete refused (H7, M-I-4): an expense or a payment names the
- * member, or one that can't be read might (M5, B3). Nothing was written.
- */
-export class MemberInUseError extends Error {
-  readonly reason: 'referenced' | 'unreadable'
-  constructor(reason: 'referenced' | 'unreadable') {
-    super(reason)
-    this.reason = reason
-  }
-}
-
-/** An edit's expense is gone, typically deleted in another tab. */
-export class ExpenseNotFoundError extends Error {}
-
-/** An edit's payment is gone, typically deleted in another tab (M5, B3). */
-export class SettlementNotFoundError extends Error {}
-
-/** Too many members: 20 active on any one day, 50 in all (H4). */
-export class MemberLimitError extends Error {}
 
 function readAll<T>(
   raws: unknown[],
