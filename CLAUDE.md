@@ -82,7 +82,7 @@ owner with `/adopt-gate-policy`. These rules apply to every job:
 - **Schema changes.** A fresh install skips upgrades, so any change to stored
   data needs a migration step and an upgrade check against a copy of real data.
 - **Testing.** The app's checks run in `app/` (`npm run typecheck`, `lint`,
-  `format:check`, `npm test`). Browser flows need a build and Chromium, which
+  `format:check`, `npm test`) and also cover `shared/`. Browser flows need a build and Chromium, which
   a job's sandbox may not allow: say so, and the orchestrator records that
   evidence.
 

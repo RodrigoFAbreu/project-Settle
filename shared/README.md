@@ -4,7 +4,8 @@ The domain types, validators and readers that `app/` and the later `server/`
 both use, so a record is read and validated the same way on both sides
 (ADR 0007, decision 2).
 
-Today it holds `src/money.ts`. Later modules move in one by one.
+It holds `src/money.ts`, `bill.ts`, `draft.ts`, `household.ts` and
+`records.ts`.
 
 ## Three purity rules
 
@@ -23,4 +24,5 @@ ESLint and Node all resolve it the same way.
 ## Checks
 
 They run from `app/`: `npm run typecheck`, `lint` and `format:check` also cover
-this folder. Tests stay in `app/` (they need `vitest`).
+this folder. Tests stay in `app/` (they need `vitest`), and
+`app/src/data/sharedBoundary.test.ts` fails on an import that breaks rule 2.

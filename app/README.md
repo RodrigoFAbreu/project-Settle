@@ -58,7 +58,8 @@ app/
     ├── ui/               The component kit, and gallery/ (dev only)
     ├── pages/            One component per route; households/ (M4)
     ├── data/             The ledger's IndexedDB store (M4): db.ts,
-    │                     migrations, record readers, repository.ts
+    │                     migrations, repository.ts (the record readers
+    │                     are in ../shared/src/records.ts)
     ├── features/
     │   ├── split/        The bill splitter: model and validation,
     │   │   │             the split engine, bill reducer, saved draft
@@ -70,7 +71,6 @@ app/
     │   └── receipt/      Receipt reading (M2), see below
     │       ├── components/  The scan section and the receipt check
     │       └── fixtures/ Text receipts, sample receipts, browser files
-    ├── lib/              Framework-free logic (money.ts)
     ├── styles/           Fonts, design tokens and global CSS
     └── test/             Test setup and helpers (the literal-text guard,
                           the Split page's step harness, the ledger's
@@ -79,11 +79,24 @@ app/
 
 Tests sit next to the code they cover, as `*.test.ts(x)`.
 
+## shared/
+
+The domain code that `app/` and the later `server/` both use lives in
+[`../shared/src/`](../shared/src), at the repository root: `money.ts`,
+`bill.ts` (the bill model and its limits), `draft.ts` (the saved-bill
+reader), `household.ts` (households, expenses and payments) and `records.ts`
+(the record readers). It imports nothing outside itself and has no DOM.
+`app/` imports it by relative path with the `.ts` extension, for example
+`../../../../shared/src/money.ts`: no alias, so `tsc`, Vite, Vitest, ESLint
+and Node resolve it alike. Its tests stay in `app/` (they need `vitest`).
+`typecheck`, `lint` and `format:check` run from `app/` and cover it too, and
+`src/data/sharedBoundary.test.ts` fails on an import that leaves the folder.
+
 ## Money
 
 **Never use floats for money.** Every amount is an integer number of cents
 (the `Cents` type), and every parse, format, sum and split goes through
-[`src/lib/money.ts`](src/lib/money.ts). Don't write `amount / 100`,
+[`../shared/src/money.ts`](../shared/src/money.ts). Don't write `amount / 100`,
 `toFixed` or your own rounding. If `money.ts` lacks what you need, add it
 there, with tests.
 
@@ -137,7 +150,7 @@ no library. [ADR 0005](../docs/adr/0005-local-ledger-store.md) records why.
   expense or a payment re-checks, inside its own transaction, that its
   household and every member it names exist. Deleting a member reads every
   raw expense and payment and refuses unless it can prove none names them.
-- **Readers, not trust** (`src/data/records.ts`). Every record is rebuilt
+- **Readers, not trust** (`../shared/src/records.ts`). Every record is rebuilt
   from known fields. One that fails is counted and **kept**, never deleted
   or rewritten.
 - **Derived, never stored.** Shares, amounts and every total come from the

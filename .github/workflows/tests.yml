@@ -3,8 +3,9 @@ name: Tests
 # Everything that checks a commit before it can be merged or released. Called by
 # ci.yml; also runnable alone from the Actions tab.
 #
-#   app    the web app (app/): typecheck, lint, format, unit tests, build and the
-#          browser smoke test. workflow-conformance.yml, which covers the workflow
+#   app    the web app (app/) and shared/, the domain code it imports (the
+#          checks run from app/ and cover both): typecheck, lint, format, unit
+#          tests, build and the browser smoke test. workflow-conformance.yml, which covers the workflow
 #          tooling at the repository root, is separate.
 #   image  the container image (container/), built as the release builds it but
 #          from this commit's own app build instead of a published ZIP, on a

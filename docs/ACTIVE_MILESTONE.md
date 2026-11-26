@@ -26,7 +26,17 @@ repository root, imported by relative path. Three checkpoints. Plan:
   Node imports exit 0. A `window.localStorage` line in `shared/src/draft.ts` fails
   `tsc -p ../shared` (tried, reverted). `git diff -M` shows three renames; the
   draft module shows as a split (new app file plus shared file).
-- **CP3:** not started.
+- **CP3 (complete):** `app/src/data/sharedBoundary.test.ts` fails on a `shared/src/`
+  import that is not a relative path to an existing file inside `shared/src/`
+  (tried with `react`, an `app/` path and a missing file, each reverted);
+  `app/README.md`, `shared/README.md`, `CLAUDE.md` and the `tests.yml` header
+  describe `shared/`. `typecheck`, `lint`, `format:check` pass; `npm test` 100
+  files, 1697 passed, 1 skipped (baseline plus the three new tests).
+  `scripts/release/build.sh 0.0.0-local`, `verify.sh` and
+  `scripts/check-build.mjs` pass. Built file list and sizes equal the
+  baseline's (a build of `main` in a throwaway worktree); only the content
+  hash in three file names (`browserImport`, `index`, `pdf`) differs. Browser
+  flows not run here (no Chromium in this sandbox).
 
 ## Last completed: ss-02-store-interface — Put the ledger behind a store interface
 
