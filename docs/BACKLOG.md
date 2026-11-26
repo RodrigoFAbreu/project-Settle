@@ -13,7 +13,7 @@
 | 7 | Balances and settling up `milestone-5` | Done | - | - |
 | 8 | [Lidl receipt layout as a text fixture](items/lidl-layout-fixture.md) `lidl-layout-fixture` | Done | 1 | - |
 | 9 | [Record the self-hosted storage decisions (ADR 0007)](items/ss-01-adr.md) `ss-01-adr` | Done | 1 | - |
-| 10 | [Put the ledger behind a store interface](items/ss-02-store-interface.md) `ss-02-store-interface` | Next | 3 | ss-01-adr |
+| 10 | [Put the ledger behind a store interface](items/ss-02-store-interface.md) `ss-02-store-interface` | Done | 3 | ss-01-adr |
 | 11 | [Share the domain types and validators in one package](items/ss-03-shared-domain.md) `ss-03-shared-domain` | Next | 3 | ss-02-store-interface |
 | 12 | [Add the server skeleton with a health endpoint](items/ss-04-server-skeleton.md) `ss-04-server-skeleton` | Next | 2 | ss-03-shared-domain |
 | 13 | [Publish the server image](items/ss-05-server-image.md) `ss-05-server-image` | Next | 2 | ss-04-server-skeleton |

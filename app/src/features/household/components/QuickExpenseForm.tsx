@@ -3,8 +3,7 @@ import { useRegion } from '../../../app/region.ts'
 import {
   ExpenseNotFoundError,
   MissingReferenceError,
-  saveExpense,
-} from '../../../data/repository.ts'
+} from '../../../data/ledgerStore.ts'
 import { useT } from '../../../i18n/language.ts'
 import { formatAmount, negate } from '../../../lib/money.ts'
 import { Amount } from '../../../ui/Amount.tsx'
@@ -55,7 +54,7 @@ export function QuickExpenseForm({
 }) {
   const t = useT()
   const { region } = useRegion()
-  const { db, changed } = useHouseholdData()
+  const { store, changed } = useHouseholdData()
   const methodName = useId()
   const [id] = useState(() => initial?.id ?? newId())
   const [createdAt] = useState(
@@ -200,9 +199,9 @@ export function QuickExpenseForm({
   const submit = () => {
     setSubmitted(true)
     setSaveError(undefined)
-    if (result.expense === null || db === null) return
+    if (result.expense === null || store === null) return
     const expense = result.expense
-    saveExpense(db, expense, [], { replacing: initial !== undefined }).then(
+    store.saveExpense(expense, [], { replacing: initial !== undefined }).then(
       () => {
         changed()
         onSaved(expense.id)

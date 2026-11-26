@@ -2,7 +2,6 @@ import { IconPlus } from '@tabler/icons-react'
 import { useCallback, useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { useRegion } from '../../app/region.ts'
-import { listExpenses, listSettlements } from '../../data/repository.ts'
 import {
   ExpenseColumns,
   ExpenseRow,
@@ -27,6 +26,7 @@ import { SelectField, TextField } from '../../ui/Field.tsx'
 import { Icon } from '../../ui/Icon.tsx'
 import { useHouseholdContext } from './householdContext.ts'
 import styles from './households.module.css'
+import type { LedgerStore } from '../../data/ledgerStore.ts'
 
 /**
  * A household's history (M4 plan, H12): every expense, newest first by
@@ -44,9 +44,9 @@ export function ExpensesPage() {
   const base = `/households/${household.id}`
   const loaded = useLoaded(
     useCallback(
-      async (db: IDBDatabase) => ({
-        expenses: await listExpenses(db, household.id),
-        settlements: await listSettlements(db, household.id),
+      async (store: LedgerStore) => ({
+        expenses: await store.listExpenses(household.id),
+        settlements: await store.listSettlements(household.id),
       }),
       [household.id],
     ),

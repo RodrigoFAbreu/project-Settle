@@ -1,0 +1,26 @@
+{
+  "dispositions": {
+    "F-07f7204e22b4": {
+      "disposition": "dropped",
+      "reason": "Plan wording only. The implementation keeps the provider's db state (HouseholdDataProvider.tsx builds the store from it and closes it on unmount) and removes only the field from HouseholdDataValue."
+    },
+    "F-1a193a2cf989": {
+      "disposition": "dropped",
+      "reason": "Plan wording only (the count of 14 already includes householdData.ts); the code switched all 14 consumers and nothing the user sees is affected."
+    },
+    "F-1b3ed366f1cb": {
+      "disposition": "dropped",
+      "reason": "No consumer outside app/src/data/ imports idbStore.ts or createIdbStore today (only activeStore.ts and idbStore.test.ts do), so no bypass exists. ss-11 reworks store selection in activeStore.ts and can tighten the guard there."
+    },
+    "F-315b5ecea563": {
+      "disposition": "dropped",
+      "reason": "Cosmetic naming only: the callback must use its argument, which is the same object as the destructured store, so behaviour is identical. Most other call sites use the same parameter name."
+    },
+    "F-8213dca3fd59": {
+      "disposition": "dropped",
+      "reason": "Guard hardening for forms no current consumer uses (checked: no source outside app/src/data/ imports repository.ts in any form); nothing the user sees goes wrong and the guard still catches the static and plain dynamic imports."
+    }
+  },
+  "schema_version": 1,
+  "work_item_id": "ss-02-store-interface"
+}

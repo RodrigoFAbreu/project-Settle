@@ -2,7 +2,6 @@ import { IconListDetails, IconPencil, IconTrash } from '@tabler/icons-react'
 import { useCallback, useId, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router'
 import { useRegion } from '../../app/region.ts'
-import { deleteExpense, getExpense } from '../../data/repository.ts'
 import { CATEGORY_ICONS } from '../../features/household/categories.ts'
 import { EXPENSE_PARAM } from '../../features/household/components/ExpenseRow.tsx'
 import { SaveToHouseholdDialog } from '../../features/household/components/SaveToHouseholdDialog.tsx'
@@ -31,6 +30,7 @@ import { Icon } from '../../ui/Icon.tsx'
 import { PersonBadge } from '../../ui/PersonBadge.tsx'
 import { personColorStyle } from '../../ui/personColor.ts'
 import styles from './households.module.css'
+import type { LedgerStore } from '../../data/ledgerStore.ts'
 
 /** Set on the history entry a row pushes, so closing can go Back. */
 export interface ExpenseOpenedState {
@@ -66,7 +66,7 @@ export function ExpenseDialog({
   const navigate = useNavigate()
   const location = useLocation()
   const [params, setParams] = useSearchParams()
-  const { db, changed } = useHouseholdData()
+  const { store, changed } = useHouseholdData()
   const [deleting, setDeleting] = useState(false)
   const [editingDetails, setEditingDetails] = useState(false)
   const [failed, setFailed] = useState(false)
@@ -75,8 +75,8 @@ export function ExpenseDialog({
   const eid = params.get(EXPENSE_PARAM)
   const loaded = useLoaded(
     useCallback(
-      (d: IDBDatabase) =>
-        eid === null ? Promise.resolve(null) : getExpense(d, eid),
+      (s: LedgerStore) =>
+        eid === null ? Promise.resolve(null) : s.getExpense(eid),
       [eid],
     ),
   )
@@ -290,8 +290,8 @@ export function ExpenseDialog({
             <Button
               variant="primary"
               onClick={() => {
-                if (db === null) return
-                deleteExpense(db, expense.id).then(
+                if (store === null) return
+                store.deleteExpense(expense.id).then(
                   () => {
                     changed()
                     close()

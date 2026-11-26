@@ -6,11 +6,7 @@ import {
   ExpenseNotFoundError,
   MemberLimitError,
   MissingReferenceError,
-  expensesWithReceiptKey,
-  listHouseholds,
-  listMembers,
-  saveExpense,
-} from '../../../data/repository.ts'
+} from '../../../data/ledgerStore.ts'
 import { useLanguage } from '../../../i18n/language.ts'
 import { formatAmount } from '../../../lib/money.ts'
 import { Button } from '../../../ui/Button.tsx'
@@ -37,6 +33,7 @@ import {
 } from '../model.ts'
 import { expenseAmount } from '../shares.ts'
 import styles from './SaveToHouseholdDialog.module.css'
+import type { LedgerStore } from '../../../data/ledgerStore.ts'
 
 /** A bill person's choice: a member's id, "new", or not chosen yet. */
 type Choice = string
@@ -62,12 +59,12 @@ function receiptOf(summary: ReceiptSummary | null): ExpenseReceipt | undefined {
 function useMembersOf(householdId: string) {
   return useLoaded(
     useCallback(
-      (db: IDBDatabase) =>
+      (store: LedgerStore) =>
         householdId === ''
           ? Promise.resolve<Member[]>([])
-          : listMembers(db, householdId).then((listed) =>
-              sortByPosition(listed.items),
-            ),
+          : store
+              .listMembers(householdId)
+              .then((listed) => sortByPosition(listed.items)),
       [householdId],
     ),
   )
@@ -130,9 +127,11 @@ export function SaveToHouseholdDialog({
 }) {
   const { t, language } = useLanguage()
   const { region } = useRegion()
-  const { db, changed } = useHouseholdData()
+  const { store, changed } = useHouseholdData()
   const locale = dateLocale(language, region.locale)
-  const households = useLoaded(useCallback((d) => listHouseholds(d), []))
+  const households = useLoaded(
+    useCallback((store: LedgerStore) => store.listHouseholds(), []),
+  )
   const active =
     households.state === 'ready'
       ? households.value.items
@@ -313,12 +312,12 @@ export function SaveToHouseholdDialog({
     if (saving) return
     setSubmitted(true)
     setFailure(undefined)
-    if (!valid || db === null) return
+    if (!valid || store === null) return
     setSaving(true)
     const run = async () => {
       if (!confirmedDuplicate && receiptKey !== undefined) {
         const matches = (
-          await expensesWithReceiptKey(db, householdId, receiptKey)
+          await store.expensesWithReceiptKey(householdId, receiptKey)
         ).filter((e) => e.id !== editing?.id)
         if (matches.length > 0) {
           setDuplicate(matches[0] ?? null)
@@ -342,8 +341,7 @@ export function SaveToHouseholdDialog({
           })),
         },
       }
-      await saveExpense(
-        db,
+      await store.saveExpense(
         expense,
         newMembers.map((m) => ({ ...m, id: real(m.id) })),
         { replacing: editing !== undefined },

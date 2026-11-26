@@ -6278,6 +6278,730 @@
         "evaluated_at": "2026-11-25T17:40:07Z",
         "workflow_release": "2.29.10"
       }
+    },
+    "ss-02-store-interface": {
+      "work_item_type": "product",
+      "work_item_kind": "product",
+      "work_item_id": "ss-02-store-interface",
+      "parent_work_item_id": null,
+      "plan_path": "docs/milestones/ss-02-store-interface-PLAN.md",
+      "registry_path": "docs/ai-workflow/registry/ss-02-store-interface-registry.json",
+      "mapping_path": "docs/ai-workflow/requirements/ss-02-store-interface-mapping.json",
+      "governing_workflow_version": "2.2",
+      "phase": "MILESTONE_COMPLETE",
+      "plan_revision": 1,
+      "implementation_revision": 1,
+      "functional_review_round": null,
+      "base_commit": "f0bccadd4f6418ad60c7d939af9ada0f520d1e09",
+      "reviewed_implementation_head": "ad670d2b9af9dd916bac382a54ac39f5361d6cf8",
+      "current_checkpoint_id": null,
+      "last_completed_checkpoint_id": "CP3",
+      "checkpoints": {
+        "CP1": {
+          "status": "COMPLETE",
+          "start_commit": "101e1d57e72e1e094dc2c41b0f4c28f62a795a56"
+        },
+        "CP2": {
+          "status": "COMPLETE",
+          "start_commit": "9e18c899d004e72598ab9c430b3c41e955db1139"
+        },
+        "CP3": {
+          "status": "COMPLETE",
+          "start_commit": "428d49b7311d2013192a902b0eca4bebbf8dd348"
+        }
+      },
+      "current_bundle_id": "78ccdd755d9cf1b8f8b2be10b5b691d2ce1823652db0cb22d4ec83702eb6d973",
+      "plan_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "78ccdd755d9cf1b8f8b2be10b5b691d2ce1823652db0cb22d4ec83702eb6d973",
+        "approved_review_content_id": "568e3759c934deea39bac085e76b6c94cfffddf393d2dded3748268355267f75",
+        "review_content_manifest": [
+          {
+            "path": "docs/ai-workflow/registry/ss-02-store-interface-registry.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "65cc2ba6a704082f2b9e0ac7eccd335250432959"
+          },
+          {
+            "path": "docs/ai-workflow/requirements/ss-02-store-interface-mapping.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d06c199ab3bfb34479728571623d515b722464ce"
+          },
+          {
+            "path": "docs/milestones/ss-02-store-interface-PLAN.md",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d055487780f1d8a86c0a15b78dbca4168f7509be"
+          }
+        ],
+        "reviewed_content_commit": null,
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-26T17:32:11Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "adopted",
+          "file_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+          "adopted_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+          "adopted_at": "2026-11-23T01:46:17Z",
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "568e3759c934deea39bac085e76b6c94cfffddf393d2dded3748268355267f75",
+            "ledger": {
+              "local": {
+                "bundle_id": "78ccdd755d9cf1b8f8b2be10b5b691d2ce1823652db0cb22d4ec83702eb6d973",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "191e82cf1e2579243bac01b4ea177b51e5ed4f5555ce5f20556dfce2477066ca",
+                "ledger_entry_sha256": "70a9ae94473be32448d88edd0f470d3c9c30a12e2711c2b5db7a7d2487b60c30",
+                "run_ref": "session:local .ai-review/ss-02-store-interface/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "78ccdd755d9cf1b8f8b2be10b5b691d2ce1823652db0cb22d4ec83702eb6d973",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "a5b853eaf969a2fd2a7a48e5129517cadfd1827d583ac670434c256b9ab4f924",
+                "ledger_entry_sha256": "fbb875608025bd121ab8330887a4c228bbdbbcb7dc2b8d977edd66deec18e44e",
+                "run_ref": "codex:20261126T172844Z-f1f43377",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-26T17:32:11Z",
+          "workflow_release": "2.29.10"
+        }
+      },
+      "technical_approval": {
+        "status": "CURRENT",
+        "basis": "POLICY_SATISFIED",
+        "reviewed_bundle_id": "88e361874c722f47752af31e5c408107cf80e5d4b24a9b9f79ed4a38e82b215f",
+        "approved_review_content_id": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+        "review_content_manifest": [
+          {
+            "path": "app/src/data/activeStore.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d1c25cd3e56d84d4ba5a37b73fa04fd86c09872f"
+          },
+          {
+            "path": "app/src/data/activeStore.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "786b43b7c0292da96dabf0ecc1aa34ad716f5e6e"
+          },
+          {
+            "path": "app/src/data/idbStore.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9e1faf4051bb4c14c2f77942930fad8d220e4735"
+          },
+          {
+            "path": "app/src/data/idbStore.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "2bee9e72c8a5b9900ac95d4242dd5b1950931dc3"
+          },
+          {
+            "path": "app/src/data/ledgerStore.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "1f0fa6eb83c57d1ad5cc7cf341c9826a68687fdc"
+          },
+          {
+            "path": "app/src/data/repository.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "580924738f01be2d0aa26c9675fa378274038900"
+          },
+          {
+            "path": "app/src/data/seam.test.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "f7cabc06e4ab75f2775ae10a534dbb9d436d5732"
+          },
+          {
+            "path": "app/src/features/household/HouseholdDataProvider.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "0b39fe304d812970bfe3a03d56441ef8a7c5474d"
+          },
+          {
+            "path": "app/src/features/household/components/QuickExpenseForm.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "dc4e8f1d8f862f22ede6f8c89b8f1484b0ef47da"
+          },
+          {
+            "path": "app/src/features/household/components/SaveToHouseholdDialog.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "699cf51e36de6b29ce5f61b00be461dcf0fd9a39"
+          },
+          {
+            "path": "app/src/features/household/components/SettlementForm.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "d0b06dc58b66d19d1459649a8b20d0530b4746b8"
+          },
+          {
+            "path": "app/src/features/household/householdData.ts",
+            "exists": true,
+            "mode": "100644",
+            "blob": "a1628a13a950d6360e071c2d7f0882196c0eefeb"
+          },
+          {
+            "path": "app/src/pages/SplitPage.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "86e0d3600f9a033e8053309d8fb9a359a814532b"
+          },
+          {
+            "path": "app/src/pages/households/ExpenseDialog.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "8c21d79aa0c3d3c581a7057ebafb0a4a50f3329d"
+          },
+          {
+            "path": "app/src/pages/households/ExpenseFormPage.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "9b81fe9188da1c76a4fb58aeb025046c2e92a67c"
+          },
+          {
+            "path": "app/src/pages/households/ExpensesPage.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "b6d20e418c450046ef5af33cf9d40495936df663"
+          },
+          {
+            "path": "app/src/pages/households/HouseholdRedirect.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "47e57fabad9f890dd6246a92c6e4201a1f82dbb8"
+          },
+          {
+            "path": "app/src/pages/households/HouseholdShell.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "06fc4f671ff4e7cf4638a358b218fb05a0c04478"
+          },
+          {
+            "path": "app/src/pages/households/HouseholdsPage.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "cb1eac552bd5ed8dc2cd89fba27ff7e6130c53bd"
+          },
+          {
+            "path": "app/src/pages/households/MembersPage.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "286ee383945127d0db4dfe6b4c2f1f3498cb8b05"
+          },
+          {
+            "path": "app/src/pages/households/OverviewPage.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "ed43eca6967ae77ebb1f3c913f200b585e73f405"
+          },
+          {
+            "path": "app/src/pages/households/SettlementDialog.tsx",
+            "exists": true,
+            "mode": "100644",
+            "blob": "6ec4d330286ba25c7e9eba79f770bdba954d463f"
+          },
+          {
+            "path": "docs/ai-workflow/registry/ss-02-store-interface-artifacts.json",
+            "exists": true,
+            "mode": "100644",
+            "blob": "277f61347e9afbf41a8507563077d0e843e8ba13"
+          }
+        ],
+        "reviewed_content_commit": "ad670d2b9af9dd916bac382a54ac39f5361d6cf8",
+        "legacy_evidence": null,
+        "user_confirmation": "policy:bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "waived_guarantees": [],
+        "recorded_at": "2026-11-26T17:47:47Z",
+        "policy_evidence": {
+          "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "policy_source": "adopted",
+          "file_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+          "adopted_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+          "adopted_at": "2026-11-23T01:46:17Z",
+          "requirements": [
+            {
+              "id": "gate_reachable",
+              "met": true,
+              "detail": "the approval gate is reachable"
+            },
+            {
+              "id": "verdict_approve_bound",
+              "met": true,
+              "detail": "the latest verdict is APPROVE and names the current bundle"
+            },
+            {
+              "id": "distinct_reviewer_models",
+              "met": true,
+              "detail": "families 'anthropic' and 'openai' differ"
+            },
+            {
+              "id": "review_evidence_audited",
+              "met": true,
+              "detail": "both stages carry the audit keys"
+            }
+          ],
+          "inputs": {
+            "review_content_id": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+            "ledger": {
+              "local": {
+                "bundle_id": "88e361874c722f47752af31e5c408107cf80e5d4b24a9b9f79ed4a38e82b215f",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "f03fcb4cacab3871af22a0ed81c3da7f2dd55449485b98f6404706dab4f4b82a",
+                "ledger_entry_sha256": "6ea6e9a36ca286ddfe5dec58aac9325fb425eb78c0759eb4491a881afb85c63d",
+                "run_ref": "session:local .ai-review/ss-02-store-interface/feedback/REVIEW_FEEDBACK.md",
+                "reviewer_model": "anthropic/claude-opus-5-5"
+              },
+              "manual": {
+                "bundle_id": "88e361874c722f47752af31e5c408107cf80e5d4b24a9b9f79ed4a38e82b215f",
+                "verdict": "APPROVE",
+                "round": 1,
+                "verdict_sha256": "93b5e6d54371df40fa757dddd501e5da612ad93a4e2a572bb47d7600accfefbd",
+                "ledger_entry_sha256": "9fa12e230f8e9fa9010f7484edfc9422ba88c51efdfb4c76a21db9266ae12ad1",
+                "run_ref": "codex:20261126T174516Z-3e498ae7",
+                "reviewer_model": "openai/gpt-6.1-sol"
+              }
+            },
+            "gate_status_digest": "208019226c6b1f204dc9cf40421b18bfb7dcdd87f3fee052ed0d7e6aa156165f"
+          },
+          "floor_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+          "trust": {
+            "review_verdicts": "orchestrator"
+          },
+          "evaluated_at": "2026-11-26T17:47:47Z",
+          "workflow_release": "2.29.10"
+        }
+      },
+      "technical_review_block_pins": [],
+      "plan_review_stages": {
+        "review_content_id": "568e3759c934deea39bac085e76b6c94cfffddf393d2dded3748268355267f75",
+        "LOCAL_MODEL_PLAN_REVIEW": {
+          "bundle_id": "78ccdd755d9cf1b8f8b2be10b5b691d2ce1823652db0cb22d4ec83702eb6d973",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-26T17:28:24Z",
+          "verdict_sha256": "191e82cf1e2579243bac01b4ea177b51e5ed4f5555ce5f20556dfce2477066ca",
+          "run_ref": "session:local .ai-review/ss-02-store-interface/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_PLAN_REVIEW": {
+          "bundle_id": "78ccdd755d9cf1b8f8b2be10b5b691d2ce1823652db0cb22d4ec83702eb6d973",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-26T17:30:15Z",
+          "verdict_sha256": "a5b853eaf969a2fd2a7a48e5129517cadfd1827d583ac670434c256b9ab4f924",
+          "run_ref": "codex:20261126T172844Z-f1f43377",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "functional_acceptance_status": null,
+      "blocking_decisions": [],
+      "review_round_counts": {
+        "plan": {
+          "local": 1,
+          "external": 1
+        },
+        "implementation": {
+          "local": 1,
+          "external": 1
+        }
+      },
+      "state_revision": 17,
+      "last_transition": "2026-11-26T18:54:15Z",
+      "feedback_layout": "scoped",
+      "plan_review_binding": {
+        "status": "BOUND",
+        "at": "2026-11-26T17:25:56Z",
+        "consumed": null,
+        "published": {
+          "review_content_id": "568e3759c934deea39bac085e76b6c94cfffddf393d2dded3748268355267f75",
+          "plan_revision": 1
+        },
+        "bound": {
+          "review_content_id": "568e3759c934deea39bac085e76b6c94cfffddf393d2dded3748268355267f75",
+          "bundle_id": "78ccdd755d9cf1b8f8b2be10b5b691d2ce1823652db0cb22d4ec83702eb6d973",
+          "plan_revision": 1
+        }
+      },
+      "optional_findings": {
+        "F-07f7204e22b4": {
+          "digest": "07f7204e22b4d27d6708f539328ead75d84ee8723eb69e57ea3e82dc8b236365",
+          "text": "CP3's wording \"Drop `db` from the context value (and the provider)\" could be read as removing the provider's `db` state. That state must stay: the provider still needs it to build the store, to clear it on version change and to close it (`useEffect(() => () => db?.close(), [db])`, `HouseholdDataProvider.tsx:84`). Only the field in `HouseholdDataValue` should go.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "568e3759c934deea39bac085e76b6c94cfffddf393d2dded3748268355267f75",
+              "verdict": "APPROVE",
+              "at": "2026-11-26T17:28:24Z"
+            }
+          ]
+        },
+        "F-1b3ed366f1cb": {
+          "digest": "1b3ed366f1cb929cd4564f5d269e33c149b6b038f639b8d712ba3df6c8a38352",
+          "text": "`seam.test.ts` only forbids importing `repository.ts`. A consumer could still import `idbStore.ts` (or call `createIdbStore`) directly and bypass `activeStore.ts`, which is the place `ss-11` will switch stores. Consider having the test also forbid `idbStore.ts` outside `app/src/data/`.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "568e3759c934deea39bac085e76b6c94cfffddf393d2dded3748268355267f75",
+              "verdict": "APPROVE",
+              "at": "2026-11-26T17:28:24Z"
+            }
+          ]
+        },
+        "F-1a193a2cf989": {
+          "digest": "1a193a2cf98986416e5aa0f535427bd7829df4e8042b16b29050b7aac048955b",
+          "text": "CP3's prose says \"each of the 14 consumers\" right after handling `householdData.ts` separately. The 14 already include `householdData.ts` (13 listed component/page files plus it). The intent is clear; only the count reads as if it were 14 besides it.",
+          "raised": [
+            {
+              "stage": "plan",
+              "role": "LOCAL_MODEL_PLAN_REVIEW",
+              "round": 1,
+              "review_content_id": "568e3759c934deea39bac085e76b6c94cfffddf393d2dded3748268355267f75",
+              "verdict": "APPROVE",
+              "at": "2026-11-26T17:28:24Z"
+            }
+          ]
+        },
+        "F-315b5ecea563": {
+          "digest": "315b5ecea563929c2892da8a1f107d56fe1117bb15d9a35e01335aa1ede2aa16",
+          "text": "O1: `HouseholdsPage.tsx` (`useCallback((store: LedgerStore) => loadRows(store, today), ...)`) and `SaveToHouseholdDialog.tsx` (`useCallback((store: LedgerStore) => store.listHouseholds(), [])`) name the callback parameter `store`, shadowing the `store` destructured from `useHouseholdData()` in the same component. Behaviour is correct (the callback must use its argument, which is the same object), but a reader can mistake which one is meant; other call sites use `s`. Cosmetic only; nothing the user sees changes.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "LOCAL_MODEL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+              "verdict": "APPROVE",
+              "at": "2026-11-26T17:50:00Z"
+            }
+          ]
+        },
+        "F-8213dca3fd59": {
+          "digest": "8213dca3fd5936b3cc44f0922e723d18df50a93b08825af42f903ad46410598b",
+          "text": "`app/src/data/seam.test.ts:29`: The import regex misses valid dynamic imports containing comments or template literals, such as ``import(`../data/repository.ts`)``. Extend detection and add fixtures for these forms. No current consumer bypasses the seam.",
+          "raised": [
+            {
+              "stage": "implementation",
+              "role": "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW",
+              "round": 1,
+              "review_content_id": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+              "verdict": "APPROVE",
+              "at": "2026-11-26T17:47:02Z"
+            }
+          ]
+        }
+      },
+      "implementation_review_stages": {
+        "review_content_id": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+        "LOCAL_MODEL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "88e361874c722f47752af31e5c408107cf80e5d4b24a9b9f79ed4a38e82b215f",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-26T17:50:00Z",
+          "verdict_sha256": "f03fcb4cacab3871af22a0ed81c3da7f2dd55449485b98f6404706dab4f4b82a",
+          "run_ref": "session:local .ai-review/ss-02-store-interface/feedback/REVIEW_FEEDBACK.md",
+          "reviewer_model": "anthropic/claude-opus-5-5"
+        },
+        "MANUAL_EXTERNAL_IMPLEMENTATION_REVIEW": {
+          "bundle_id": "88e361874c722f47752af31e5c408107cf80e5d4b24a9b9f79ed4a38e82b215f",
+          "verdict": "APPROVE",
+          "round": 1,
+          "completed_at": "2026-11-26T17:47:02Z",
+          "verdict_sha256": "93b5e6d54371df40fa757dddd501e5da612ad93a4e2a572bb47d7600accfefbd",
+          "run_ref": "codex:20261126T174516Z-3e498ae7",
+          "reviewer_model": "openai/gpt-6.1-sol"
+        }
+      },
+      "gate_evidence": {
+        "functional": {
+          "flow-1": {
+            "flow_id": "flow-1",
+            "status": "passed",
+            "head": "7aeace266e0a4cfd5f02e3ad515e29f90c4bdbb0",
+            "ran_at": "2026-11-26T17:53:31Z",
+            "summary": {
+              "checklist_blob": "55919e459b4caac035bf322a3a64f288684923d0",
+              "text": "Run by hand at the approved head in the repo checkout: typecheck, lint, format:check exit 0; npm test 99 files passed, 1694 passed, 1 skipped (matches the checklist)."
+            },
+            "log_digest": "66c8bb4cf562d410011cb84d29071bfdadb9085374933bddcf345a6aaa82da5c",
+            "run_ref": "operator:ss-02-flow-1",
+            "reporter": "orchestrator session (operator run)",
+            "identity": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+            "recorded_at": "2026-11-26T17:53:31Z"
+          },
+          "flow-2": {
+            "flow_id": "flow-2",
+            "status": "passed",
+            "head": "7aeace266e0a4cfd5f02e3ad515e29f90c4bdbb0",
+            "ran_at": "2026-11-26T17:53:31Z",
+            "summary": {
+              "checklist_blob": "55919e459b4caac035bf322a3a64f288684923d0",
+              "text": "Run by hand: seam.test.ts passes (2 tests); after adding an import of data/repository to src/pages/HomePage.tsx the seam test failed naming pages/HomePage.tsx; change reverted, tree clean."
+            },
+            "log_digest": "e631192ebc034edd45921885b24f9fb6dffd4f1a6425ffe382e79db4652d18a9",
+            "run_ref": "operator:ss-02-flow-2",
+            "reporter": "orchestrator session (operator run)",
+            "identity": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+            "recorded_at": "2026-11-26T17:53:31Z"
+          },
+          "flow-3": {
+            "flow_id": "flow-3",
+            "status": "passed",
+            "head": "7aeace266e0a4cfd5f02e3ad515e29f90c4bdbb0",
+            "ran_at": "2026-11-26T17:53:31Z",
+            "summary": {
+              "checklist_blob": "55919e459b4caac035bf322a3a64f288684923d0",
+              "text": "Run by hand: idbStore.test.ts, activeStore.test.ts and seam.test.ts all pass (9 tests)."
+            },
+            "log_digest": "cd47cdf583e5155b30fb8bb7652ba760da8bf6318903375da450301ab1656cf7",
+            "run_ref": "operator:ss-02-flow-3",
+            "reporter": "orchestrator session (operator run)",
+            "identity": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+            "recorded_at": "2026-11-26T17:53:31Z"
+          },
+          "flow-4": {
+            "flow_id": "flow-4",
+            "status": "passed",
+            "head": "7aeace266e0a4cfd5f02e3ad515e29f90c4bdbb0",
+            "ran_at": "2026-11-26T17:53:31Z",
+            "summary": {
+              "checklist_blob": "55919e459b4caac035bf322a3a64f288684923d0",
+              "text": "Run by hand in the built app (vite preview, built-in browser, fresh profile): created a household with two people, added an expense via the full form, recorded Ben's 15,00 payment through Mark as paid (balances reached settled up), edited the expense amount 30,00 to 40,00 (shares 20,00 each; Ben then owed 5,00, exact), deleted the expense with confirmation."
+            },
+            "log_digest": "12dbb22516850829bcf3ac3355bf882aafb1a7c4fac86685df52bc382b99eddc",
+            "run_ref": "operator:ss-02-flow-4",
+            "reporter": "orchestrator session (operator run)",
+            "identity": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+            "recorded_at": "2026-11-26T17:53:31Z"
+          },
+          "flow-5": {
+            "flow_id": "flow-5",
+            "status": "passed",
+            "head": "7aeace266e0a4cfd5f02e3ad515e29f90c4bdbb0",
+            "ran_at": "2026-11-26T17:53:31Z",
+            "summary": {
+              "checklist_blob": "55919e459b4caac035bf322a3a64f288684923d0",
+              "text": "Run by hand in the built app: after a full page reload the household list, members, edited expense and the settlement all persisted; balances after reload were Ana +5,00 and Ben -5,00. Not exercised: a profile created on main before switching branches."
+            },
+            "log_digest": "03b0fa36b811e6ec7e01fd007d78929d966052265f75849d87bbb874edd842f5",
+            "run_ref": "operator:ss-02-flow-5",
+            "reporter": "orchestrator session (operator run)",
+            "identity": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+            "recorded_at": "2026-11-26T17:53:31Z"
+          },
+          "flow-6": {
+            "flow_id": "flow-6",
+            "status": "passed",
+            "head": "7aeace266e0a4cfd5f02e3ad515e29f90c4bdbb0",
+            "ran_at": "2026-11-26T17:53:31Z",
+            "summary": {
+              "checklist_blob": "55919e459b4caac035bf322a3a64f288684923d0",
+              "text": "Run by hand in the built app: from the household's Add expense menu opened the Split page, typed one bill item (Pizza 12,00 shared by Ana and Ben), used Save to a household; the expense Pizza night 12,00 appeared in the household's Expenses with items and 6,00 shares."
+            },
+            "log_digest": "2cb8cc3c45c4d37ec270a485935b20c3ecb47404678932b3764d32f354e0e9e6",
+            "run_ref": "operator:ss-02-flow-6",
+            "reporter": "orchestrator session (operator run)",
+            "identity": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+            "recorded_at": "2026-11-26T17:53:31Z"
+          },
+          "flow-7": {
+            "flow_id": "flow-7",
+            "status": "passed",
+            "head": "7aeace266e0a4cfd5f02e3ad515e29f90c4bdbb0",
+            "ran_at": "2026-11-26T17:49:30Z",
+            "summary": {
+              "checklist_blob": "55919e459b4caac035bf322a3a64f288684923d0",
+              "text": "Diff f0bccad..HEAD outside docs/ai-workflow and .ai-review touches only app/src/data/ (7 files), HouseholdDataProvider.tsx, householdData.ts, 3 household components, SplitPage and 9 pages/households files, docs/ACTIVE_MILESTONE.md and the plan. Nothing else. I count 13 consumers plus the provider and householdData.ts (15 files in total), not exactly 14, but no file is out of scope."
+            },
+            "log_digest": "a5231f7870bce92935fdc56bdc7b6d38a46057fb1b73db8ed3f5e972148a6b05",
+            "run_ref": "controller:20261126T174914Z-be12f015",
+            "reporter": "workflow-controller 1.32.0",
+            "identity": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+            "recorded_at": "2026-11-26T17:49:30Z"
+          }
+        },
+        "pr": {
+          "pr": {
+            "number": 16,
+            "url": "https://github.com/RodrigoFAbreu/project-Settle/pull/16"
+          },
+          "state": "open",
+          "head": "7aeace266e0a4cfd5f02e3ad515e29f90c4bdbb0",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+          "observed_at": "2026-11-26T18:54:15Z",
+          "ingest_seq": 1,
+          "repository": "RodrigoFAbreu/project-Settle",
+          "queried_commit": "ad670d2b9af9dd916bac382a54ac39f5361d6cf8",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-11-26T18:54:15Z",
+            "raw_sha256": "d684edb212ca438a3eb4c19eee42a603cbbea6aff9ae6d1da8ef2c9ef05cba1b",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "978350509c2883379c95475668f0173a838512fa57d52a0dde4a0579be7c1cbb"
+          },
+          "fact_id": "0617d6996a5430911d288e446d994c6442e6cd21ccc3179cc833ab4ee3dab493"
+        },
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 1
+        }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "adopted",
+        "file_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+        "adopted_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+        "floor_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['flow-1', 'flow-2', 'flow-3', 'flow-4', 'flow-5', 'flow-6', 'flow-7'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #16 at 7aeace266e0a4cfd5f02e3ad515e29f90c4bdbb0 is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "ad670d2b9af9dd916bac382a54ac39f5361d6cf8",
+          "anchor_identity": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "4a2053c77140f1d591054d7303532f15e282e6440b358070fbbbd22772f9f483",
+            "recorded_at": "2026-11-26T17:47:47Z"
+          },
+          "functional": {
+            "flow-1": {
+              "evidence_id": "60b47a11a6c494a886157153ef2ccd2a2e4d258107bc0b4cf70141908b77bcb4",
+              "log_digest": "66c8bb4cf562d410011cb84d29071bfdadb9085374933bddcf345a6aaa82da5c",
+              "run_ref": "operator:ss-02-flow-1"
+            },
+            "flow-2": {
+              "evidence_id": "56115500d9ab4cc33752c65bfe370459f70c7fe9ca1b456f4abcf6b9213f843a",
+              "log_digest": "e631192ebc034edd45921885b24f9fb6dffd4f1a6425ffe382e79db4652d18a9",
+              "run_ref": "operator:ss-02-flow-2"
+            },
+            "flow-3": {
+              "evidence_id": "343183fe856e13e63739cfe591fce04c83bfaf917221ba25af392e52713ca3a6",
+              "log_digest": "cd47cdf583e5155b30fb8bb7652ba760da8bf6318903375da450301ab1656cf7",
+              "run_ref": "operator:ss-02-flow-3"
+            },
+            "flow-4": {
+              "evidence_id": "4a3271beda1441c842bf3ee3b56332bd7154d812c325a43763c2a59e222bf04f",
+              "log_digest": "12dbb22516850829bcf3ac3355bf882aafb1a7c4fac86685df52bc382b99eddc",
+              "run_ref": "operator:ss-02-flow-4"
+            },
+            "flow-5": {
+              "evidence_id": "1ab6f1e732fdc26d7180c42b0e4a6c3158e52e111e35d3200ed6f7aff2eb2457",
+              "log_digest": "03b0fa36b811e6ec7e01fd007d78929d966052265f75849d87bbb874edd842f5",
+              "run_ref": "operator:ss-02-flow-5"
+            },
+            "flow-6": {
+              "evidence_id": "993453cba33b36ceefc4af7d8dfda18cf0d1adbf39967f6600aeb642d8c5c56c",
+              "log_digest": "2cb8cc3c45c4d37ec270a485935b20c3ecb47404678932b3764d32f354e0e9e6",
+              "run_ref": "operator:ss-02-flow-6"
+            },
+            "flow-7": {
+              "evidence_id": "0ba453b99fd0c4f842b9c5f58a001af41b4afd4b2766e76ea3e0ef3d5763ccf1",
+              "log_digest": "a5231f7870bce92935fdc56bdc7b6d38a46057fb1b73db8ed3f5e972148a6b05",
+              "run_ref": "controller:20261126T174914Z-be12f015"
+            }
+          },
+          "pr": {
+            "fact_id": "0617d6996a5430911d288e446d994c6442e6cd21ccc3179cc833ab4ee3dab493",
+            "head": "7aeace266e0a4cfd5f02e3ad515e29f90c4bdbb0",
+            "provenance": "workflow_gh",
+            "raw_sha256": "d684edb212ca438a3eb4c19eee42a603cbbea6aff9ae6d1da8ef2c9ef05cba1b"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-11-26T18:54:15Z",
+        "workflow_release": "2.29.10"
+      }
     }
   },
   "gate_policy_adoption": {

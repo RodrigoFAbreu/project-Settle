@@ -1,13 +1,13 @@
 import { useCallback } from 'react'
 import { Navigate } from 'react-router'
 import { readHouseholdPointer } from '../../data/pointer.ts'
-import { listHouseholds } from '../../data/repository.ts'
 import {
   useHouseholdData,
   useLoaded,
 } from '../../features/household/householdData.ts'
 import { useT } from '../../i18n/language.ts'
 import { StorageState } from './StorageState.tsx'
+import type { LedgerStore } from '../../data/ledgerStore.ts'
 
 /**
  * The Household tab (M4 plan, H9): the household used last, or the list.
@@ -16,7 +16,9 @@ import { StorageState } from './StorageState.tsx'
 export function HouseholdRedirect() {
   const t = useT()
   const { status } = useHouseholdData()
-  const loaded = useLoaded(useCallback((db) => listHouseholds(db), []))
+  const loaded = useLoaded(
+    useCallback((store: LedgerStore) => store.listHouseholds(), []),
+  )
   if (status !== 'ready' && status !== 'idle' && status !== 'opening') {
     return (
       <>

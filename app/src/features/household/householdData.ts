@@ -6,7 +6,7 @@ import {
   useMemo,
   useState,
 } from 'react'
-import { listExpenses, listSettlements } from '../../data/repository.ts'
+import type { LedgerStore } from '../../data/ledgerStore.ts'
 import type { LedgerInput } from './balances.ts'
 import type { Member } from './model.ts'
 
@@ -26,7 +26,8 @@ export type HouseholdDataStatus =
 
 export interface HouseholdDataValue {
   status: HouseholdDataStatus
-  db: IDBDatabase | null
+  /** The ledger's store; null until the database is open. */
+  store: LedgerStore | null
   /** Bumped after every write, here or in another tab. */
   revision: number
   /** Opens the database on first use. */
@@ -62,19 +63,21 @@ export type Loaded<T> =
  * (`revision`). `load` must be stable for the same inputs (wrap it in
  * `useCallback`).
  */
-export function useLoaded<T>(load: (db: IDBDatabase) => Promise<T>): Loaded<T> {
-  const { db, revision } = useHouseholdData()
+export function useLoaded<T>(
+  load: (store: LedgerStore) => Promise<T>,
+): Loaded<T> {
+  const { store, revision } = useHouseholdData()
   // The value, with the load that produced it: a new `load` (another
   // household, say) reads as loading until its own value arrives, never
   // as the previous one's.
   const [loaded, setLoaded] = useState<{
-    load: (db: IDBDatabase) => Promise<T>
+    load: (store: LedgerStore) => Promise<T>
     value: Loaded<T>
   } | null>(null)
   useEffect(() => {
-    if (db === null) return
+    if (store === null) return
     let current = true
-    load(db).then(
+    load(store).then(
       (value) => {
         if (current) setLoaded({ load, value: { state: 'ready', value } })
       },
@@ -85,7 +88,7 @@ export function useLoaded<T>(load: (db: IDBDatabase) => Promise<T>): Loaded<T> {
     return () => {
       current = false
     }
-  }, [db, load, revision])
+  }, [store, load, revision])
   return loaded !== null && loaded.load === load
     ? loaded.value
     : { state: 'loading' }
@@ -103,9 +106,9 @@ export function useLedger(
 ): Loaded<LedgerInput> {
   const loaded = useLoaded(
     useCallback(
-      async (db: IDBDatabase) => ({
-        expenses: await listExpenses(db, householdId),
-        settlements: await listSettlements(db, householdId),
+      async (store: LedgerStore) => ({
+        expenses: await store.listExpenses(householdId),
+        settlements: await store.listSettlements(householdId),
       }),
       [householdId],
     ),

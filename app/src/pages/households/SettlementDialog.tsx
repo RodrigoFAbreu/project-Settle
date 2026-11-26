@@ -2,7 +2,6 @@ import { IconPencil, IconTrash } from '@tabler/icons-react'
 import { useCallback, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams } from 'react-router'
 import { useRegion } from '../../app/region.ts'
-import { deleteSettlement, getSettlement } from '../../data/repository.ts'
 import { SettlementForm } from '../../features/household/components/SettlementForm.tsx'
 import { paidWords } from '../../features/household/balanceWords.ts'
 import { SETTLEMENT_PARAM } from '../../features/household/components/SettlementRow.tsx'
@@ -23,6 +22,7 @@ import { Button } from '../../ui/Button.tsx'
 import { Dialog } from '../../ui/Dialog.tsx'
 import { PersonBadge } from '../../ui/PersonBadge.tsx'
 import styles from './households.module.css'
+import type { LedgerStore } from '../../data/ledgerStore.ts'
 
 function openedFromList(state: unknown): boolean {
   return (
@@ -53,7 +53,7 @@ export function SettlementDialog({
   const navigate = useNavigate()
   const location = useLocation()
   const [params, setParams] = useSearchParams()
-  const { db, changed } = useHouseholdData()
+  const { store, changed } = useHouseholdData()
   const [editing, setEditing] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [failed, setFailed] = useState(false)
@@ -61,8 +61,8 @@ export function SettlementDialog({
   const sid = params.get(SETTLEMENT_PARAM)
   const loaded = useLoaded(
     useCallback(
-      (d: IDBDatabase) =>
-        sid === null ? Promise.resolve(null) : getSettlement(d, sid),
+      (s: LedgerStore) =>
+        sid === null ? Promise.resolve(null) : s.getSettlement(sid),
       [sid],
     ),
   )
@@ -194,8 +194,8 @@ export function SettlementDialog({
             variant="primary"
             icon={IconTrash}
             onClick={() => {
-              if (db === null) return
-              deleteSettlement(db, settlement.id).then(
+              if (store === null) return
+              store.deleteSettlement(settlement.id).then(
                 () => {
                   changed()
                   close()

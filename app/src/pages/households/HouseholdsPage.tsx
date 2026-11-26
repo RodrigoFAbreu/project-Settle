@@ -5,12 +5,6 @@ import {
   requestPersistentStorage,
   writeHouseholdPointer,
 } from '../../data/pointer.ts'
-import {
-  createHousehold,
-  listHouseholds,
-  listMembers,
-  setHouseholdArchived,
-} from '../../data/repository.ts'
 import { newId } from '../../features/split/billReducer.ts'
 import {
   useHouseholdData,
@@ -32,17 +26,18 @@ import { Dialog } from '../../ui/Dialog.tsx'
 import { TextField } from '../../ui/Field.tsx'
 import styles from './households.module.css'
 import { StorageState } from './StorageState.tsx'
+import type { LedgerStore } from '../../data/ledgerStore.ts'
 
 interface Row {
   household: Household
   people: number
 }
 
-async function loadRows(db: IDBDatabase, today: string) {
-  const { items, unreadable } = await listHouseholds(db)
+async function loadRows(store: LedgerStore, today: string) {
+  const { items, unreadable } = await store.listHouseholds()
   const rows: Row[] = []
   for (const household of items) {
-    const members = await listMembers(db, household.id)
+    const members = await store.listMembers(household.id)
     rows.push({
       household,
       people: members.items.filter((m) => isActiveOn(m, today)).length,
@@ -55,9 +50,11 @@ async function loadRows(db: IDBDatabase, today: string) {
 /** The households on this device (M4 plan, H9): open, create, restore. */
 export function HouseholdsPage() {
   const t = useT()
-  const { status, db, changed } = useHouseholdData()
+  const { status, store, changed } = useHouseholdData()
   const today = isoDate(new Date())
-  const loaded = useLoaded(useCallback((d) => loadRows(d, today), [today]))
+  const loaded = useLoaded(
+    useCallback((store: LedgerStore) => loadRows(store, today), [today]),
+  )
   const [creating, setCreating] = useState(false)
 
   const active =
@@ -134,9 +131,10 @@ export function HouseholdsPage() {
                         name: household.name,
                       })}
                       onClick={() => {
-                        if (db === null) return
+                        if (store === null) return
                         const now = new Date().toISOString()
-                        void setHouseholdArchived(db, household.id, null, now)
+                        void store
+                          .setHouseholdArchived(household.id, null, now)
                           .then(changed)
                           .catch(() => undefined)
                       }}
@@ -152,7 +150,7 @@ export function HouseholdsPage() {
       )}
       <NewHouseholdDialog
         open={creating}
-        db={db}
+        store={store}
         today={today}
         onClose={() => setCreating(false)}
         onCreated={() => {
@@ -166,13 +164,13 @@ export function HouseholdsPage() {
 /** "New household": a name, then the people to add (CP2). */
 function NewHouseholdDialog({
   open,
-  db,
+  store,
   today,
   onClose,
   onCreated,
 }: {
   open: boolean
-  db: IDBDatabase | null
+  store: LedgerStore | null
   today: string
   onClose: () => void
   onCreated: () => void
@@ -208,7 +206,7 @@ function NewHouseholdDialog({
   const submit = () => {
     if (saving) return
     setSubmitted(true)
-    if (!valid || db === null) return
+    if (!valid || store === null) return
     setSaving(true)
     const now = new Date().toISOString()
     const id = newId()
@@ -227,7 +225,7 @@ function NewHouseholdDialog({
       position,
       joinedOn: today,
     }))
-    createHousehold(db, household, members).then(
+    store.createHousehold(household, members).then(
       () => {
         requestPersistentStorage()
         writeHouseholdPointer(id)

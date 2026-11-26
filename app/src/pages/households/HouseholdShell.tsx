@@ -3,11 +3,6 @@ import { useCallback, useEffect } from 'react'
 import { Link, Outlet, useLocation, useParams } from 'react-router'
 import { writeHouseholdPointer } from '../../data/pointer.ts'
 import {
-  getHousehold,
-  listMembers,
-  setHouseholdArchived,
-} from '../../data/repository.ts'
-import {
   useHouseholdData,
   useLoaded,
 } from '../../features/household/householdData.ts'
@@ -23,6 +18,7 @@ import type { HouseholdContext } from './householdContext.ts'
 import styles from './households.module.css'
 import { SettlementDialog } from './SettlementDialog.tsx'
 import { StorageState } from './StorageState.tsx'
+import type { LedgerStore } from '../../data/ledgerStore.ts'
 
 type TabId = 'overview' | 'expenses' | 'balances' | 'members'
 
@@ -49,12 +45,12 @@ export function HouseholdShell() {
   const t = useT()
   const { hid = '' } = useParams()
   const { pathname } = useLocation()
-  const { status, db, changed } = useHouseholdData()
+  const { status, store, changed } = useHouseholdData()
   const loaded = useLoaded(
     useCallback(
-      async (d: IDBDatabase) => {
-        const household = await getHousehold(d, hid)
-        const members = await listMembers(d, hid)
+      async (s: LedgerStore) => {
+        const household = await s.getHousehold(hid)
+        const members = await s.listMembers(hid)
         return { household, members }
       },
       [hid],
@@ -126,9 +122,10 @@ export function HouseholdShell() {
           <p>
             <Button
               onClick={() => {
-                if (db === null) return
+                if (store === null) return
                 const now = new Date().toISOString()
-                void setHouseholdArchived(db, household.id, null, now)
+                void store
+                  .setHouseholdArchived(household.id, null, now)
                   .then(changed)
                   .catch(() => undefined)
               }}
