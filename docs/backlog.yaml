@@ -53,7 +53,7 @@ items:
     detail: docs/items/ss-02-store-interface.md
   - id: ss-03-shared-domain
     title: "Share the domain types and validators in one package"
-    status: next
+    status: done
     order: 11
     depends_on: [ss-02-store-interface]
     size: 3

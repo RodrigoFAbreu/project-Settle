@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_work_item_id": "ss-03-shared-domain",
+  "active_work_item_id": null,
   "work_items": {
     "milestone-0": {
       "work_item_type": "product",
@@ -7012,7 +7012,7 @@
       "registry_path": "docs/ai-workflow/registry/ss-03-shared-domain-registry.json",
       "mapping_path": "docs/ai-workflow/requirements/ss-03-shared-domain-mapping.json",
       "governing_workflow_version": "2.2",
-      "phase": "AWAITING_FUNCTIONAL_REVIEW",
+      "phase": "MILESTONE_COMPLETE",
       "plan_revision": 5,
       "implementation_revision": 1,
       "functional_review_round": null,
@@ -7963,8 +7963,8 @@
           "external": 1
         }
       },
-      "state_revision": 30,
-      "last_transition": "2026-11-26T22:12:00Z",
+      "state_revision": 31,
+      "last_transition": "2026-11-27T01:52:25Z",
       "feedback_layout": "scoped",
       "plan_review_binding": {
         "status": "BOUND",
@@ -8208,6 +8208,253 @@
           "run_ref": "codex:20261126T213509Z-8d363c56",
           "reviewer_model": "openai/gpt-6.1-sol"
         }
+      },
+      "gate_evidence": {
+        "functional": {
+          "flow-1": {
+            "flow_id": "flow-1",
+            "status": "passed",
+            "head": "5f0842f1bf518fe9c8d9fb0976717e202626fe6e",
+            "ran_at": "2026-11-27T01:21:35Z",
+            "summary": {
+              "checklist_blob": "1ceb3540e2b0547ed7f979fc12af684a075be7f0",
+              "text": "In app/ on the host: typecheck (tsc -b and tsc -p ../shared), lint, format:check and npm test all pass; 100 files, 1697 passed, 1 skipped."
+            },
+            "log_digest": "48f05d667b302368c5c49f34778f0efee8bd4540e5249967f902b0e17f1268c6",
+            "run_ref": "manual:host-rerun-2026-11-27",
+            "reporter": "orchestrator host rerun (settle session)",
+            "identity": "1ceb99c9cb2fae7d3119f3b379b2ae32045163c1315ba427234fcdad90327627",
+            "recorded_at": "2026-11-27T01:21:35Z"
+          },
+          "flow-2": {
+            "flow_id": "flow-2",
+            "status": "passed",
+            "head": "5f0842f1bf518fe9c8d9fb0976717e202626fe6e",
+            "ran_at": "2026-11-27T01:21:35Z",
+            "summary": {
+              "checklist_blob": "1ceb3540e2b0547ed7f979fc12af684a075be7f0",
+              "text": "ls shared/src lists bill.ts draft.ts household.ts money.ts records.ts; git diff -M against 5596316 shows the renames and the draft split (log in digest)."
+            },
+            "log_digest": "5d9a7994747b8214dd968f8269e9e38f99931029bba3b34b07c0bd318ccd049a",
+            "run_ref": "manual:host-rerun-2026-11-27",
+            "reporter": "orchestrator host rerun (settle session)",
+            "identity": "1ceb99c9cb2fae7d3119f3b379b2ae32045163c1315ba427234fcdad90327627",
+            "recorded_at": "2026-11-27T01:21:35Z"
+          },
+          "flow-3": {
+            "flow_id": "flow-3",
+            "status": "passed",
+            "head": "5f0842f1bf518fe9c8d9fb0976717e202626fe6e",
+            "ran_at": "2026-11-27T01:21:35Z",
+            "summary": {
+              "checklist_blob": "1ceb3540e2b0547ed7f979fc12af684a075be7f0",
+              "text": "sharedBoundary test: 3 passed clean; with import 'react' appended to shared/src/money.ts it fails naming money.ts ('react is not a relative path'); reverted."
+            },
+            "log_digest": "c9c465f9982860cf610af6b0c52d4b84dffe22cd78c2be0767979a6377ad177e",
+            "run_ref": "manual:host-rerun-2026-11-27",
+            "reporter": "orchestrator host rerun (settle session)",
+            "identity": "1ceb99c9cb2fae7d3119f3b379b2ae32045163c1315ba427234fcdad90327627",
+            "recorded_at": "2026-11-27T01:21:35Z"
+          },
+          "flow-4": {
+            "flow_id": "flow-4",
+            "status": "passed",
+            "head": "5f0842f1bf518fe9c8d9fb0976717e202626fe6e",
+            "ran_at": "2026-11-27T01:21:35Z",
+            "summary": {
+              "checklist_blob": "1ceb3540e2b0547ed7f979fc12af684a075be7f0",
+              "text": "document.title; in shared/src/money.ts fails tsc -p ../shared (TS2584); a fetch call fails lint (no-restricted-globals); both reverted, tree clean."
+            },
+            "log_digest": "c9c465f9982860cf610af6b0c52d4b84dffe22cd78c2be0767979a6377ad177e",
+            "run_ref": "manual:host-rerun-2026-11-27",
+            "reporter": "orchestrator host rerun (settle session)",
+            "identity": "1ceb99c9cb2fae7d3119f3b379b2ae32045163c1315ba427234fcdad90327627",
+            "recorded_at": "2026-11-27T01:21:35Z"
+          },
+          "flow-5": {
+            "flow_id": "flow-5",
+            "status": "passed",
+            "head": "5f0842f1bf518fe9c8d9fb0976717e202626fe6e",
+            "ran_at": "2026-11-27T01:21:35Z",
+            "summary": {
+              "checklist_blob": "1ceb3540e2b0547ed7f979fc12af684a075be7f0",
+              "text": "build.sh 0.0.0-local + verify.sh pass, check-build.mjs passes. File list and sizes equal a build of main in a throwaway worktree; only the content hash in browserImport, index and pdf names differs."
+            },
+            "log_digest": "3e933630287fa69745ded3c82bc5d1f74df0f84b937120ab0d07bfbc4adedbaa",
+            "run_ref": "manual:host-rerun-2026-11-27",
+            "reporter": "orchestrator host rerun (settle session)",
+            "identity": "1ceb99c9cb2fae7d3119f3b379b2ae32045163c1315ba427234fcdad90327627",
+            "recorded_at": "2026-11-27T01:21:35Z"
+          },
+          "flow-6": {
+            "flow_id": "flow-6",
+            "status": "passed",
+            "head": "5f0842f1bf518fe9c8d9fb0976717e202626fe6e",
+            "ran_at": "2026-11-27T01:21:35Z",
+            "summary": {
+              "checklist_blob": "1ceb3540e2b0547ed7f979fc12af684a075be7f0",
+              "text": "Not hand-clicked: scripts/screens.mjs against the production build in headless Chromium: 20 screens, 204 checks, 0 problems, with the seeded household ledger (members, expenses, settlements) rendered on the household screens."
+            },
+            "log_digest": "4c988914b9ffe535ca24fde7fcf6afc045a6b17c6eeba3761ae1ad80c15a05b8",
+            "run_ref": "manual:host-rerun-2026-11-27",
+            "reporter": "orchestrator host rerun (settle session)",
+            "identity": "1ceb99c9cb2fae7d3119f3b379b2ae32045163c1315ba427234fcdad90327627",
+            "recorded_at": "2026-11-27T01:21:36Z"
+          },
+          "flow-7": {
+            "flow_id": "flow-7",
+            "status": "passed",
+            "head": "5f0842f1bf518fe9c8d9fb0976717e202626fe6e",
+            "ran_at": "2026-11-27T01:21:35Z",
+            "summary": {
+              "checklist_blob": "1ceb3540e2b0547ed7f979fc12af684a075be7f0",
+              "text": "Not hand-clicked: the same screens run seeds a saved split draft in storage and renders the Split page from it (20 screens, 204 checks, 0 problems); the reload-and-save-to-household click path was not driven."
+            },
+            "log_digest": "4c988914b9ffe535ca24fde7fcf6afc045a6b17c6eeba3761ae1ad80c15a05b8",
+            "run_ref": "manual:host-rerun-2026-11-27",
+            "reporter": "orchestrator host rerun (settle session)",
+            "identity": "1ceb99c9cb2fae7d3119f3b379b2ae32045163c1315ba427234fcdad90327627",
+            "recorded_at": "2026-11-27T01:21:36Z"
+          }
+        },
+        "pr": {
+          "pr": {
+            "number": 17,
+            "url": "https://github.com/RodrigoFAbreu/project-Settle/pull/17"
+          },
+          "state": "open",
+          "head": "5f0842f1bf518fe9c8d9fb0976717e202626fe6e",
+          "review_decision": null,
+          "reviewed_head": null,
+          "checks": {
+            "state": "success",
+            "failing": []
+          },
+          "review_id": null,
+          "findings": null,
+          "identity_at_head": "1ceb99c9cb2fae7d3119f3b379b2ae32045163c1315ba427234fcdad90327627",
+          "observed_at": "2026-11-27T01:52:25Z",
+          "ingest_seq": 1,
+          "repository": "RodrigoFAbreu/project-Settle",
+          "queried_commit": "1780aafacf33b99a6f7ddfe2a58776a14e3277b9",
+          "provenance": {
+            "source": "workflow_gh",
+            "fetched_by": {
+              "name": "workflow-gh",
+              "version": "pr-list-v1"
+            },
+            "fetched_at": "2026-11-27T01:52:25Z",
+            "raw_sha256": "5635c94db8dd370edaf88e3ba48beab9f96d9f56315dafd071b96fc792d388cc",
+            "run_ref": null,
+            "gh_path": "/usr/bin/gh",
+            "gh_sha256": "978350509c2883379c95475668f0173a838512fa57d52a0dde4a0579be7c1cbb"
+          },
+          "fact_id": "759e3f715700fcb28afc04389e89bfe8da2d071e0e9239ca99126dcbbca281dd"
+        },
+        "pr_reported": null,
+        "pr_keys": {
+          "reopened_for": [],
+          "applied": [],
+          "ingest_seq": 1
+        }
+      },
+      "acceptance_satisfaction": {
+        "policy_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "policy_source": "adopted",
+        "file_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+        "adopted_digest": "1b76de4f95ab96891f46cd8d1280ca372a9754af556e0efa815a17cb3c95d3aa",
+        "floor_digest": "bae758b4f4ce132042f656ca8ff42d47634c2abae3b005efbb3aa2c9513e56a3",
+        "requirements": [
+          {
+            "id": "checkpoints_complete",
+            "met": true,
+            "detail": "every checkpoint of the item's own registry is COMPLETE"
+          },
+          {
+            "id": "technical_approval_current",
+            "met": true,
+            "detail": "the technical approval is CURRENT for the content now"
+          },
+          {
+            "id": "functional_flows_passed",
+            "met": true,
+            "detail": "flows ['flow-1', 'flow-2', 'flow-3', 'flow-4', 'flow-5', 'flow-6', 'flow-7'] passed at the approved content"
+          },
+          {
+            "id": "pr_fact_current",
+            "met": true,
+            "detail": "workflow_gh fact for PR #17 at 5f0842f1bf518fe9c8d9fb0976717e202626fe6e is current"
+          },
+          {
+            "id": "no_standing_pr_objection",
+            "met": true,
+            "detail": "no CHANGES_REQUESTED decision and no failed check"
+          },
+          {
+            "id": "ci_green",
+            "met": true,
+            "detail": "checks are 'success'"
+          }
+        ],
+        "inputs": {
+          "anchor_commit": "1780aafacf33b99a6f7ddfe2a58776a14e3277b9",
+          "anchor_identity": "1ceb99c9cb2fae7d3119f3b379b2ae32045163c1315ba427234fcdad90327627",
+          "technical_approval": {
+            "basis": "POLICY_SATISFIED",
+            "approved_review_content_id": "1ceb99c9cb2fae7d3119f3b379b2ae32045163c1315ba427234fcdad90327627",
+            "recorded_at": "2026-11-26T22:12:00Z"
+          },
+          "functional": {
+            "flow-1": {
+              "evidence_id": "cba008d09426315d23dd97a50fc62eb56a559d9a764a1d0e7218877da626f682",
+              "log_digest": "48f05d667b302368c5c49f34778f0efee8bd4540e5249967f902b0e17f1268c6",
+              "run_ref": "manual:host-rerun-2026-11-27"
+            },
+            "flow-2": {
+              "evidence_id": "a21e1966c9494b1c8b6c9517c6fe2b41f5e8a6f555fb09356120be337f89e849",
+              "log_digest": "5d9a7994747b8214dd968f8269e9e38f99931029bba3b34b07c0bd318ccd049a",
+              "run_ref": "manual:host-rerun-2026-11-27"
+            },
+            "flow-3": {
+              "evidence_id": "6729af83746a0356069127935b59558b393d34d03af83cb35cc4ade25fd7b1e3",
+              "log_digest": "c9c465f9982860cf610af6b0c52d4b84dffe22cd78c2be0767979a6377ad177e",
+              "run_ref": "manual:host-rerun-2026-11-27"
+            },
+            "flow-4": {
+              "evidence_id": "25aba03d1656af5c44db60e30203134be95aa42ba687938a759f744cc6e7bf46",
+              "log_digest": "c9c465f9982860cf610af6b0c52d4b84dffe22cd78c2be0767979a6377ad177e",
+              "run_ref": "manual:host-rerun-2026-11-27"
+            },
+            "flow-5": {
+              "evidence_id": "5c3c6a83e6b86a17e45a6a239f2417cc942db17af7784b1661d167c81b5676e8",
+              "log_digest": "3e933630287fa69745ded3c82bc5d1f74df0f84b937120ab0d07bfbc4adedbaa",
+              "run_ref": "manual:host-rerun-2026-11-27"
+            },
+            "flow-6": {
+              "evidence_id": "93e3aad0969707c6d82f70fbf42fa6a16f7a8296f6f7e842bcc0b6fe00d2d8db",
+              "log_digest": "4c988914b9ffe535ca24fde7fcf6afc045a6b17c6eeba3761ae1ad80c15a05b8",
+              "run_ref": "manual:host-rerun-2026-11-27"
+            },
+            "flow-7": {
+              "evidence_id": "4d2baa7d90665c96ccafe861ae15182c2c75ddae6f73c4b1d4cd941f1a0190e8",
+              "log_digest": "4c988914b9ffe535ca24fde7fcf6afc045a6b17c6eeba3761ae1ad80c15a05b8",
+              "run_ref": "manual:host-rerun-2026-11-27"
+            }
+          },
+          "pr": {
+            "fact_id": "759e3f715700fcb28afc04389e89bfe8da2d071e0e9239ca99126dcbbca281dd",
+            "head": "5f0842f1bf518fe9c8d9fb0976717e202626fe6e",
+            "provenance": "workflow_gh",
+            "raw_sha256": "5635c94db8dd370edaf88e3ba48beab9f96d9f56315dafd071b96fc792d388cc"
+          }
+        },
+        "trust": {
+          "review_verdicts": "orchestrator",
+          "functional_evidence": "orchestrator",
+          "pr_fact": "workflow_gh"
+        },
+        "evaluated_at": "2026-11-27T01:52:25Z",
+        "workflow_release": "2.29.10"
       }
     }
   },

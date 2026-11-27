@@ -1,44 +1,23 @@
 # Active Milestone
 
-## In progress: ss-03-shared-domain — Share the domain types and validators in one package
+## Last completed: ss-03-shared-domain — Share the domain types and validators in one package
 
 M5.5 slice 3. Behaviour-neutral move of five modules into `shared/` at the
-repository root, imported by relative path. Three checkpoints. Plan:
-`docs/milestones/ss-03-shared-domain-PLAN.md`.
+repository root, imported by relative path (`money`, `bill`, `household`,
+`records`, and the pure readers of the draft). Three checkpoints.
+`app/src/data/sharedBoundary.test.ts` fails if a `shared/src/` file imports
+anything but a relative path inside `shared/src/`. Accepted on 2026-11-27.
 
-- **CP1 (complete):** `shared/tsconfig.json`, `shared/README.md`, the wiring
-  (`vite.config.ts` `server.fs.allow`, `eslint.config.js`, the four `package.json`
-  scripts) and `lib/money.ts` moved to `shared/src/money.ts` (rename, 100%
-  similar; 81 importers rewritten). `typecheck`, `lint`, `format:check` pass; `npm test`
-  1694 passed, 1 skipped (baseline equal); `npm run build` file list and sizes
-  identical to baseline. Node imports of `check-requests.mjs` and the
-  `measure-quality` dependencies exit 0. Dev server answers 200 for
-  `shared/src/money.ts` and for app modules. A `document` line fails `typecheck`, a `fetch` call fails
-  `lint`, a badly formatted line fails `format:check` (each tried, reverted).
-- **CP2 (complete):** `features/split/model.ts`, `features/household/model.ts`
-  and `data/records.ts` moved with `git mv` to `shared/src/bill.ts`, `household.ts`
-  and `records.ts`; `features/split/draft.ts` split: the pure readers (`readBill`,
-  `DRAFT_VERSION`, `isObject`) in `shared/src/draft.ts`, `loadDraft`/`saveDraft`/
-  `DRAFT_STORAGE_KEY` in a smaller `app/src/features/split/draft.ts`.
-  `displayName` takes a structural translator type. Importers rewritten by a
-  throwaway script. `typecheck` (now also `tsc -p ../shared`), `lint`,
-  `format:check` pass; `npm test` 1694 passed, 1 skipped (baseline equal). Both
-  Node imports exit 0. A `window.localStorage` line in `shared/src/draft.ts` fails
-  `tsc -p ../shared` (tried, reverted). `git diff -M` shows three renames; the
-  draft module shows as a split (new app file plus shared file).
-- **CP3 (complete):** `app/src/data/sharedBoundary.test.ts` fails on a `shared/src/`
-  import that is not a relative path to an existing file inside `shared/src/`
-  (tried with `react`, an `app/` path and a missing file, each reverted);
-  `app/README.md`, `shared/README.md`, `CLAUDE.md` and the `tests.yml` header
-  describe `shared/`. `typecheck`, `lint`, `format:check` pass; `npm test` 100
-  files, 1697 passed, 1 skipped (baseline plus the three new tests).
-  `scripts/release/build.sh 0.0.0-local`, `verify.sh` and
-  `scripts/check-build.mjs` pass. Built file list and sizes equal the
-  baseline's (a build of `main` in a throwaway worktree); only the content
-  hash in three file names (`browserImport`, `index`, `pdf`) differs. Browser
-  flows not run here (no Chromium in this sandbox).
+- **Verification:** `typecheck`, `lint`, `format:check` pass; full `npm test`
+  passes (100 files, 1697 passed, 1 skipped). The release build and verify
+  scripts pass and the built file list equals the baseline's. Seven functional
+  flows passed. Browser flows were not run by the implementer.
+- **Optional findings:** fourteen, all dropped with reasons (plan wording, stale
+  comment and doc paths, bookkeeping). See
+  `docs/milestones/completed/ss-03-shared-domain-findings.md`.
+- **Plan:** archived at `docs/milestones/completed/ss-03-shared-domain-PLAN.md`.
 
-## Last completed: ss-02-store-interface — Put the ledger behind a store interface
+## Previously completed: ss-02-store-interface — Put the ledger behind a store interface
 
 M5.5 slice 2. Behaviour-neutral refactor, three checkpoints: the ledger sits
 behind `LedgerStore` (`app/src/data/ledgerStore.ts`, IndexedDB binding
@@ -54,7 +33,7 @@ outside `src/data/` imports `repository.ts`. Accepted on 2026-11-26.
   `docs/milestones/completed/ss-02-store-interface-findings.md`.
 - **Plan:** archived at `docs/milestones/completed/ss-02-store-interface-PLAN.md`.
 
-## Previously completed: ss-01-adr — Record the self-hosted storage decisions
+## Earlier: ss-01-adr — Record the self-hosted storage decisions
 
 ADR 0007 (`docs/adr/0007-self-hosted-ledger-store.md`), the first slice of
 **M5.5 Self-hosted central storage** (14 slices, `docs/items/milestone-5-5.md`).
@@ -89,8 +68,8 @@ No app code changes. Accepted on 2026-11-22.
 
 ## Next action
 
-`/milestone-plan` takes the next backlog item: `ss-03-shared-domain` (share the
-domain types and validators in one package). M5.5 is cut into slices (`ss-01` to
+`/milestone-plan` takes the next backlog item: `ss-04-server-skeleton` (add the
+server skeleton with a health endpoint). M5.5 is cut into slices (`ss-01` to
 `ss-14`, `docs/items/milestone-5-5.md`); the Controller takes them in order, each
 is one milestone and one squash PR. `ss-14-deploy-homelab` is homelab-gitops
 work, not a Controller item.
@@ -180,8 +159,8 @@ None.
 
 ## Active plan
 
-None. The last plan, `ss-02-store-interface`'s, is archived at
-`docs/milestones/completed/ss-02-store-interface-PLAN.md`.
+None. The last plan, `ss-03-shared-domain`'s, is archived at
+`docs/milestones/completed/ss-03-shared-domain-PLAN.md`.
 
 ## Functional review checklist
 

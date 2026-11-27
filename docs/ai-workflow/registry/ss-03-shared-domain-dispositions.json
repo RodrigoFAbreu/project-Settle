@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "work_item_id": "ss-03-shared-domain",
+  "dispositions": {
+    "F-08a8369c86c3": {
+      "disposition": "dropped",
+      "reason": "The five moved modules are unchanged text that the guard passed before the move, and shared/ has no UI. The gap only matters if someone later adds user-visible literals under shared/src; no user sees anything wrong today."
+    },
+    "F-2eac95f85255": {
+      "disposition": "dropped",
+      "reason": "Plan-wording bookkeeping. The code already moved the validateBill import and the Json type into app/src/features/split/draft.ts (shared/src/draft.ts keeps its own Json), and typecheck and lint pass."
+    },
+    "F-3cdc45041412": {
+      "disposition": "dropped",
+      "reason": "README layout-tree omission for app/src/lib/ (only money.test.ts left). No behaviour is affected and the file is still found by the tree's parent entry; not worth another round."
+    },
+    "F-3fde8e4ba8b2": {
+      "disposition": "dropped",
+      "reason": "Stale comment path in shared/src/household.ts:375 (data/records.ts). Harmless, and the milestone allows no content edits to moved files. Same line is covered by F-7d4876379070."
+    },
+    "F-62f975f33c61": {
+      "disposition": "dropped",
+      "reason": "Only affects how git diff -M prints the draft move. Nothing changes for the user, and the move was verified at CP2."
+    },
+    "F-731955f9d219": {
+      "disposition": "dropped",
+      "reason": "Checkpoint verification wording. The CP1/CP2 check ran and passed on the host; a link-only check would be cleaner but no code is wrong."
+    },
+    "F-7d4876379070": {
+      "disposition": "dropped",
+      "reason": "Stale header comment in shared/src/draft.ts. Comment-only, and the milestone allows no edits to moved files beyond those named. Acceptable as is."
+    },
+    "F-8235a85fd6ac": {
+      "disposition": "dropped",
+      "reason": "Bookkeeping in TEST_RESULTS.md. The reviewer reran the dev-server and lint checks and sharedBoundary.test.ts covers the negative guard cases in code."
+    },
+    "F-b401792c293e": {
+      "disposition": "dropped",
+      "reason": "Plan header revision line. Already reads Revision 5 in the current plan, so nothing is left to fix."
+    },
+    "F-cb880600bf5c": {
+      "disposition": "dropped",
+      "reason": "ADR 0005 is a historical record; its path reference to the old location is left as written."
+    },
+    "F-e1a76a00a448": {
+      "disposition": "dropped",
+      "reason": "Plan header revision line. Already reads Revision 5 in the current plan, so nothing is left to fix."
+    },
+    "F-f73b141331e7": {
+      "disposition": "dropped",
+      "reason": "Plan-wording point. The @settle/shared alias is resolved correctly under Vitest (tests pass), so no user-visible failure."
+    },
+    "F-fb27a2b9dd4c": {
+      "disposition": "dropped",
+      "reason": "Plan title already reads 'refactor: move the domain types and validators into shared/', so the wording issue is gone."
+    },
+    "F-fbd2352ce4a0": {
+      "disposition": "dropped",
+      "reason": "Only the stated reason in the plan was off (vite preview ignores server.fs.allow); the decision is correct and no code is wrong."
+    }
+  }
+}
