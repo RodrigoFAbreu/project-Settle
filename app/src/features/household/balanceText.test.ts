@@ -2,11 +2,11 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_REGION } from '../../app/region.ts'
 import { translator } from '../../i18n/t.ts'
-import { cents } from '../../lib/money.ts'
+import { cents } from '../../../../shared/src/money.ts'
 import { fourMembers, quickExpense, settlement } from '../../test/households.ts'
 import { balances, suggestSettlements, type LedgerInput } from './balances.ts'
 import { IncompleteBalancesError, balanceText } from './balanceText.ts'
-import type { Expense } from './model.ts'
+import type { Expense } from '../../../../shared/src/household.ts'
 
 /*
  * The settle-up text (M5 plan, B9): both languages, no date in the

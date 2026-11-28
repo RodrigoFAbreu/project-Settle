@@ -6,8 +6,13 @@
 import type { Region } from '../../app/region.ts'
 import { isNotReadItemName } from '../../i18n/notRead.ts'
 import type { Translate } from '../../i18n/t.ts'
-import { formatAmount, negate, sum, type Cents } from '../../lib/money.ts'
-import { LIMITS, lineTotal, type Bill } from '../split/model.ts'
+import {
+  formatAmount,
+  negate,
+  sum,
+  type Cents,
+} from '../../../../shared/src/money.ts'
+import { LIMITS, lineTotal, type Bill } from '../../../../shared/src/bill.ts'
 import type { ReceiptSummary } from './model.ts'
 import type { ReceiptCheck } from './reconcile.ts'
 

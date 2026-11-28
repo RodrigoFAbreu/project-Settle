@@ -1,6 +1,6 @@
 import type { Region } from '../../app/region.ts'
 import type { Translate } from '../../i18n/t.ts'
-import { formatAmount } from '../../lib/money.ts'
+import { formatAmount } from '../../../../shared/src/money.ts'
 import type { SplitResult } from './split.ts'
 
 /**

@@ -1,8 +1,12 @@
 import { useId, useState, type FormEvent } from 'react'
 import type { Region } from '../../../app/region.ts'
 import { useT } from '../../../i18n/language.ts'
-import { formatAmount, parseAmount, type Cents } from '../../../lib/money.ts'
-import { LIMITS, type Bill } from '../../split/model.ts'
+import {
+  formatAmount,
+  parseAmount,
+  type Cents,
+} from '../../../../../shared/src/money.ts'
+import { LIMITS, type Bill } from '../../../../../shared/src/bill.ts'
 import { amountInputMessage } from '../../split/components/fields.ts'
 import splitStyles from '../../split/components/split.module.css'
 import { ROLE_KEYS, canAddAsItem, nameFromLine } from '../lineReview.ts'

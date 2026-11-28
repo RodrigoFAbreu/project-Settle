@@ -1,5 +1,5 @@
 import { useOutletContext } from 'react-router'
-import type { Household, Member } from '../../features/household/model.ts'
+import type { Household, Member } from '../../../../shared/src/household.ts'
 
 export interface HouseholdContext {
   household: Household

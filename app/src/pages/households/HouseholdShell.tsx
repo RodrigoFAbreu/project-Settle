@@ -6,7 +6,7 @@ import {
   useHouseholdData,
   useLoaded,
 } from '../../features/household/householdData.ts'
-import { sortByPosition } from '../../features/household/model.ts'
+import { sortByPosition } from '../../../../shared/src/household.ts'
 import { useT } from '../../i18n/language.ts'
 import { Button } from '../../ui/Button.tsx'
 import { Card } from '../../ui/Card.tsx'

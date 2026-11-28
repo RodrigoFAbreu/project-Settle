@@ -18,7 +18,7 @@ import {
 } from '../../features/household/components/MonthCharts.tsx'
 import { dateLocale, formatMonth } from '../../features/household/format.ts'
 import { useLedger, useLoaded } from '../../features/household/householdData.ts'
-import { activeMembers, isoDate } from '../../features/household/model.ts'
+import { activeMembers, isoDate } from '../../../../shared/src/household.ts'
 import {
   categoryTotals,
   inMonth,
@@ -29,7 +29,7 @@ import {
   totalOf,
 } from '../../features/household/totals.ts'
 import { useLanguage } from '../../i18n/language.ts'
-import { formatAmount } from '../../lib/money.ts'
+import { formatAmount } from '../../../../shared/src/money.ts'
 import { Button } from '../../ui/Button.tsx'
 import { Card } from '../../ui/Card.tsx'
 import { Dialog } from '../../ui/Dialog.tsx'

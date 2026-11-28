@@ -1,5 +1,5 @@
 import type { Region } from '../app/region.ts'
-import { formatAmount, negate, type Cents } from '../lib/money.ts'
+import { formatAmount, negate, type Cents } from '../../../shared/src/money.ts'
 
 /** The minus sign, U+2212, never a hyphen (M3 plan, S12). */
 export const MINUS = '\u2212'

@@ -8,7 +8,7 @@ import {
 } from 'react'
 import type { LedgerStore } from '../../data/ledgerStore.ts'
 import type { LedgerInput } from './balances.ts'
-import type { Member } from './model.ts'
+import type { Member } from '../../../../shared/src/household.ts'
 
 /** Where the ledger's database stands (M4 plan, H2, H3). */
 export type HouseholdDataStatus =

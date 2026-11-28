@@ -2,7 +2,7 @@
  * The Portuguese fiscal QR code (Portaria 195/2020, M2 plan "Fiscal QR
  * payload"), and the NIF check digit the parser also uses.
  */
-import { cents, type Cents } from '../../lib/money.ts'
+import { cents, type Cents } from '../../../../shared/src/money.ts'
 import { isoDate } from './parse/amounts.ts'
 import type { ReceiptWarning } from './model.ts'
 

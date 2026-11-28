@@ -1,5 +1,5 @@
 import { useT } from '../i18n/language.ts'
-import { displayName, type Person } from '../features/split/model.ts'
+import { displayName, type Person } from '../../../shared/src/bill.ts'
 import styles from './PersonBadge.module.css'
 import { classes } from './classes.ts'
 import { personColorStyle, personInitial } from './personColor.ts'

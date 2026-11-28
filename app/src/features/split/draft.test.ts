@@ -3,7 +3,7 @@ import { act } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createBill } from './billReducer.ts'
 import { DRAFT_STORAGE_KEY, loadDraft, saveDraft } from './draft.ts'
-import { validateBill, type Bill } from './model.ts'
+import { validateBill, type Bill } from '../../../../shared/src/bill.ts'
 import { computeSplit } from './split.ts'
 import { useBill } from './useBill.ts'
 

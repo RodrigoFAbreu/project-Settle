@@ -12,7 +12,7 @@ import type {
   Household,
   Member,
   Settlement,
-} from '../features/household/model.ts'
+} from '../../../shared/src/household.ts'
 
 /** Records that read, and how many didn't (kept, never deleted, H1). */
 export interface Listed<T> {

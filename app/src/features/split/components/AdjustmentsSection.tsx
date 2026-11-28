@@ -1,7 +1,7 @@
 import type { Dispatch } from 'react'
 import type { Region } from '../../../app/region.ts'
 import { useT } from '../../../i18n/language.ts'
-import { cents } from '../../../lib/money.ts'
+import { cents } from '../../../../../shared/src/money.ts'
 import type { BillAction } from '../billReducer.ts'
 import type {
   Adjustment,
@@ -9,7 +9,7 @@ import type {
   Bill,
   BillError,
   SplitMode,
-} from '../model.ts'
+} from '../../../../../shared/src/bill.ts'
 import { adjustmentLabel, fieldError, fieldId } from './fields.ts'
 import { AmountInput, RatioInput } from './inputs.tsx'
 import styles from './split.module.css'

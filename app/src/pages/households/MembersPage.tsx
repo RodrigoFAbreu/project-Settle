@@ -14,7 +14,7 @@ import {
   isIsoDate,
   isoDate,
   type Member,
-} from '../../features/household/model.ts'
+} from '../../../../shared/src/household.ts'
 import { newId } from '../../features/split/billReducer.ts'
 import { useLanguage } from '../../i18n/language.ts'
 import { Button } from '../../ui/Button.tsx'

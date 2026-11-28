@@ -3,8 +3,8 @@
  * expenses and the same totals as the numbers beside them, never stored
  * (H5), so a chart and its figures always agree.
  */
-import { sum, type Cents } from '../../lib/money.ts'
-import type { CategoryId, Expense } from './model.ts'
+import { sum, type Cents } from '../../../../shared/src/money.ts'
+import type { CategoryId, Expense } from '../../../../shared/src/household.ts'
 import { inMonth, monthOf, shiftMonth, totalOf } from './totals.ts'
 
 /**

@@ -3,8 +3,8 @@
  * their validation. Pure and framework-free: the data layer (`data/`) stores
  * these records, and the pages show them.
  */
-import type { Cents, Ratio } from '../../lib/money.ts'
-import { LIMITS, isBillRatio, validateBill, type Bill } from '../split/model.ts'
+import type { Cents, Ratio } from './money.ts'
+import { LIMITS, isBillRatio, validateBill, type Bill } from './bill.ts'
 
 /** Every record's own format version (H1). */
 export const RECORD_VERSION = 1

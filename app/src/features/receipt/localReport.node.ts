@@ -6,7 +6,7 @@
  */
 import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
-import type { Bill } from '../split/model.ts'
+import type { Bill } from '../../../../shared/src/bill.ts'
 import {
   nameMatches,
   normalizeName,

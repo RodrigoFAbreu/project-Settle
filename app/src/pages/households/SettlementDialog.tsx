@@ -15,7 +15,7 @@ import {
   isoDate,
   type Household,
   type Member,
-} from '../../features/household/model.ts'
+} from '../../../../shared/src/household.ts'
 import { useLanguage } from '../../i18n/language.ts'
 import { Amount } from '../../ui/Amount.tsx'
 import { Button } from '../../ui/Button.tsx'

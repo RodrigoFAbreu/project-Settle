@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
-import { cents } from '../../lib/money.ts'
+import { cents } from '../../../../shared/src/money.ts'
 import {
   billReducer,
   createBill,
   newId,
   type BillAction,
 } from './billReducer.ts'
-import { validateBill, type Bill } from './model.ts'
+import { validateBill, type Bill } from '../../../../shared/src/bill.ts'
 
 function run(bill: Bill, ...actions: BillAction[]): Bill {
   return actions.reduce(billReducer, bill)

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { cents } from '../lib/money.ts'
+import { cents } from '../../../shared/src/money.ts'
 import { Amount } from './Amount.tsx'
 import { MINUS, signedAmount } from './signedAmount.ts'
 

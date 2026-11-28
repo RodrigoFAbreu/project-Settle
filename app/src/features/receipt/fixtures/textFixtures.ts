@@ -5,7 +5,7 @@
  * `.expected.json` is the whole `ParsedReceipt`, with amounts as decimal
  * strings (`"3.20"`) and quantities as decimals (`"0.532"`).
  */
-import type { Cents, Ratio } from '../../../lib/money.ts'
+import type { Cents, Ratio } from '../../../../../shared/src/money.ts'
 import type { ParsedReceipt, ReceiptWarning, TextLine } from '../model.ts'
 
 export interface ExpectedItem {

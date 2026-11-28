@@ -1,6 +1,23 @@
 # Active Milestone
 
-## Last completed: ss-02-store-interface — Put the ledger behind a store interface
+## Last completed: ss-03-shared-domain — Share the domain types and validators in one package
+
+M5.5 slice 3. Behaviour-neutral move of five modules into `shared/` at the
+repository root, imported by relative path (`money`, `bill`, `household`,
+`records`, and the pure readers of the draft). Three checkpoints.
+`app/src/data/sharedBoundary.test.ts` fails if a `shared/src/` file imports
+anything but a relative path inside `shared/src/`. Accepted on 2026-11-27.
+
+- **Verification:** `typecheck`, `lint`, `format:check` pass; full `npm test`
+  passes (100 files, 1697 passed, 1 skipped). The release build and verify
+  scripts pass and the built file list equals the baseline's. Seven functional
+  flows passed. Browser flows were not run by the implementer.
+- **Optional findings:** fourteen, all dropped with reasons (plan wording, stale
+  comment and doc paths, bookkeeping). See
+  `docs/milestones/completed/ss-03-shared-domain-findings.md`.
+- **Plan:** archived at `docs/milestones/completed/ss-03-shared-domain-PLAN.md`.
+
+## Previously completed: ss-02-store-interface — Put the ledger behind a store interface
 
 M5.5 slice 2. Behaviour-neutral refactor, three checkpoints: the ledger sits
 behind `LedgerStore` (`app/src/data/ledgerStore.ts`, IndexedDB binding
@@ -16,7 +33,7 @@ outside `src/data/` imports `repository.ts`. Accepted on 2026-11-26.
   `docs/milestones/completed/ss-02-store-interface-findings.md`.
 - **Plan:** archived at `docs/milestones/completed/ss-02-store-interface-PLAN.md`.
 
-## Previously completed: ss-01-adr — Record the self-hosted storage decisions
+## Earlier: ss-01-adr — Record the self-hosted storage decisions
 
 ADR 0007 (`docs/adr/0007-self-hosted-ledger-store.md`), the first slice of
 **M5.5 Self-hosted central storage** (14 slices, `docs/items/milestone-5-5.md`).
@@ -51,8 +68,8 @@ No app code changes. Accepted on 2026-11-22.
 
 ## Next action
 
-`/milestone-plan` takes the next backlog item: `ss-03-shared-domain` (share the
-domain types and validators in one package). M5.5 is cut into slices (`ss-01` to
+`/milestone-plan` takes the next backlog item: `ss-04-server-skeleton` (add the
+server skeleton with a health endpoint). M5.5 is cut into slices (`ss-01` to
 `ss-14`, `docs/items/milestone-5-5.md`); the Controller takes them in order, each
 is one milestone and one squash PR. `ss-14-deploy-homelab` is homelab-gitops
 work, not a Controller item.
@@ -142,57 +159,62 @@ None.
 
 ## Active plan
 
-None. The last plan, `ss-02-store-interface`'s, is archived at
-`docs/milestones/completed/ss-02-store-interface-PLAN.md`.
+None. The last plan, `ss-03-shared-domain`'s, is archived at
+`docs/milestones/completed/ss-03-shared-domain-PLAN.md`.
 
 ## Functional review checklist
 
-Item `ss-02-store-interface` (behaviour-neutral refactor: the ledger sits
-behind `LedgerStore`; the user sees no change). Automated checks run offline in
-`app/`; the browser flows need a build and Chromium, so a sandbox without them
-reports those flows as not run.
+Item `ss-03-shared-domain` (behaviour-neutral refactor: five modules move into
+`shared/` at the repository root; the user sees no change). Everything below
+except flows 6-7 runs offline, with no network, `gh`, `claude`, `codex` or
+`ssh`, and writes nothing inside the clone (flows 5 and 6 build into a
+throwaway directory).
 
-**Setup:** branch `feature/ss-02-store-interface`, clean tree. In `app/`:
-`npm ci` (once), then `npm run dev` (or `npm run build && npm run preview`)
-for the browser flows. No feature flags.
+**Setup:** branch `feature/ss-03-shared-domain`, clean tree. In `app/`:
+`npm ci` (once). Browser flows (6-7) also need `npm run dev` or
+`npm run build && npm run preview` and Chromium. No feature flags.
 
-**Test data:** a fresh browser profile (no data), and optionally a profile that
-already holds a household with members, a few expenses and one settlement
-(create them in flow 4; reuse them in flow 5 to prove nothing was lost).
+**Test data:** none for flows 1-5. For flows 6-7 a fresh browser profile, and
+optionally one profile created on `main` that holds a household with members,
+expenses and a settlement (to prove nothing was lost).
 
 **Flows**
 
-1. **Automated checks.** In `app/`: `npm run typecheck`, `npm run lint`,
-   `npm run format:check`, `npm test`. Expected: all pass (99 files, 1694
-   tests, 1 skipped).
-2. **The seam holds.** `npx vitest run src/data/seam.test.ts`. Expected: 2
-   tests pass. Then add `import '../../data/repository'` to a non-test file
-   under `src/pages/` and re-run: the test fails naming that file. Revert the
-   change.
-3. **The store is tested through the interface.** `npx vitest run
-   src/data/idbStore.test.ts src/data/activeStore.test.ts`. Expected: pass;
-   the tests call `LedgerStore` methods only, and `activeStore(db)` returns
-   the IndexedDB binding.
-4. **Household flows in the browser (no change from before).** Create a
-   household, add two members, add an expense (quick expense and the full
-   form), edit it, delete it, record a settlement, and view Overview balances.
-   Expected: each step works as on `main`; balances are exact and settling up
-   zeroes them.
-5. **Data persists across reload.** Reload the page, then reopen the household
-   from the list. Expected: members, expenses and settlement are all still
-   there; a profile created on `main` before switching branches also loads.
-6. **Split page and save-to-household.** On the Split page, split a bill and
-   use "save to household". Expected: the expense appears in that household's
-   Expenses.
-7. **Scope.** `git diff f0bccad..HEAD --stat` outside `docs/ai-workflow` and
-   `.ai-review` shows only `app/src/data/`, the provider, `householdData.ts`,
-   the 14 consumers under `app/src/features/household` and `app/src/pages`,
-   `docs/ACTIVE_MILESTONE.md` and the plan.
+1. **Automated checks.** In `app/`: `npm run typecheck` (runs `tsc -b` and
+   `tsc -p ../shared`), `npm run lint`, `npm run format:check`, `npm test`.
+   Expected: all pass; 100 files, 1697 tests passed, 1 skipped.
+2. **Layout.** `ls shared/src` shows `bill.ts draft.ts household.ts money.ts
+   records.ts`. `git diff -M 559631680862076e8e7822ddb363ff1417384d0c..HEAD
+   --stat` shows `money`, `household`, `records` and `bill` as renames and
+   `draft` as a split (pure readers in `shared/src/draft.ts`,
+   `loadDraft`/`saveDraft` left in `app/src/features/split/draft.ts`).
+3. **The boundary guard holds.** `npx vitest run src/data/sharedBoundary.test.ts`
+   in `app/`. Expected: 3 tests pass. Then add `import 'react'` (or a path into
+   `app/`) to a file under `shared/src/` and re-run: the test fails naming
+   that file. Revert the change.
+4. **`shared/` stays free of browser and app code.** Add `document.title;` to a
+   `shared/src` file: `npm run typecheck` fails. Add a `fetch(...)` call:
+   `npm run lint` fails. Revert both.
+5. **Build is unchanged.** From the repo root `scripts/release/build.sh
+   0.0.0-local` then `scripts/release/verify.sh` (or `npm run build` in `app/`
+   and `node scripts/check-build.mjs`). Expected: pass; the file list and
+   sizes equal a build of `main`, only the content hash in the `browserImport`,
+   `index` and `pdf` file names differs.
+6. **Household flows in the browser (no change from before).** Create a
+   household, add two members, add an expense (quick and full form), edit,
+   delete it, record a settlement, view Overview balances. Expected: as on
+   `main`; balances exact, settling up zeroes them. Reload and reopen the
+   household: all data is still there, including a profile made on `main`.
+7. **Split page and draft.** On the Split page enter a bill, reload (the draft
+   restores), then "save to household". Expected: the draft survives the
+   reload and the expense appears in that household's Expenses.
 
 **Known limitations / out of scope:** no server, API, schema or deployment
-change, and no store-selection config (later slices, `ss-03` onward). IndexedDB
-stays the only store. No stored-data change, so no migration. The browser flows
-(4-6) were not run by the implementer.
+change, no store-selection config, and no stored-data change, so no migration
+(the draft storage key and version are unchanged). `shared/` is imported by
+relative path, not as a package. The browser flows (6-7) were not run by the
+implementer (no Chromium in the sandbox); a sandbox without Chromium or
+network reports them as not run.
 
 <!--
 This file is `workflow_state.FUNCTIONAL_CHECKLIST_PATH`. It is

@@ -10,7 +10,7 @@ import {
   sum,
   type Cents,
   type MoneyCurrency,
-} from '../../lib/money.ts'
+} from '../../../../shared/src/money.ts'
 import {
   LIMITS,
   isBillRatio,
@@ -19,7 +19,7 @@ import {
   type Adjustment,
   type Bill,
   type Item,
-} from '../split/model.ts'
+} from '../../../../shared/src/bill.ts'
 import type { FiscalQr } from './fiscalQr.ts'
 import { keyFromQr, keyFromSummary } from './receiptKey.ts'
 import { catalogue } from '../../i18n/t.ts'

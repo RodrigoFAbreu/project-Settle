@@ -3,14 +3,14 @@
  * stored expense, never stored. The shares sum exactly to the expense's
  * amount.
  */
-import { allocate, sum, type Cents } from '../../lib/money.ts'
+import { allocate, sum, type Cents } from '../../../../shared/src/money.ts'
 import { computeSplit } from '../split/split.ts'
 import {
   expenseContentErrors,
   type Expense,
   type ItemisedSplit,
   type QuickSplit,
-} from './model.ts'
+} from '../../../../shared/src/household.ts'
 
 /** FNV-1a over the id's UTF-16 code units: a stable, well-spread hash. */
 export function stableHash(id: string): number {

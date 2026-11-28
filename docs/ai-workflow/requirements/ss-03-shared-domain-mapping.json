@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "work_item_id": "ss-03-shared-domain",
+  "requirements": {
+    "REQ-1": {
+      "description": "A shared/ folder at the repository root holds the money module, the bill model with LIMITS, the saved-bill reader, the household, expense and settlement model and validators, and the record readers; app/ imports them by relative path",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2"
+      ]
+    },
+    "REQ-2": {
+      "description": "shared/ is pure: it imports nothing outside itself (no app/ file, npm package or DOM), enforced by its own typecheck and a guard test; the app's typecheck, lint, format:check, test and build cover it",
+      "checkpoint_ids": [
+        "CP1",
+        "CP3"
+      ]
+    },
+    "REQ-3": {
+      "description": "No behaviour change: the app's tests pass with the same counts and changed import paths only, the moved code is edited only for imports, displayName's translator type and the split of the saved-bill module's localStorage functions back into app/, and the built site and release ZIP contents are the same",
+      "checkpoint_ids": [
+        "CP1",
+        "CP2",
+        "CP3"
+      ]
+    },
+    "REQ-4": {
+      "description": "The packaging choice (a shared/ folder imported by relative path, not an alias or npm workspaces; Node scripts and CI keep working) keeps npm ci, the lockfile, CI, the release build and the container image working; the docs and CI text that mention paths are updated",
+      "checkpoint_ids": [
+        "CP1",
+        "CP3"
+      ]
+    }
+  }
+}

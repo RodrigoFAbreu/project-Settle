@@ -8,14 +8,14 @@ import {
   MissingReferenceError,
 } from '../../../data/ledgerStore.ts'
 import { useLanguage } from '../../../i18n/language.ts'
-import { formatAmount } from '../../../lib/money.ts'
+import { formatAmount } from '../../../../../shared/src/money.ts'
 import { Button } from '../../../ui/Button.tsx'
 import { Dialog } from '../../../ui/Dialog.tsx'
 import { SelectField, TextField } from '../../../ui/Field.tsx'
 import { foldText, receiptKeyForSave } from '../../receipt/receiptKey.ts'
 import type { ReceiptSummary } from '../../receipt/model.ts'
 import { newId } from '../../split/billReducer.ts'
-import { displayName, type Bill } from '../../split/model.ts'
+import { displayName, type Bill } from '../../../../../shared/src/bill.ts'
 import { dateLocale, formatDate } from '../format.ts'
 import { useHouseholdData, useLoaded } from '../householdData.ts'
 import {
@@ -30,7 +30,7 @@ import {
   type Expense,
   type ExpenseReceipt,
   type Member,
-} from '../model.ts'
+} from '../../../../../shared/src/household.ts'
 import { expenseAmount } from '../shares.ts'
 import styles from './SaveToHouseholdDialog.module.css'
 import type { LedgerStore } from '../../../data/ledgerStore.ts'

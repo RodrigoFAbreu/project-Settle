@@ -3,7 +3,7 @@
  * dispatches (see {@link newId}), and never change, so actions stay pure
  * and tests stay deterministic.
  */
-import { cents, type Cents, type Ratio } from '../../lib/money.ts'
+import { cents, type Cents, type Ratio } from '../../../../shared/src/money.ts'
 import {
   LIMITS,
   type Adjustment,
@@ -12,7 +12,7 @@ import {
   type Item,
   type Person,
   type SplitMode,
-} from './model.ts'
+} from '../../../../shared/src/bill.ts'
 
 export type BillAction =
   | { type: 'addItem'; id: string }

@@ -8,7 +8,7 @@ import {
 } from '../../features/household/components/ExpenseRow.tsx'
 import { dateLocale, formatMonth } from '../../features/household/format.ts'
 import { useLoaded } from '../../features/household/householdData.ts'
-import { CATEGORY_IDS, isCategoryId } from '../../features/household/model.ts'
+import { CATEGORY_IDS, isCategoryId } from '../../../../shared/src/household.ts'
 import { SettlementRow } from '../../features/household/components/SettlementRow.tsx'
 import {
   groupEntriesByMonth,
@@ -18,7 +18,7 @@ import {
   type HistoryEntry,
 } from '../../features/household/search.ts'
 import { totalOf } from '../../features/household/totals.ts'
-import { displayName } from '../../features/split/model.ts'
+import { displayName } from '../../../../shared/src/bill.ts'
 import { useLanguage } from '../../i18n/language.ts'
 import { Amount } from '../../ui/Amount.tsx'
 import { Card } from '../../ui/Card.tsx'

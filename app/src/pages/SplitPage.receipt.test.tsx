@@ -12,7 +12,7 @@ import {
 } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { RegionProvider } from '../app/RegionProvider.tsx'
-import { cents } from '../lib/money.ts'
+import { cents } from '../../../shared/src/money.ts'
 import type {
   ImportOptions,
   ImportResult,

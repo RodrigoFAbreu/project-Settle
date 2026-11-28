@@ -5,10 +5,18 @@
  */
 import type { Region } from '../../app/region.ts'
 import type { Translate } from '../../i18n/t.ts'
-import { formatAmount, negate, type Cents } from '../../lib/money.ts'
+import {
+  formatAmount,
+  negate,
+  type Cents,
+} from '../../../../shared/src/money.ts'
 import type { Balances, PaymentOutcome } from './balances.ts'
-import { displayName } from '../split/model.ts'
-import { isIsoDate, type Member, type Settlement } from './model.ts'
+import { displayName } from '../../../../shared/src/bill.ts'
+import {
+  isIsoDate,
+  type Member,
+  type Settlement,
+} from '../../../../shared/src/household.ts'
 
 /**
  * "Gets back", "Owes" or "Settled up". Over incomplete balances a zero

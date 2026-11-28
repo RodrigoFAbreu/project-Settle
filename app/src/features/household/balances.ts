@@ -6,8 +6,12 @@
  * sent, less what they received, in integer cents. Positive: they get
  * money back; negative: they owe. Balances sum to exactly zero.
  */
-import type { Cents } from '../../lib/money.ts'
-import type { Expense, Member, Settlement } from './model.ts'
+import type { Cents } from '../../../../shared/src/money.ts'
+import type {
+  Expense,
+  Member,
+  Settlement,
+} from '../../../../shared/src/household.ts'
 import { expenseShares } from './shares.ts'
 
 /** How many records of each kind couldn't be read (kept, never guessed). */

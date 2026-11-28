@@ -6,7 +6,7 @@ import {
   getExpense,
   saveExpense,
 } from '../../data/repository.ts'
-import { isoDate } from '../../features/household/model.ts'
+import { isoDate } from '../../../../shared/src/household.ts'
 import {
   equalSplit,
   fourMembers,

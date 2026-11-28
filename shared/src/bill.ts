@@ -2,7 +2,6 @@
  * The bill model and its validation. Pure and framework-free: the split
  * engine (split.ts), the bill reducer and the saved draft all build on it.
  */
-import type { Translate } from '../../i18n/t.ts'
 import {
   multiplyRatio,
   parseRatio,
@@ -10,7 +9,7 @@ import {
   sum,
   type Cents,
   type Ratio,
-} from '../../lib/money.ts'
+} from './money.ts'
 
 export interface Person {
   id: string
@@ -306,7 +305,7 @@ export function validateBill(bill: Bill): BillError[] {
 
 /** The name to show for a person: their own, or "Person n" (1-based). */
 export function displayName(
-  t: Translate,
+  t: (key: 'split.people.defaultName', params: { n: number }) => string,
   person: Person,
   index: number,
 ): string {

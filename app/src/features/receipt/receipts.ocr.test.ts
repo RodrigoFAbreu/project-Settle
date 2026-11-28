@@ -9,7 +9,7 @@
 import { readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { cents } from '../../lib/money.ts'
+import { cents } from '../../../../shared/src/money.ts'
 import type { ExpectedReceipt } from './fixtures/textFixtures.ts'
 import {
   inProcessPaddleBackend,

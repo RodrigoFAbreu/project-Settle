@@ -5,7 +5,7 @@
  */
 import type { Region } from '../../app/region.ts'
 import type { Translate } from '../../i18n/t.ts'
-import { formatAmount, negate } from '../../lib/money.ts'
+import { formatAmount, negate } from '../../../../shared/src/money.ts'
 import type { Balances, MemberBalance, SuggestedPayment } from './balances.ts'
 import { futureDatedLine } from './balanceWords.ts'
 

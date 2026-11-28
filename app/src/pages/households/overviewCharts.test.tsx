@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { openDatabase } from '../../data/db.ts'
 import { createHousehold, saveExpense } from '../../data/repository.ts'
 import { formatMonth } from '../../features/household/format.ts'
-import { isoDate, type CategoryId } from '../../features/household/model.ts'
+import { isoDate, type CategoryId } from '../../../../shared/src/household.ts'
 import { shiftMonth } from '../../features/household/totals.ts'
 import { LANGUAGE_STORAGE_KEY } from '../../i18n/language.ts'
 import {

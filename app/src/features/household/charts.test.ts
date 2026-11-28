@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Cents } from '../../lib/money.ts'
+import type { Cents } from '../../../../shared/src/money.ts'
 import {
   CATEGORY_CHART_COLOURS,
   categorySlices,
@@ -10,7 +10,11 @@ import {
   monthlyTotals,
   percentages,
 } from './charts.ts'
-import { CATEGORY_IDS, type CategoryId, type Expense } from './model.ts'
+import {
+  CATEGORY_IDS,
+  type CategoryId,
+  type Expense,
+} from '../../../../shared/src/household.ts'
 import { categoryTotals, inMonth, totalOf } from './totals.ts'
 
 const c = (n: number) => n as Cents

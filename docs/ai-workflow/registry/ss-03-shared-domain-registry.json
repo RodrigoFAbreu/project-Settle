@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "work_item_id": "ss-03-shared-domain",
+  "plan_revision": 5,
+  "checkpoints": [
+    {
+      "id": "CP1",
+      "name": "the shared/ folder, its wiring and the money module",
+      "depends_on": [],
+      "complexity": 2,
+      "session_target": 1
+    },
+    {
+      "id": "CP2",
+      "name": "the bill model, the saved-bill reader, the household model and the readers",
+      "depends_on": [
+        "CP1"
+      ],
+      "complexity": 3,
+      "session_target": 1
+    },
+    {
+      "id": "CP3",
+      "name": "the purity guard, the docs and CI, and the build comparison",
+      "depends_on": [
+        "CP2"
+      ],
+      "complexity": 1,
+      "session_target": 1
+    }
+  ]
+}

@@ -3,7 +3,11 @@
  * receipt into, the interface every reader implements, and the summary the
  * check panel keeps. Pure types, no framework.
  */
-import type { Cents, MoneyCurrency, Ratio } from '../../lib/money.ts'
+import type {
+  Cents,
+  MoneyCurrency,
+  Ratio,
+} from '../../../../shared/src/money.ts'
 
 /** M2.5 plan, P15: where a line is on the decoded pages, in pixels. */
 export interface LineBox {

@@ -23,13 +23,13 @@ import {
   withoutVersion,
 } from '../test/households.ts'
 import { createBill } from '../features/split/billReducer.ts'
-import type { Bill } from '../features/split/model.ts'
+import type { Bill } from '../../../shared/src/bill.ts'
 import {
   RECORD_VERSION,
   type Expense,
   type QuickSplit,
   type Settlement,
-} from '../features/household/model.ts'
+} from '../../../shared/src/household.ts'
 import {
   balances,
   explainBalance,
@@ -42,7 +42,7 @@ import {
   inMonth,
   totalOf,
 } from '../features/household/totals.ts'
-import { cents } from '../lib/money.ts'
+import { cents } from '../../../shared/src/money.ts'
 import {
   MIGRATIONS,
   createSchemaV1,

@@ -8,7 +8,7 @@ import {
   SUPPORTED_CURRENCIES,
   type Cents,
   type MoneyCurrency,
-} from '../../lib/money.ts'
+} from '../../../../shared/src/money.ts'
 import { isReceiptKey } from './receiptKey.ts'
 import type { ReceiptSummary, ReceiptWarning } from './model.ts'
 

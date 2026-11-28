@@ -6,7 +6,7 @@ import {
   SUPPORTED_LOCALES,
   type MoneyCurrency,
   type MoneyLocale,
-} from '../lib/money.ts'
+} from '../../../shared/src/money.ts'
 
 /**
  * How amounts are read and shown: the locale sets the separators, the

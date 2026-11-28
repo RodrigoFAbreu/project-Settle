@@ -5,7 +5,7 @@ import {
   SettlementNotFoundError,
 } from '../../../data/ledgerStore.ts'
 import { useT } from '../../../i18n/language.ts'
-import { parseAmount, type Cents } from '../../../lib/money.ts'
+import { parseAmount, type Cents } from '../../../../../shared/src/money.ts'
 import { Button } from '../../../ui/Button.tsx'
 import { SelectField, TextField } from '../../../ui/Field.tsx'
 import { newId } from '../../split/billReducer.ts'
@@ -13,7 +13,7 @@ import {
   amountInputMessage,
   amountText,
 } from '../../split/components/fields.ts'
-import { displayName } from '../../split/model.ts'
+import { displayName } from '../../../../../shared/src/bill.ts'
 import { paymentOutcome, type LedgerInput } from '../balances.ts'
 import { hasLeft, outcomeLine } from '../balanceWords.ts'
 import { useHouseholdData } from '../householdData.ts'
@@ -25,7 +25,7 @@ import {
   type Member,
   type Settlement,
   type SettlementField,
-} from '../model.ts'
+} from '../../../../../shared/src/household.ts'
 import styles from './QuickExpenseForm.module.css'
 
 /** What Mark as paid fills in: a suggested payment. */

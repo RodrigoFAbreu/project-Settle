@@ -8,7 +8,7 @@
  * that makes the items' sum plus it equal the total, and none otherwise.
  * So a VAT-inclusive receipt's printed tax is a bill tax of none. Pure.
  */
-import { cents, type Cents } from '../../lib/money.ts'
+import { cents, type Cents } from '../../../../shared/src/money.ts'
 import type { ExpectedBill } from './accuracy.ts'
 import type { ExpectedReceipt } from './fixtures/textFixtures.ts'
 import { COMBINATIONS, type AdjustmentName } from './toBill.ts'

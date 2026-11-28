@@ -4,7 +4,7 @@
  * pointing at the manual editor, which is right there.
  */
 import type { MessageKey, Translate } from '../../i18n/t.ts'
-import type { MoneyCurrency } from '../../lib/money.ts'
+import type { MoneyCurrency } from '../../../../shared/src/money.ts'
 import type { PhotoIssue, ReadErrorCode, ReceiptWarning } from './model.ts'
 import type { ReaderSupport } from './readerSupport.ts'
 

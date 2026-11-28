@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { cents, type Cents, type Ratio } from '../../lib/money.ts'
+import { cents, type Cents, type Ratio } from '../../../../shared/src/money.ts'
 import {
   lineTotal,
   toBillRatio,
@@ -9,7 +9,7 @@ import {
   type BillErrorCode,
   type Item,
   type SplitMode,
-} from './model.ts'
+} from '../../../../shared/src/bill.ts'
 import { computeSplit, type SplitResult } from './split.ts'
 
 // Seeded PRNG (mulberry32), as in money.test.ts.

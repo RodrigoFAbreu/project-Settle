@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { cents } from '../../lib/money.ts'
+import { cents } from '../../../../shared/src/money.ts'
 import { createBill } from '../split/billReducer.ts'
 import { scoreImage } from './accuracy.ts'
 import { expectedBillOf } from './expectedBill.ts'

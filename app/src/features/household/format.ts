@@ -1,5 +1,5 @@
 import type { Language } from '../../i18n/t.ts'
-import type { MoneyLocale } from '../../lib/money.ts'
+import type { MoneyLocale } from '../../../../shared/src/money.ts'
 
 /**
  * The locale for dates with month names (M4 plan, H15): they follow the

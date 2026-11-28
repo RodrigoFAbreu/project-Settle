@@ -1,5 +1,5 @@
 import type { Region } from '../app/region.ts'
-import type { Cents } from '../lib/money.ts'
+import type { Cents } from '../../../shared/src/money.ts'
 import { classes } from './classes.ts'
 import { signedAmount, type AmountSign } from './signedAmount.ts'
 

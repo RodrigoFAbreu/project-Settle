@@ -3,8 +3,8 @@
  * household's members.
  */
 import { createBill, newId } from '../split/billReducer.ts'
-import type { Bill } from '../split/model.ts'
-import type { Member } from './model.ts'
+import type { Bill } from '../../../../shared/src/bill.ts'
+import type { Member } from '../../../../shared/src/household.ts'
 
 /**
  * A fresh bill whose people are the household's active members, in order,

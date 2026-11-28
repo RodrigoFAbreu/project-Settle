@@ -12,7 +12,7 @@ import {
   subtract,
   sum,
   type Cents,
-} from '../../lib/money.ts'
+} from '../../../../shared/src/money.ts'
 import {
   adjustmentAmount,
   lineTotal,
@@ -20,7 +20,7 @@ import {
   type Bill,
   type BillError,
   type Person,
-} from './model.ts'
+} from '../../../../shared/src/bill.ts'
 
 /** One line of a person's breakdown. The lines sum to their total. */
 export type BreakdownLine =

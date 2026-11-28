@@ -11,13 +11,13 @@ import {
   subtract,
   sum,
   type Cents,
-} from '../../lib/money.ts'
+} from '../../../../shared/src/money.ts'
 import {
   amountInputMessage,
   amountText,
   ratioText,
 } from '../split/components/fields.ts'
-import { toBillRatio } from '../split/model.ts'
+import { toBillRatio } from '../../../../shared/src/bill.ts'
 import {
   RECORD_VERSION,
   validateExpense,
@@ -27,7 +27,7 @@ import {
   type Member,
   type QuickSplit,
   type QuickSplitKind,
-} from './model.ts'
+} from '../../../../shared/src/household.ts'
 import { expenseShares } from './shares.ts'
 
 export const QUICK_METHODS: readonly QuickSplitKind[] = [

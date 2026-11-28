@@ -10,7 +10,7 @@ import {
 import type { Region } from '../../../app/region.ts'
 import { useT } from '../../../i18n/language.ts'
 import type { Translate } from '../../../i18n/t.ts'
-import { formatAmount } from '../../../lib/money.ts'
+import { formatAmount } from '../../../../../shared/src/money.ts'
 import { Amount } from '../../../ui/Amount.tsx'
 import { Button } from '../../../ui/Button.tsx'
 import { Icon } from '../../../ui/Icon.tsx'
@@ -26,7 +26,7 @@ import {
   type BillError,
   type BillField,
   type Item,
-} from '../model.ts'
+} from '../../../../../shared/src/bill.ts'
 import { fieldError, fieldId, itemName } from './fields.ts'
 import { AmountInput, RatioInput, Stepper, TextInput } from './inputs.tsx'
 import styles from './split.module.css'

@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { translator } from '../../i18n/t.ts'
 import { createBill } from '../split/billReducer.ts'
 import { equalSplit, quickExpense } from '../../test/households.ts'
-import type { Expense } from './model.ts'
+import type { Expense } from '../../../../shared/src/household.ts'
 import { groupByMonth, matchesFilter, searchText } from './search.ts'
 
 const en = translator('en')

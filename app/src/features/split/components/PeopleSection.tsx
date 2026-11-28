@@ -2,7 +2,12 @@ import type { Dispatch, Ref } from 'react'
 import type { Region } from '../../../app/region.ts'
 import { useT } from '../../../i18n/language.ts'
 import { newId, type BillAction } from '../billReducer.ts'
-import { displayName, LIMITS, type Bill, type BillError } from '../model.ts'
+import {
+  displayName,
+  LIMITS,
+  type Bill,
+  type BillError,
+} from '../../../../../shared/src/bill.ts'
 import { fieldError, fieldId } from './fields.ts'
 import { Stepper, TextInput } from './inputs.tsx'
 import styles from './split.module.css'

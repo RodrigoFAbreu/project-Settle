@@ -2,7 +2,7 @@
  * Small pure helpers for the receipt UI (M2 plan, CP4), kept out of the
  * component files so those only export components.
  */
-import type { Adjustment, Bill } from '../split/model.ts'
+import type { Adjustment, Bill } from '../../../../shared/src/bill.ts'
 
 function isNone(adjustment: Adjustment): boolean {
   return adjustment.kind === 'amount'

@@ -7,8 +7,12 @@ import { useMemo, type Ref } from 'react'
 import type { Region } from '../../../app/region.ts'
 import { useT } from '../../../i18n/language.ts'
 import { Icon } from '../../../ui/Icon.tsx'
-import { formatAmount, negate, type Cents } from '../../../lib/money.ts'
-import { LIMITS, type Bill } from '../../split/model.ts'
+import {
+  formatAmount,
+  negate,
+  type Cents,
+} from '../../../../../shared/src/money.ts'
+import { LIMITS, type Bill } from '../../../../../shared/src/bill.ts'
 import splitStyles from '../../split/components/split.module.css'
 import { warningMessage } from '../messages.ts'
 import type {

@@ -3,7 +3,7 @@ import { MemoryRouter } from 'react-router'
 import { describe, expect, it } from 'vitest'
 import { createBill } from '../features/split/billReducer.ts'
 import { saveDraft } from '../features/split/draft.ts'
-import { cents } from '../lib/money.ts'
+import { cents } from '../../../shared/src/money.ts'
 import { HomePage } from './HomePage.tsx'
 
 function renderHome() {

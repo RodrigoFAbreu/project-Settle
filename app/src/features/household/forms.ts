@@ -3,7 +3,7 @@
  * text, from the model's rules.
  */
 import type { Translate } from '../../i18n/t.ts'
-import { HOUSEHOLD_LIMITS } from './model.ts'
+import { HOUSEHOLD_LIMITS } from '../../../../shared/src/household.ts'
 
 /** A name field's error, or `undefined`: 1 to 60 characters once trimmed. */
 export function nameError(t: Translate, value: string): string | undefined {
